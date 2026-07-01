@@ -3,6 +3,7 @@ import type { CommandExecutionResult } from "../commands/commandResult"
 import type { EditorCommand } from "../commands/commandTypes"
 import { createHistoryRecord } from "../history/historyRecorder"
 import { pushHistoryRecord } from "../history/historyStack"
+import { enqueueEditorJob } from "../jobs/jobQueue"
 import type { EditorRuntimeState } from "./editorState"
 
 export interface EditorRuntimeCommandDispatch {
@@ -19,19 +20,26 @@ export function dispatchEditorRuntimeCommand(
   command: EditorCommand,
 ): EditorRuntimeCommandDispatch {
   const commandResult = executeEditorCommand(state, command)
+  const commandState =
+    commandResult.result.status === "queued"
+      ? {
+          ...commandResult.state,
+          jobs: enqueueEditorJob(commandResult.state.jobs, commandResult.result.jobRequest).state,
+        }
+      : commandResult.state
   const record = createHistoryRecord({
     command,
-    documentRevisionAfter: getDocumentRevision(commandResult.state),
+    documentRevisionAfter: getDocumentRevision(commandState),
     documentRevisionBefore: getDocumentRevision(state),
     result: commandResult.result,
     timestamp: Date.now(),
   })
   const nextState = record
     ? {
-        ...commandResult.state,
-        history: pushHistoryRecord(commandResult.state.history, record),
+        ...commandState,
+        history: pushHistoryRecord(commandState.history, record),
       }
-    : commandResult.state
+    : commandState
 
   return {
     commandResult,

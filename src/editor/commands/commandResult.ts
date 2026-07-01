@@ -1,4 +1,5 @@
 import type { CommandChangedArea, EditorCommand, EditorCommandKind } from "./commandTypes"
+import type { EditorJobRequest } from "../jobs/jobTypes"
 
 export type CommandResult =
   | {
@@ -6,6 +7,12 @@ export type CommandResult =
       command: EditorCommandKind
       stateChanged: boolean
       status: "applied"
+    }
+  | {
+      command: EditorCommandKind
+      jobRequest: EditorJobRequest
+      stateChanged: false
+      status: "queued"
     }
   | {
       command: EditorCommandKind
@@ -44,6 +51,18 @@ export function createNoopCommandResult(command: EditorCommandKind, reason: stri
     reason,
     stateChanged: false,
     status: "noop",
+  }
+}
+
+export function createQueuedCommandResult(
+  command: EditorCommandKind,
+  jobRequest: EditorJobRequest,
+): CommandResult {
+  return {
+    command,
+    jobRequest,
+    stateChanged: false,
+    status: "queued",
   }
 }
 

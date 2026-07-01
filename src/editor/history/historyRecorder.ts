@@ -12,16 +12,20 @@ export interface HistoryRecordInput {
 
 function getCommandTargetNodeIds(command: EditorCommand): string[] {
   if (command.kind === "selection.selectNode") return [command.target.nodeId]
+  if (command.kind === "layout.requestLive") return command.target?.nodeIds ?? []
   return []
 }
 
 function getHistoryRecordKind(command: EditorCommand): HistoryRecordKind {
+  if (command.kind === "layout.requestLive") return "layoutRequest"
   if (command.kind === "selection.selectNode") return "selection"
   return "viewport"
 }
 
 function getHistoryRecordLabel(command: EditorCommand): string {
   switch (command.kind) {
+    case "layout.requestLive":
+      return "Request live layout"
     case "selection.selectNode":
       return "Select node"
     case "viewport.setPaperPreset":
@@ -33,6 +37,8 @@ function getHistoryRecordLabel(command: EditorCommand): string {
 
 function getPayloadSummary(command: EditorCommand): string | null {
   switch (command.kind) {
+    case "layout.requestLive":
+      return command.target?.nodeIds?.join(", ") ?? "document"
     case "selection.selectNode":
       return command.target.nodeId
     case "viewport.setPaperPreset":

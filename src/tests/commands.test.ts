@@ -5,6 +5,31 @@ import { executeEditorCommand } from "../editor/commands/commandExecutor"
 import { createInitialEditorState } from "../editor/runtime/editorState"
 
 describe("command foundation", () => {
+  it("queues live layout requests without mutating document state", () => {
+    const state = createInitialEditorState(loadInitialEditorSeed())
+    const result = executeEditorCommand(state, {
+      kind: "layout.requestLive",
+      reason: "scroll-stability-check",
+      source: "system",
+      target: {
+        nodeIds: ["qa-scroll"],
+      },
+    })
+
+    expect(result.result).toMatchObject({
+      command: "layout.requestLive",
+      jobRequest: {
+        dedupeKey: "layout.live:qa-scroll",
+        kind: "layout.live",
+        priority: "visible",
+        requestRevision: state.seed.document.documentVersion,
+      },
+      stateChanged: false,
+      status: "queued",
+    })
+    expect(result.state).toBe(state)
+  })
+
   it("applies selection commands through policy and executor", () => {
     const state = createInitialEditorState(loadInitialEditorSeed())
     const result = executeEditorCommand(state, {
@@ -42,6 +67,14 @@ describe("command foundation", () => {
       },
       source: "toolbar" as const,
     }
+    const invalidLayoutTarget = {
+      kind: "layout.requestLive" as const,
+      reason: "test",
+      source: "system" as const,
+      target: {
+        nodeIds: ["missing-node"],
+      },
+    }
 
     expect(canExecuteCommand(missingNode, state)).toMatchObject({
       allowed: false,
@@ -53,6 +86,10 @@ describe("command foundation", () => {
     })
     expect(executeEditorCommand(state, invalidZoom).result).toMatchObject({
       command: "viewport.setZoom",
+      status: "rejected",
+    })
+    expect(executeEditorCommand(state, invalidLayoutTarget).result).toMatchObject({
+      command: "layout.requestLive",
       status: "rejected",
     })
   })

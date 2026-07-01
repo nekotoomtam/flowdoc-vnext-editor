@@ -1,6 +1,8 @@
 import type { CoreEditorSeed } from "../../core/coreTypes"
 import { createHistoryStackState } from "../history/historyStack"
 import type { HistoryStackState } from "../history/historyTypes"
+import { createJobQueueState } from "../jobs/jobQueue"
+import type { EditorJobQueueState } from "../jobs/jobTypes"
 import {
   createDefaultPaperModel,
   setPaperPreset,
@@ -14,6 +16,7 @@ import { createEditorView, type EditorView } from "./editorView"
 
 export interface EditorRuntimeState {
   history: HistoryStackState
+  jobs: EditorJobQueueState
   paper: PaperModel
   seed: CoreEditorSeed
   selectedNodeId: string
@@ -33,6 +36,7 @@ export function createInitialEditorState(seed: CoreEditorSeed): EditorRuntimeSta
 
   return {
     history: createHistoryStackState(),
+    jobs: createJobQueueState(),
     paper: syncPaperWithViewport(paper, viewport),
     seed,
     selectedNodeId: view.renderableNodeIds[0] ?? view.visibleNodeIds[0] ?? "root",

@@ -24,7 +24,7 @@ export function EditorShell({
   onSelectPaperPreset,
   onSelectPaperZoom,
 }: EditorShellProps) {
-  const { paper, seed, selectedNodeId, selectionReason, view } = editorState
+  const { jobs, paper, seed, selectedNodeId, selectionReason, view } = editorState
   const inspectorFacts = getInspectorFacts(view, selectedNodeId)
   const outlineItems = getOutlineItems(view)
   const renderablePages = projectPreviewPages(view)
@@ -59,6 +59,7 @@ export function EditorShell({
       <StatusBar
         document={seed.document}
         history={editorState.history}
+        jobs={jobs}
         paper={paper}
         previewPageCount={renderablePages.length}
         selectedNodeId={selectedNodeId}

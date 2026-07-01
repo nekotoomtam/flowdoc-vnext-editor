@@ -107,4 +107,30 @@ describe("history foundation", () => {
     expect(rejected.state.history.records).toHaveLength(1)
     expect(rejected.commandResult.result.status).toBe("rejected")
   })
+
+  it("queues runtime job requests without creating history records", () => {
+    const state = createInitialEditorState(loadInitialEditorSeed())
+    const queued = dispatchEditorRuntimeCommand(state, {
+      kind: "layout.requestLive",
+      reason: "scroll-stability-check",
+      source: "system",
+      target: {
+        nodeIds: ["qa-scroll"],
+      },
+    })
+    const deduped = dispatchEditorRuntimeCommand(queued.state, {
+      kind: "layout.requestLive",
+      reason: "scroll-stability-check",
+      source: "system",
+      target: {
+        nodeIds: ["qa-scroll"],
+      },
+    })
+
+    expect(queued.commandResult.result.status).toBe("queued")
+    expect(queued.state.jobs.jobs).toHaveLength(1)
+    expect(queued.state.history.records).toHaveLength(0)
+    expect(deduped.state.jobs.jobs).toHaveLength(1)
+    expect(deduped.state.history.records).toHaveLength(0)
+  })
 })

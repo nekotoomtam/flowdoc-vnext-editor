@@ -25,6 +25,14 @@ export function rejectCommand(reason: string, severity: CommandPolicySeverity = 
 
 export function canExecuteCommand(command: EditorCommand, state: EditorRuntimeState): CommandPolicyResult {
   switch (command.kind) {
+    case "layout.requestLive": {
+      const missingNodeId = command.target?.nodeIds?.find((nodeId) => !state.view.nodeById[nodeId])
+      if (missingNodeId) {
+        return rejectCommand(`Unknown layout target node: ${missingNodeId}`)
+      }
+      return allowCommand()
+    }
+
     case "selection.selectNode":
       if (!state.view.nodeById[command.target.nodeId]) {
         return rejectCommand(`Unknown node: ${command.target.nodeId}`)

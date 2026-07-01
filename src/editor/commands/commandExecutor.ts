@@ -8,6 +8,7 @@ import { canExecuteCommand } from "./commandPolicy"
 import {
   createAppliedCommandResult,
   createNoopCommandResult,
+  createQueuedCommandResult,
   createRejectedCommandResult,
   type CommandExecutionResult,
 } from "./commandResult"
@@ -31,6 +32,24 @@ export function executeEditorCommand(
   }
 
   switch (command.kind) {
+    case "layout.requestLive": {
+      const targetNodeIds = command.target?.nodeIds ?? []
+      const dedupeTarget = targetNodeIds.length > 0 ? targetNodeIds.join(",") : "document"
+
+      return {
+        command,
+        result: createQueuedCommandResult(command.kind, {
+          dedupeKey: `layout.live:${dedupeTarget}`,
+          kind: "layout.live",
+          priority: "visible",
+          reason: command.reason,
+          requestRevision: state.seed.document.documentVersion,
+          target: targetNodeIds.length > 0 ? { nodeIds: targetNodeIds } : undefined,
+        }),
+        state,
+      }
+    }
+
     case "selection.selectNode": {
       if (state.selectedNodeId === command.target.nodeId) {
         return {

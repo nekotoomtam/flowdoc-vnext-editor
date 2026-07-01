@@ -1,6 +1,7 @@
 import type { PaperPreset } from "../paper/paperModel"
 
 export type EditorCommandKind =
+  | "layout.requestLive"
   | "selection.selectNode"
   | "viewport.setZoom"
   | "viewport.setPaperPreset"
@@ -34,8 +35,20 @@ export interface SetPaperPresetCommand extends BaseEditorCommand {
   }
 }
 
-export type EditorCommand = SelectNodeCommand | SetViewportZoomCommand | SetPaperPresetCommand
+export interface RequestLiveLayoutCommand extends BaseEditorCommand {
+  kind: "layout.requestLive"
+  reason: string
+  target?: {
+    nodeIds?: string[]
+  }
+}
 
-export type CommandChangedArea = "paper" | "selection" | "viewport"
+export type EditorCommand =
+  | RequestLiveLayoutCommand
+  | SelectNodeCommand
+  | SetViewportZoomCommand
+  | SetPaperPresetCommand
+
+export type CommandChangedArea = "jobs" | "paper" | "selection" | "viewport"
 
 export type CommandPolicySeverity = "blocked" | "info" | "warning"
