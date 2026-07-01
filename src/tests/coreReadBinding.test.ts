@@ -2,8 +2,71 @@ import { describe, expect, it } from "vitest"
 import {
   CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
   loadReadOnlyCoreSnapshot,
+  loadReadOnlyCoreSnapshotFromPackage,
 } from "../core/coreAdapter"
 import { bindFrontendCoreWorkingSetFromReadResult } from "../editor/coreBinding/workingSetFactory"
+
+function canonicalPackageFixture(documentId = "caller-package"): unknown {
+  return {
+    packageVersion: 2,
+    kind: "document",
+    id: documentId,
+    meta: {
+      title: "Caller Package",
+    },
+    fields: {
+      version: 1,
+      fields: {},
+    },
+    document: {
+      version: 3,
+      document: {
+        id: documentId,
+        meta: {
+          title: "Caller Package",
+        },
+        sections: [
+          {
+            id: "section-main",
+            type: "section",
+            page: {
+              size: "A4",
+              orientation: "portrait",
+              margin: {
+                top: { value: 20, unit: "mm" },
+                right: { value: 20, unit: "mm" },
+                bottom: { value: 20, unit: "mm" },
+                left: { value: 20, unit: "mm" },
+              },
+            },
+            zoneIds: ["zone-body"],
+            nodes: {
+              "zone-body": {
+                id: "zone-body",
+                type: "zone",
+                role: "body",
+                childIds: ["body-text"],
+              },
+              "body-text": {
+                id: "body-text",
+                type: "text-block",
+                role: { role: "paragraph" },
+                props: {},
+                children: [
+                  {
+                    id: "body-run",
+                    type: "text",
+                    text: "Caller package body",
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+  }
+}
 
 describe("real core read binding contract", () => {
   it("binds the public core runtime fixture through the adapter boundary", () => {
@@ -40,6 +103,108 @@ describe("real core read binding contract", () => {
     expect(binding.workingSet?.renderProjection).toMatchObject({
       documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
       sourceRevision: 3,
+    })
+  })
+
+  it("binds caller-supplied canonical package input through the adapter boundary", () => {
+    const packageFixture = canonicalPackageFixture()
+    const readResult = loadReadOnlyCoreSnapshotFromPackage(packageFixture, {
+      baseRevision: 3,
+      createdAt: 100,
+      documentId: "caller-package",
+    })
+    const binding = bindFrontendCoreWorkingSetFromReadResult(readResult)
+
+    expect(readResult.request).toMatchObject({
+      baseRevision: 3,
+      documentId: "caller-package",
+      requireDiagnostics: true,
+      requireRenderProjection: true,
+      sourceKind: "api",
+    })
+    expect(readResult.envelope).toMatchObject({
+      baseRevision: 3,
+      coreRevision: "api:caller-package:3",
+      documentId: "caller-package",
+      documentRevision: 3,
+      failures: [],
+      snapshotRevision: 3,
+      sourceKind: "api",
+      status: "fresh",
+    })
+    expect(binding.status).toBe("bound")
+    expect(binding.workingSet?.document).toMatchObject({
+      id: "caller-package",
+      title: "Caller Package",
+    })
+    expect(binding.workingSet?.readModel.nodeById["body-text"]).toMatchObject({
+      label: "Caller package body",
+      parentId: "zone-body",
+      type: "text-block",
+    })
+    expect(binding.workingSet?.renderProjection).toMatchObject({
+      documentId: "caller-package",
+      sourceRevision: 3,
+    })
+  })
+
+  it("blocks invalid caller-supplied package input before working set creation", () => {
+    const readResult = loadReadOnlyCoreSnapshotFromPackage({
+      document: {
+        id: "broken-package",
+      },
+      packageVersion: 2,
+    }, {
+      documentId: "broken-package",
+    })
+    const binding = bindFrontendCoreWorkingSetFromReadResult(readResult)
+
+    expect(readResult.envelope).toMatchObject({
+      coreRevision: null,
+      documentId: "broken-package",
+      documentRevision: null,
+      snapshotRevision: null,
+      sourceKind: "api",
+      status: "blocked",
+    })
+    expect(readResult.envelope.failures).toEqual([
+      expect.objectContaining({
+        code: "invalid-envelope",
+        documentId: "broken-package",
+      }),
+    ])
+    expect(binding).toMatchObject({
+      status: "blocked",
+      workingSet: null,
+    })
+  })
+
+  it("blocks caller-supplied package input for a different document", () => {
+    const readResult = loadReadOnlyCoreSnapshotFromPackage(
+      canonicalPackageFixture("returned-document"),
+      {
+        baseRevision: 3,
+        documentId: "requested-document",
+      },
+    )
+    const binding = bindFrontendCoreWorkingSetFromReadResult(readResult)
+
+    expect(readResult.envelope).toMatchObject({
+      documentId: "requested-document",
+      documentRevision: 3,
+      sourceKind: "api",
+      status: "blocked",
+    })
+    expect(readResult.envelope.failures).toEqual([
+      expect.objectContaining({
+        code: "document-mismatch",
+        documentId: "returned-document",
+        expectedDocumentId: "requested-document",
+      }),
+    ])
+    expect(binding).toMatchObject({
+      status: "blocked",
+      workingSet: null,
     })
   })
 

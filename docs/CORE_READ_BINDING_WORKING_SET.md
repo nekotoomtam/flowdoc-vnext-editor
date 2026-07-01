@@ -116,6 +116,12 @@ The first concrete binding uses the public `@flowdoc/vnext-core`
 and maps that runtime session into adapter-safe editor seed data. This path is
 read-only and does not use the heavier editor bridge pagination runtime.
 
+The adapter may also accept a caller-supplied canonical package value through
+`loadReadOnlyCoreSnapshotFromPackage(...)`. That function is still part of the
+read-only binding phase: it parses the package through the public core runtime
+session entrypoint, returns an adapter request/result envelope, and blocks
+invalid, stale, or document-mismatched input before a working set is created.
+
 Required request facts:
 
 ```txt
@@ -297,6 +303,7 @@ Allowed now:
 ```txt
 bind read-only core snapshots into FrontendCoreWorkingSet
 bind adapter request/result envelopes before working set creation
+bind caller-supplied canonical package input through the read-only adapter
 derive normalized read model
 derive command capability mirror
 derive render projection summary
@@ -369,6 +376,8 @@ renderProjection sourceRevision
 renderProjection documentId
 revision/sourceRevision/documentId stale guard
 read result fresh/stale/document mismatch/missing projection behavior
+caller-supplied canonical package input behavior
+invalid caller-supplied package input behavior
 no direct core source import
 no direct package import outside src/core
 ```

@@ -226,6 +226,17 @@ export interface LoadReadOnlyCoreSnapshotOptions {
   sourceKind?: CoreAdapterSnapshotSourceKind
 }
 
+export interface LoadReadOnlyCoreSnapshotFromPackageOptions {
+  baseRevision?: number | null
+  createdAt?: number
+  documentId: string
+  requireDiagnostics?: boolean
+  requireRenderProjection?: boolean
+  simulateMissingDiagnostics?: boolean
+  simulateMissingRenderProjection?: boolean
+  sourceKind?: CoreAdapterSnapshotSourceKind
+}
+
 export interface LoadInitialCoreSnapshotOptions {
   createdAt?: number
 }
@@ -236,20 +247,39 @@ function createCoreReadFailure(
   return { ...failure }
 }
 
-function createCoreFixtureEditorSeed(): CoreEditorSeed | CoreReadBindingFailure {
-  const result = safeCreateVNextRuntimeSession(productReportMinimalFixture, {
-    source: "fixture",
+function corePackageIssueMessage(
+  issues: Array<{ message: string; path: string }>,
+): string {
+  return issues.map((issue) => `[${issue.path}] ${issue.message}`).join("; ")
+}
+
+function createCoreEditorSeedFromPackage(
+  packageValue: unknown,
+  options: {
+    documentId: string
+    source: "canonical-vnext-package" | "fixture"
+  },
+): CoreEditorSeed | CoreReadBindingFailure {
+  const result = safeCreateVNextRuntimeSession(packageValue, {
+    source: options.source,
   })
 
   if (!result.ok) {
     return createCoreReadFailure({
       code: "invalid-envelope",
-      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
-      message: result.issues.map((issue) => `[${issue.path}] ${issue.message}`).join("; "),
+      documentId: options.documentId,
+      message: corePackageIssueMessage(result.issues),
     })
   }
 
   return createCoreRuntimeEditorSeed(result.session)
+}
+
+function createCoreFixtureEditorSeed(): CoreEditorSeed | CoreReadBindingFailure {
+  return createCoreEditorSeedFromPackage(productReportMinimalFixture, {
+    documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+    source: "fixture",
+  })
 }
 
 function createReadRequest(options: LoadReadOnlyCoreSnapshotOptions = {}): CoreAdapterReadRequest {
@@ -281,60 +311,38 @@ function createReadResultEnvelope(
   }
 }
 
-export function loadReadOnlyCoreSnapshot(
-  options: LoadReadOnlyCoreSnapshotOptions = {},
+function createBlockedReadResult(
+  request: CoreAdapterReadRequest,
+  failures: CoreReadBindingFailure[],
 ): CoreAdapterReadResult {
-  const request = createReadRequest(options)
-  const fixtureSource = options.fixtureSource ?? "frontend-placeholder"
+  return {
+    envelope: createReadResultEnvelope(request, null, failures),
+    request,
+    snapshot: null,
+  }
+}
 
-  if (options.simulateCoreUnavailable) {
-    const failures = [
-      createCoreReadFailure({
-        code: "core-unavailable",
-        documentId: request.documentId,
-        message: "The read-only core snapshot is unavailable.",
-      }),
-    ]
+function createCoreRevision(
+  request: CoreAdapterReadRequest,
+  seed: CoreEditorSeed,
+): string {
+  const documentRevision = seed.document.documentVersion
 
-    return {
-      envelope: createReadResultEnvelope(request, null, failures),
-      request,
-      snapshot: null,
-    }
+  if (request.sourceKind === "fixture") {
+    return `fixture:${documentRevision}`
   }
 
-  if (options.simulateInvalidEnvelope) {
-    const failures = [
-      createCoreReadFailure({
-        code: "invalid-envelope",
-        documentId: request.documentId,
-        message: "The read-only core result envelope is invalid.",
-      }),
-    ]
+  return `${request.sourceKind}:${seed.document.id}:${documentRevision}`
+}
 
-    return {
-      envelope: createReadResultEnvelope(request, null, failures),
-      request,
-      snapshot: null,
-    }
-  }
-
-  const seedOrFailure = fixtureSource === "core-product-report-minimal"
-    ? createCoreFixtureEditorSeed()
-    : createFixtureEditorSeed({
-        documentId: options.fixtureDocumentId ?? request.documentId,
-      })
-  if ("code" in seedOrFailure) {
-    const failures = [seedOrFailure]
-
-    return {
-      envelope: createReadResultEnvelope(request, null, failures),
-      request,
-      snapshot: null,
-    }
-  }
-
-  const seed = seedOrFailure
+function createReadResultFromSeed(
+  request: CoreAdapterReadRequest,
+  seed: CoreEditorSeed,
+  options: Pick<
+    LoadReadOnlyCoreSnapshotOptions,
+    "simulateMissingDiagnostics" | "simulateMissingRenderProjection"
+  > = {},
+): CoreAdapterReadResult {
   const documentRevision = seed.document.documentVersion
   const failures: CoreReadBindingFailure[] = []
 
@@ -386,7 +394,7 @@ export function loadReadOnlyCoreSnapshot(
       : "fresh"
 
   const snapshot: CoreAdapterSnapshot = {
-    coreRevision: `fixture:${documentRevision}`,
+    coreRevision: createCoreRevision(request, seed),
     createdAt: request.requestedAt,
     failures: cloneCoreReadBindingFailures(failures),
     layoutGeneration: null,
@@ -404,6 +412,74 @@ export function loadReadOnlyCoreSnapshot(
     request,
     snapshot,
   }
+}
+
+export function loadReadOnlyCoreSnapshot(
+  options: LoadReadOnlyCoreSnapshotOptions = {},
+): CoreAdapterReadResult {
+  const request = createReadRequest(options)
+  const fixtureSource = options.fixtureSource ?? "frontend-placeholder"
+
+  if (options.simulateCoreUnavailable) {
+    const failures = [
+      createCoreReadFailure({
+        code: "core-unavailable",
+        documentId: request.documentId,
+        message: "The read-only core snapshot is unavailable.",
+      }),
+    ]
+
+    return createBlockedReadResult(request, failures)
+  }
+
+  if (options.simulateInvalidEnvelope) {
+    const failures = [
+      createCoreReadFailure({
+        code: "invalid-envelope",
+        documentId: request.documentId,
+        message: "The read-only core result envelope is invalid.",
+      }),
+    ]
+
+    return createBlockedReadResult(request, failures)
+  }
+
+  const seedOrFailure = fixtureSource === "core-product-report-minimal"
+    ? createCoreFixtureEditorSeed()
+    : createFixtureEditorSeed({
+        documentId: options.fixtureDocumentId ?? request.documentId,
+      })
+  if ("code" in seedOrFailure) {
+    return createBlockedReadResult(request, [seedOrFailure])
+  }
+
+  return createReadResultFromSeed(request, seedOrFailure, {
+    simulateMissingDiagnostics: options.simulateMissingDiagnostics,
+    simulateMissingRenderProjection: options.simulateMissingRenderProjection,
+  })
+}
+
+export function loadReadOnlyCoreSnapshotFromPackage(
+  packageValue: unknown,
+  options: LoadReadOnlyCoreSnapshotFromPackageOptions,
+): CoreAdapterReadResult {
+  const request = createReadRequest({
+    ...options,
+    sourceKind: options.sourceKind ?? "api",
+  })
+  const seedOrFailure = createCoreEditorSeedFromPackage(packageValue, {
+    documentId: request.documentId,
+    source: request.sourceKind === "fixture" ? "fixture" : "canonical-vnext-package",
+  })
+
+  if ("code" in seedOrFailure) {
+    return createBlockedReadResult(request, [seedOrFailure])
+  }
+
+  return createReadResultFromSeed(request, seedOrFailure, {
+    simulateMissingDiagnostics: options.simulateMissingDiagnostics,
+    simulateMissingRenderProjection: options.simulateMissingRenderProjection,
+  })
 }
 
 export function loadInitialCoreSnapshot(
