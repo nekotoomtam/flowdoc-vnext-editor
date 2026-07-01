@@ -1,0 +1,32 @@
+{
+  "name": "flowdoc-vnext-editor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Product editor frontend for FlowDoc vNext.",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4001 --strictPort",
+    "build": "vite build",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run type-check && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@flowdoc/vnext-core": "file:../flowdoc-vnext-core",
+    "lucide-react": "^1.22.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.2",
+    "vitest": "^4.1.9"
+  }
+}
