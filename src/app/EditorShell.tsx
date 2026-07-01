@@ -5,6 +5,7 @@ import { CanvasSurface } from "../components/canvas/CanvasSurface"
 import { DiagnosticsPanel } from "../components/diagnostics/DiagnosticsPanel"
 import { InspectorPanel } from "../components/inspector/InspectorPanel"
 import { OutlinePanel } from "../components/outline/OutlinePanel"
+import type { EditorCommandSource } from "../editor/commands/commandTypes"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import { projectPreviewPages } from "../editor/render/renderProjector"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
@@ -12,7 +13,7 @@ import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView
 
 export interface EditorShellProps {
   editorState: EditorRuntimeState
-  onSelectNode: (nodeId: string) => void
+  onSelectNode: (nodeId: string, source: EditorCommandSource) => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
 }

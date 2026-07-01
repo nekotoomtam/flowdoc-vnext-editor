@@ -7,7 +7,7 @@ import type { RenderPageSummary } from "../../editor/render/renderTypes"
 
 export interface CanvasSurfaceProps {
   document: CoreEditorDocumentSummary
-  onSelectNode: (nodeId: string) => void
+  onSelectNode: (nodeId: string, source: "canvas") => void
   pages: RenderPageSummary[]
   paper: PaperModel
   selectedNodeId: string

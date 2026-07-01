@@ -1,0 +1,85 @@
+import {
+  selectEditorNode,
+  selectPaperPreset,
+  selectPaperZoom,
+  type EditorRuntimeState,
+} from "../runtime/editorState"
+import { canExecuteCommand } from "./commandPolicy"
+import {
+  createAppliedCommandResult,
+  createNoopCommandResult,
+  createRejectedCommandResult,
+  type CommandExecutionResult,
+} from "./commandResult"
+import type { EditorCommand } from "./commandTypes"
+
+function isSameState(left: EditorRuntimeState, right: EditorRuntimeState): boolean {
+  return left === right
+}
+
+export function executeEditorCommand(
+  state: EditorRuntimeState,
+  command: EditorCommand,
+): CommandExecutionResult<EditorRuntimeState> {
+  const policy = canExecuteCommand(command, state)
+  if (!policy.allowed) {
+    return {
+      command,
+      result: createRejectedCommandResult(command.kind, policy.reason ?? "Command rejected"),
+      state,
+    }
+  }
+
+  switch (command.kind) {
+    case "selection.selectNode": {
+      if (state.selectedNodeId === command.target.nodeId) {
+        return {
+          command,
+          result: createNoopCommandResult(command.kind, "Node is already selected"),
+          state,
+        }
+      }
+
+      const nextState = selectEditorNode(state, command.target.nodeId, command.reason)
+      return {
+        command,
+        result: createAppliedCommandResult(command.kind, ["selection"]),
+        state: nextState,
+      }
+    }
+
+    case "viewport.setPaperPreset": {
+      if (state.paper.preset === command.payload.preset) {
+        return {
+          command,
+          result: createNoopCommandResult(command.kind, "Paper preset is already active"),
+          state,
+        }
+      }
+
+      const nextState = selectPaperPreset(state, command.payload.preset)
+      return {
+        command,
+        result: createAppliedCommandResult(command.kind, ["paper"]),
+        state: nextState,
+      }
+    }
+
+    case "viewport.setZoom": {
+      const nextState = selectPaperZoom(state, command.payload.zoom)
+      if (isSameState(nextState, state) || nextState.viewport.zoom === state.viewport.zoom) {
+        return {
+          command,
+          result: createNoopCommandResult(command.kind, "Zoom is already active"),
+          state,
+        }
+      }
+
+      return {
+        command,
+        result: createAppliedCommandResult(command.kind, ["viewport", "paper"]),
+        state: nextState,
+      }
+    }
+  }
+}

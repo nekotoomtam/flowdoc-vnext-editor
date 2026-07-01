@@ -4,7 +4,7 @@ import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderNodeSummary, RenderPageSummary } from "../../editor/render/renderTypes"
 
 export interface PaperPageProps {
-  onSelectNode: (nodeId: string) => void
+  onSelectNode: (nodeId: string, source: "canvas") => void
   page: RenderPageSummary
   pageCount: number
   paper: PaperModel
@@ -74,7 +74,7 @@ export function PaperPage({
               data-node-id={node.id}
               data-selected={node.id === selectedNodeId ? "true" : "false"}
               key={node.id}
-              onClick={() => onSelectNode(node.id)}
+              onClick={() => onSelectNode(node.id, "canvas")}
               type="button"
             >
               <span className="paper-block-meta">{getBlockPreview(node)}</span>

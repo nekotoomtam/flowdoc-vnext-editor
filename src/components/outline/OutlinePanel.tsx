@@ -2,7 +2,7 @@ import type { EditorOutlineItem } from "../../editor/runtime/editorView"
 
 export interface OutlinePanelProps {
   items: EditorOutlineItem[]
-  onSelectNode: (nodeId: string) => void
+  onSelectNode: (nodeId: string, source: "outline") => void
   selectedNodeId: string
 }
 
@@ -17,7 +17,7 @@ export function OutlinePanel({ items, onSelectNode, selectedNodeId }: OutlinePan
             data-node-id={item.id}
             data-selected={item.id === selectedNodeId ? "true" : "false"}
             key={item.id}
-            onClick={() => onSelectNode(item.id)}
+            onClick={() => onSelectNode(item.id, "outline")}
             style={{ paddingInlineStart: `${12 + item.depth * 14}px` }}
             type="button"
           >

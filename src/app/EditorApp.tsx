@@ -2,27 +2,47 @@ import { useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
 import { loadInitialEditorSeed } from "../core/coreAdapter"
 import type { PaperPreset } from "../editor/paper/paperModel"
-import {
-  createInitialEditorState,
-  selectEditorNode,
-  selectPaperPreset,
-  selectPaperZoom,
-} from "../editor/runtime/editorState"
+import { executeEditorCommand } from "../editor/commands/commandExecutor"
+import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
+import { createInitialEditorState } from "../editor/runtime/editorState"
 
 export function EditorApp() {
   const initialState = useMemo(() => createInitialEditorState(loadInitialEditorSeed()), [])
   const [editorState, setEditorState] = useState(initialState)
 
-  function handleSelectNode(nodeId: string) {
-    setEditorState((currentState) => selectEditorNode(currentState, nodeId, "user-select"))
+  function dispatchEditorCommand(command: EditorCommand) {
+    setEditorState((currentState) => executeEditorCommand(currentState, command).state)
+  }
+
+  function handleSelectNode(nodeId: string, source: EditorCommandSource) {
+    dispatchEditorCommand({
+      kind: "selection.selectNode",
+      reason: `${source}-select`,
+      source,
+      target: {
+        nodeId,
+      },
+    })
   }
 
   function handleSelectPaperPreset(preset: PaperPreset) {
-    setEditorState((currentState) => selectPaperPreset(currentState, preset))
+    dispatchEditorCommand({
+      kind: "viewport.setPaperPreset",
+      payload: {
+        preset,
+      },
+      source: "toolbar",
+    })
   }
 
   function handleSelectPaperZoom(zoom: number) {
-    setEditorState((currentState) => selectPaperZoom(currentState, zoom))
+    dispatchEditorCommand({
+      kind: "viewport.setZoom",
+      payload: {
+        zoom,
+      },
+      source: "toolbar",
+    })
   }
 
   return (
