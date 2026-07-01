@@ -1,3 +1,5 @@
+import { clampViewportZoom, VIEWPORT_ZOOM_DEFAULT } from "../viewport/zoomPolicy"
+
 export type PaperPreset = "A4" | "Letter"
 
 export const PAPER_PRESET_DIMENSIONS: Record<
@@ -34,10 +36,10 @@ export interface PaperModel {
 }
 
 export function clampPaperZoom(zoom: number): number {
-  return Math.min(1.25, Math.max(0.5, Number(zoom.toFixed(2))))
+  return clampViewportZoom(zoom)
 }
 
-export function createPaperModel(preset: PaperPreset, zoom = 0.85): PaperModel {
+export function createPaperModel(preset: PaperPreset, zoom = VIEWPORT_ZOOM_DEFAULT): PaperModel {
   const dimensions = PAPER_PRESET_DIMENSIONS[preset]
 
   return {

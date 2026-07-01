@@ -1,11 +1,17 @@
-export interface ScrollAnchor {
-  nodeId: string
-  reason: string
-}
+import type { ViewportAnchor, ViewportAnchorAlign, ViewportAnchorKind } from "./viewportTypes"
 
-export function createScrollAnchor(nodeId: string, reason: string): ScrollAnchor {
+export function createScrollAnchor(
+  targetId: string,
+  reason: string,
+  kind: ViewportAnchorKind = "node",
+  align: ViewportAnchorAlign = "center",
+): ViewportAnchor {
   return {
-    nodeId,
+    align,
+    id: `manual-anchor-${kind}-${targetId}`,
+    kind,
+    offset: 0,
     reason,
+    targetId,
   }
 }

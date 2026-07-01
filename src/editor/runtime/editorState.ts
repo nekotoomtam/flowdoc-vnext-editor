@@ -6,6 +6,8 @@ import {
   type PaperModel,
   type PaperPreset,
 } from "../paper/paperModel"
+import { applyViewportAction } from "../viewport/viewportActions"
+import { createViewportState, type ViewportState } from "../viewport/viewportState"
 import { createEditorView, type EditorView } from "./editorView"
 
 export interface EditorRuntimeState {
@@ -13,17 +15,25 @@ export interface EditorRuntimeState {
   seed: CoreEditorSeed
   selectedNodeId: string
   selectionReason: string
+  viewport: ViewportState
   view: EditorView
+}
+
+function syncPaperWithViewport(paper: PaperModel, viewport: ViewportState): PaperModel {
+  return setPaperZoom(paper, viewport.zoom)
 }
 
 export function createInitialEditorState(seed: CoreEditorSeed): EditorRuntimeState {
   const view = createEditorView(seed)
+  const paper = createDefaultPaperModel()
+  const viewport = createViewportState(paper.zoom)
 
   return {
-    paper: createDefaultPaperModel(),
+    paper: syncPaperWithViewport(paper, viewport),
     seed,
     selectedNodeId: view.renderableNodeIds[0] ?? view.visibleNodeIds[0] ?? "root",
     selectionReason: "boot",
+    viewport,
     view,
   }
 }
@@ -43,15 +53,23 @@ export function selectEditorNode(
 }
 
 export function selectPaperPreset(state: EditorRuntimeState, preset: PaperPreset): EditorRuntimeState {
+  const paper = setPaperPreset(state.paper, preset)
+
   return {
     ...state,
-    paper: setPaperPreset(state.paper, preset),
+    paper: syncPaperWithViewport(paper, state.viewport),
   }
 }
 
 export function selectPaperZoom(state: EditorRuntimeState, zoom: number): EditorRuntimeState {
+  const viewport = applyViewportAction(state.viewport, {
+    kind: "viewport.setZoom",
+    zoom,
+  })
+
   return {
     ...state,
-    paper: setPaperZoom(state.paper, zoom),
+    paper: syncPaperWithViewport(state.paper, viewport),
+    viewport,
   }
 }
