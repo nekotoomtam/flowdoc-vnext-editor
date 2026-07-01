@@ -1,6 +1,6 @@
 # Phase 0 Handoff
 
-Status: ready for Codex implementation.
+Status: accepted Phase 0 baseline and completed scaffold handoff.
 
 ## Purpose
 
@@ -52,6 +52,12 @@ docs/PRODUCT_EDITOR_PLAN.md
 ```
 
 If any of these documents are missing, create them first from the accepted plan before continuing implementation.
+
+For the active read-only core binding phase, also read:
+
+```txt
+docs/CORE_READ_BINDING_WORKING_SET.md
+```
 
 ## Phase Scope
 

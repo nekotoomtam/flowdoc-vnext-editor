@@ -1,6 +1,6 @@
 # Product Editor Plan
 
-Status: proposed phase plan for the FlowDoc vNext product editor frontend.
+Status: accepted phase plan for the FlowDoc vNext product editor frontend.
 
 ## Purpose
 
@@ -125,6 +125,12 @@ Runtime ownership is defined in:
 docs/RUNTIME_OWNERSHIP.md
 ```
 
+The active read-only core binding working set contract is defined in:
+
+```txt
+docs/CORE_READ_BINDING_WORKING_SET.md
+```
+
 ## Target UX Shell
 
 The first real editor shell should be structured as:
@@ -153,6 +159,7 @@ This shell is only the visual frame. The runtime architecture is more important 
 Phase 0: Repo + Boundary Docs
 Phase 1: New Editor Entry
 Phase 1.5: Core Adapter + Normalized Editor View
+Phase 1.6: Core Read Binding Working Set
 Phase 2: Real Paper
 Phase 3: Stable Canvas Viewport
 Phase 4: Render Partition + Runtime Ownership
@@ -388,6 +395,49 @@ no WYSIWYG
 no paper geometry
 no virtualization
 no backend integration
+```
+
+---
+
+# Phase 1.6: Core Read Binding Working Set
+
+## Goal
+
+Bind adapter-safe core read data into one runtime working set before adding new
+features.
+
+## Scope
+
+```txt
+FrontendCoreWorkingSet
+core snapshot envelope
+normalized read model
+capability mirror
+render projection summary
+diagnostics summary
+revision/sourceRevision stale guards
+runtime apply gates for derived results
+boundary tests for direct core source imports
+```
+
+## Gate
+
+```txt
+envelope/readModel/capabilities/renderProjection share source revision
+stale baseRevision/sourceRevision results are blocked
+no direct @flowdoc/vnext-core import outside src/core/
+no direct ../flowdoc-vnext-core/src/** import anywhere in src/
+working set does not own selection/viewport/draft/DOM state
+```
+
+## Intentionally Not Changed
+
+```txt
+no real mutation
+no WYSIWYG
+no contenteditable
+no backend/API transport
+no exact layout/export implementation
 ```
 
 ---

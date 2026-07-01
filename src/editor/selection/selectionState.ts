@@ -1,11 +1,22 @@
 export interface SelectionState {
-  nodeId: string | null
-  reason: string
+  selectedNodeId: string | null
+  selectionReason: string
 }
 
-export function createSelectionState(nodeId: string | null = null): SelectionState {
+export function createSelectionState(
+  selectedNodeId: string | null = null,
+  selectionReason = selectedNodeId ? "selected" : "none",
+): SelectionState {
   return {
-    nodeId,
-    reason: nodeId ? "selected" : "none",
+    selectedNodeId,
+    selectionReason,
+  }
+}
+
+export function selectNode(selection: SelectionState, nodeId: string, reason: string): SelectionState {
+  return {
+    ...selection,
+    selectedNodeId: nodeId,
+    selectionReason: reason,
   }
 }

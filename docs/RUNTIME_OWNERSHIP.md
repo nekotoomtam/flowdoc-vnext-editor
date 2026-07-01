@@ -22,6 +22,9 @@ The accepted direction is:
 coreAdapter
   -> boundary to @flowdoc/vnext-core
 
+coreBinding
+  -> read-only working set, envelope, read model, capabilities, render projection summaries
+
 editorView
   -> normalized lookup-first editor view
 
@@ -209,6 +212,53 @@ Rules:
 Only src/core/* may import @flowdoc/vnext-core.
 UI components must not import @flowdoc/vnext-core directly.
 Core adapter should expose editor-safe functions, not raw unlimited core access.
+```
+
+## Core Binding Ownership
+
+Recommended files:
+
+```txt
+src/editor/coreBinding/coreEnvelope.ts
+src/editor/coreBinding/readModel.ts
+src/editor/coreBinding/capabilityMirror.ts
+src/editor/coreBinding/renderProjectionSummary.ts
+src/editor/coreBinding/revisionGuards.ts
+src/editor/coreBinding/workingSetFactory.ts
+src/editor/coreBinding/workingSetTypes.ts
+```
+
+Owns:
+
+```txt
+FrontendCoreWorkingSet
+core snapshot envelope
+read model construction from adapter-safe seed
+command capability mirror from read model
+render projection summary metadata
+revision/sourceRevision stale guards
+```
+
+Must not own:
+
+```txt
+canonical package object
+React rendering
+DOM state
+selection state
+viewport state
+draft buffer
+mutation queue execution
+backend request/session state
+artifact bytes
+```
+
+Rules:
+
+```txt
+working set is read-only core-derived runtime projection
+all derived caches must be revision-aligned
+stale derived results must be blocked before applying
 ```
 
 ## Editor View Ownership

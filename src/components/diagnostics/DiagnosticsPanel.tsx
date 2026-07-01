@@ -1,13 +1,14 @@
 import type { CoreDiagnosticsSummary } from "../../core/coreTypes"
 import type { EditorView } from "../../editor/runtime/editorView"
+import type { SelectionState } from "../../editor/selection/selectionState"
 
 export interface DiagnosticsPanelProps {
   diagnostics: CoreDiagnosticsSummary
-  selectionReason: string
+  selection: SelectionState
   view: EditorView
 }
 
-export function DiagnosticsPanel({ diagnostics, selectionReason, view }: DiagnosticsPanelProps) {
+export function DiagnosticsPanel({ diagnostics, selection, view }: DiagnosticsPanelProps) {
   const diagnosticRows = [
     {
       label: "Generation",
@@ -45,7 +46,7 @@ export function DiagnosticsPanel({ diagnostics, selectionReason, view }: Diagnos
         </div>
         <div>
           <dt>Selection</dt>
-          <dd>{selectionReason}</dd>
+          <dd>{selection.selectionReason}</dd>
         </div>
         <div>
           <dt>Visible nodes</dt>

@@ -19,7 +19,8 @@ describe("runtime working set binding", () => {
     expect(state.seed.document).toEqual(workingSet.document)
     expect(state.seed.diagnostics).toEqual(workingSet.diagnostics)
     expect(state.seed.nodes.map((node) => node.id)).toEqual(workingSet.readModel.nodeOrder)
-    expect(state.selectedNodeId).toBe("report-title")
+    expect(state.selection.selectedNodeId).toBe("report-title")
+    expect(state.selection.selectionReason).toBe("boot")
   })
 
   it("keeps seed constructor compatible while creating core binding state", () => {

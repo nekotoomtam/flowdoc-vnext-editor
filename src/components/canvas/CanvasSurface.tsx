@@ -10,7 +10,7 @@ export interface CanvasSurfaceProps {
   onSelectNode: (nodeId: string, source: "canvas") => void
   pages: RenderPageSummary[]
   paper: PaperModel
-  selectedNodeId: string
+  selectedNodeId: string | null
 }
 
 export function CanvasSurface({

@@ -12,6 +12,7 @@ import {
   type PaperModel,
   type PaperPreset,
 } from "../paper/paperModel"
+import { createSelectionState, selectNode, type SelectionState } from "../selection/selectionState"
 import { applyViewportAction } from "../viewport/viewportActions"
 import { createViewportState, type ViewportState } from "../viewport/viewportState"
 import { createEditorView, type EditorView } from "./editorView"
@@ -23,8 +24,7 @@ export interface EditorRuntimeState {
   jobs: EditorJobQueueState
   paper: PaperModel
   seed: CoreEditorSeed
-  selectedNodeId: string
-  selectionReason: string
+  selection: SelectionState
   viewport: ViewportState
   view: EditorView
 }
@@ -47,8 +47,10 @@ function createEditorRuntimeState(
     jobs: createJobQueueState(),
     paper: syncPaperWithViewport(paper, viewport),
     seed,
-    selectedNodeId: view.renderableNodeIds[0] ?? view.visibleNodeIds[0] ?? "root",
-    selectionReason: "boot",
+    selection: createSelectionState(
+      view.renderableNodeIds[0] ?? view.visibleNodeIds[0] ?? "root",
+      "boot",
+    ),
     viewport,
     view,
   }
@@ -79,8 +81,7 @@ export function selectEditorNode(
 
   return {
     ...state,
-    selectedNodeId: nodeId,
-    selectionReason: reason,
+    selection: selectNode(state.selection, nodeId, reason),
   }
 }
 

@@ -51,7 +51,7 @@ export function executeEditorCommand(
     }
 
     case "selection.selectNode": {
-      if (state.selectedNodeId === command.target.nodeId) {
+      if (state.selection.selectedNodeId === command.target.nodeId) {
         return {
           command,
           result: createNoopCommandResult(command.kind, "Node is already selected"),

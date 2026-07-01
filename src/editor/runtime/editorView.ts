@@ -113,7 +113,9 @@ export function getOutlineItems(view: EditorView): EditorOutlineItem[] {
   return view.outlineItems
 }
 
-export function getInspectorFacts(view: EditorView, nodeId: string): EditorInspectorFacts | null {
+export function getInspectorFacts(view: EditorView, nodeId: string | null): EditorInspectorFacts | null {
+  if (!nodeId) return null
+
   const node = getNodeById(view, nodeId)
   if (!node) return null
 

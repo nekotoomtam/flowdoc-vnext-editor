@@ -3,7 +3,7 @@ import type { EditorOutlineItem } from "../../editor/runtime/editorView"
 export interface OutlinePanelProps {
   items: EditorOutlineItem[]
   onSelectNode: (nodeId: string, source: "outline") => void
-  selectedNodeId: string
+  selectedNodeId: string | null
 }
 
 export function OutlinePanel({ items, onSelectNode, selectedNodeId }: OutlinePanelProps) {

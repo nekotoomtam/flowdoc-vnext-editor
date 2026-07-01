@@ -5,6 +5,7 @@ import { getJobCounts } from "../../editor/jobs/jobSelectors"
 import type { EditorJobQueueState } from "../../editor/jobs/jobTypes"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { EditorView } from "../../editor/runtime/editorView"
+import type { SelectionState } from "../../editor/selection/selectionState"
 
 export interface StatusBarProps {
   core: FrontendCoreWorkingSet
@@ -13,7 +14,7 @@ export interface StatusBarProps {
   jobs: EditorJobQueueState
   paper: PaperModel
   previewPageCount: number
-  selectedNodeId: string
+  selection: SelectionState
   view: EditorView
 }
 
@@ -24,7 +25,7 @@ export function StatusBar({
   jobs,
   paper,
   previewPageCount,
-  selectedNodeId,
+  selection,
   view,
 }: StatusBarProps) {
   const jobCounts = getJobCounts(jobs)
@@ -37,7 +38,7 @@ export function StatusBar({
         Core: {core.envelope.sourceKind} r{core.envelope.documentRevision}
       </span>
       <span>Render: {renderKind}</span>
-      <span>Selected: {selectedNodeId}</span>
+      <span>Selected: {selection.selectedNodeId ?? "none"}</span>
       <span>
         Paper: {paper.label} / {Math.round(paper.zoom * 100)}%
       </span>

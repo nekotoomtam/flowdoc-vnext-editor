@@ -24,8 +24,9 @@ export function EditorShell({
   onSelectPaperPreset,
   onSelectPaperZoom,
 }: EditorShellProps) {
-  const { core, jobs, paper, selectedNodeId, selectionReason, view } = editorState
+  const { core, jobs, paper, selection, view } = editorState
   const { diagnostics, document } = core
+  const selectedNodeId = selection.selectedNodeId
   const inspectorFacts = getInspectorFacts(view, selectedNodeId)
   const outlineItems = getOutlineItems(view)
   const renderablePages = projectPreviewPages(view)
@@ -52,7 +53,7 @@ export function EditorShell({
           <InspectorPanel facts={inspectorFacts} />
           <DiagnosticsPanel
             diagnostics={diagnostics}
-            selectionReason={selectionReason}
+            selection={selection}
             view={view}
           />
         </aside>
@@ -64,7 +65,7 @@ export function EditorShell({
         jobs={jobs}
         paper={paper}
         previewPageCount={renderablePages.length}
-        selectedNodeId={selectedNodeId}
+        selection={selection}
         view={view}
       />
     </div>

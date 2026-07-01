@@ -8,7 +8,7 @@ export interface PaperPageProps {
   page: RenderPageSummary
   pageCount: number
   paper: PaperModel
-  selectedNodeId: string
+  selectedNodeId: string | null
 }
 
 function getBlockPreview(node: RenderNodeSummary): string {

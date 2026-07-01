@@ -272,6 +272,16 @@ diagnostics panel state
 render window
 ```
 
+The active read-only runtime projection is defined in:
+
+```txt
+docs/CORE_READ_BINDING_WORKING_SET.md
+```
+
+`FrontendCoreWorkingSet` must stay a bounded frontend projection of core read
+data. It must not store canonical package objects, DOM state, selection state,
+viewport state, draft buffers, backend request context, or artifact bytes.
+
 ## Backend Runtime Responsibilities
 
 Backend/API/worker code may also use `@flowdoc/vnext-core`, but it owns different responsibilities:

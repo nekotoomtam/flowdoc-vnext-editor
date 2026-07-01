@@ -46,8 +46,8 @@ describe("command foundation", () => {
       command: "selection.selectNode",
       status: "applied",
     })
-    expect(result.state.selectedNodeId).toBe("revenue-table")
-    expect(result.state.selectionReason).toBe("outline-select")
+    expect(result.state.selection.selectedNodeId).toBe("revenue-table")
+    expect(result.state.selection.selectionReason).toBe("outline-select")
   })
 
   it("rejects commands with invalid targets or payloads", () => {
@@ -134,7 +134,7 @@ describe("command foundation", () => {
       reason: "canvas-select",
       source: "canvas",
       target: {
-        nodeId: state.selectedNodeId,
+        nodeId: state.selection.selectedNodeId ?? "root",
       },
     }).result).toMatchObject({
       status: "noop",
