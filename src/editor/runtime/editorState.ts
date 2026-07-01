@@ -1,4 +1,6 @@
 import type { CoreEditorSeed } from "../../core/coreTypes"
+import { createHistoryStackState } from "../history/historyStack"
+import type { HistoryStackState } from "../history/historyTypes"
 import {
   createDefaultPaperModel,
   setPaperPreset,
@@ -11,6 +13,7 @@ import { createViewportState, type ViewportState } from "../viewport/viewportSta
 import { createEditorView, type EditorView } from "./editorView"
 
 export interface EditorRuntimeState {
+  history: HistoryStackState
   paper: PaperModel
   seed: CoreEditorSeed
   selectedNodeId: string
@@ -29,6 +32,7 @@ export function createInitialEditorState(seed: CoreEditorSeed): EditorRuntimeSta
   const viewport = createViewportState(paper.zoom)
 
   return {
+    history: createHistoryStackState(),
     paper: syncPaperWithViewport(paper, viewport),
     seed,
     selectedNodeId: view.renderableNodeIds[0] ?? view.visibleNodeIds[0] ?? "root",

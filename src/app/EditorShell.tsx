@@ -58,6 +58,7 @@ export function EditorShell({
       </main>
       <StatusBar
         document={seed.document}
+        history={editorState.history}
         paper={paper}
         previewPageCount={renderablePages.length}
         selectedNodeId={selectedNodeId}
