@@ -111,6 +111,11 @@ guards.
 The adapter read path uses a request/result envelope before a working set is
 created.
 
+The first concrete binding uses the public `@flowdoc/vnext-core`
+`safeCreateVNextRuntimeSession(...)` entrypoint against a canonical core fixture
+and maps that runtime session into adapter-safe editor seed data. This path is
+read-only and does not use the heavier editor bridge pagination runtime.
+
 Required request facts:
 
 ```txt

@@ -1,8 +1,48 @@
 import { describe, expect, it } from "vitest"
-import { loadReadOnlyCoreSnapshot } from "../core/coreAdapter"
+import {
+  CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+  loadReadOnlyCoreSnapshot,
+} from "../core/coreAdapter"
 import { bindFrontendCoreWorkingSetFromReadResult } from "../editor/coreBinding/workingSetFactory"
 
 describe("real core read binding contract", () => {
+  it("binds the public core runtime fixture through the adapter boundary", () => {
+    const readResult = loadReadOnlyCoreSnapshot({
+      baseRevision: 3,
+      createdAt: 100,
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      fixtureSource: "core-product-report-minimal",
+    })
+    const binding = bindFrontendCoreWorkingSetFromReadResult(readResult)
+
+    expect(readResult.envelope).toMatchObject({
+      baseRevision: 3,
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      documentRevision: 3,
+      failures: [],
+      sourceKind: "fixture",
+      status: "fresh",
+    })
+    expect(binding.status).toBe("bound")
+    expect(binding.workingSet?.document).toMatchObject({
+      id: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      title: "Product Report vNext Minimal",
+    })
+    expect(binding.workingSet?.readModel.nodeById.title).toMatchObject({
+      label: "Product Report for Customer",
+      parentId: "zone-cover-body",
+      type: "text-block",
+    })
+    expect(binding.workingSet?.readModel.childrenById["summary-columns"]).toEqual([
+      "summary-left",
+      "summary-right",
+    ])
+    expect(binding.workingSet?.renderProjection).toMatchObject({
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      sourceRevision: 3,
+    })
+  })
+
   it("binds a fresh read-only core result envelope into a frontend working set", () => {
     const readResult = loadReadOnlyCoreSnapshot({
       baseRevision: 3,

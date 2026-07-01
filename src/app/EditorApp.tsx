@@ -2,13 +2,18 @@ import { useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
+import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
 import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDispatch"
 
 export function EditorApp() {
   const initialState = useMemo(
-    () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet()),
+    () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
+      baseRevision: 3,
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      fixtureSource: "core-product-report-minimal",
+    })),
     [],
   )
   const [editorState, setEditorState] = useState(initialState)

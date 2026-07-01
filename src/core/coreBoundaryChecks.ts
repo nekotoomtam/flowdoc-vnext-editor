@@ -1,5 +1,5 @@
 export const coreBoundaryPolicy = {
   adapterPath: "src/core/coreAdapter.ts",
-  phase: "phase-0-scaffold",
+  phase: "core-read-binding",
   uiCoreImportsAllowed: false,
 } as const

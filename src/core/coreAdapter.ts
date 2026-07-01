@@ -1,4 +1,8 @@
 import {
+  safeCreateVNextRuntimeSession,
+} from "@flowdoc/vnext-core"
+import productReportMinimalFixture from "@flowdoc/vnext-core/fixtures/product-report-vnext-minimal.flowdoc.json"
+import {
   cloneCoreReadBindingFailures,
   type CoreAdapterReadRequest,
   type CoreAdapterReadResult,
@@ -8,6 +12,9 @@ import {
   type CoreEditorSeed,
   type CoreReadBindingFailure,
 } from "./coreTypes"
+import { createCoreRuntimeEditorSeed } from "./coreRuntimeSeedMapper"
+
+export type CoreFixtureSource = "core-product-report-minimal" | "frontend-placeholder"
 
 interface FixtureContentNode {
   id: string
@@ -121,6 +128,7 @@ const FIXTURE_CONTENT_NODES: FixtureContentNode[] = [
 const DEFAULT_DOCUMENT_ID = "placeholder-document"
 const DEFAULT_PACKAGE_VERSION = 2
 const DEFAULT_DOCUMENT_VERSION = 3
+export const CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID = "product-report-vnext-minimal"
 
 function createFixtureContentNode(node: FixtureContentNode): CoreEditorNodeSummary {
   return {
@@ -207,6 +215,7 @@ export interface LoadReadOnlyCoreSnapshotOptions {
   baseRevision?: number | null
   createdAt?: number
   documentId?: string
+  fixtureSource?: CoreFixtureSource
   fixtureDocumentId?: string
   requireDiagnostics?: boolean
   requireRenderProjection?: boolean
@@ -225,6 +234,22 @@ function createCoreReadFailure(
   failure: CoreReadBindingFailure,
 ): CoreReadBindingFailure {
   return { ...failure }
+}
+
+function createCoreFixtureEditorSeed(): CoreEditorSeed | CoreReadBindingFailure {
+  const result = safeCreateVNextRuntimeSession(productReportMinimalFixture, {
+    source: "fixture",
+  })
+
+  if (!result.ok) {
+    return createCoreReadFailure({
+      code: "invalid-envelope",
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      message: result.issues.map((issue) => `[${issue.path}] ${issue.message}`).join("; "),
+    })
+  }
+
+  return createCoreRuntimeEditorSeed(result.session)
 }
 
 function createReadRequest(options: LoadReadOnlyCoreSnapshotOptions = {}): CoreAdapterReadRequest {
@@ -260,6 +285,7 @@ export function loadReadOnlyCoreSnapshot(
   options: LoadReadOnlyCoreSnapshotOptions = {},
 ): CoreAdapterReadResult {
   const request = createReadRequest(options)
+  const fixtureSource = options.fixtureSource ?? "frontend-placeholder"
 
   if (options.simulateCoreUnavailable) {
     const failures = [
@@ -293,9 +319,22 @@ export function loadReadOnlyCoreSnapshot(
     }
   }
 
-  const seed = createFixtureEditorSeed({
-    documentId: options.fixtureDocumentId ?? request.documentId,
-  })
+  const seedOrFailure = fixtureSource === "core-product-report-minimal"
+    ? createCoreFixtureEditorSeed()
+    : createFixtureEditorSeed({
+        documentId: options.fixtureDocumentId ?? request.documentId,
+      })
+  if ("code" in seedOrFailure) {
+    const failures = [seedOrFailure]
+
+    return {
+      envelope: createReadResultEnvelope(request, null, failures),
+      request,
+      snapshot: null,
+    }
+  }
+
+  const seed = seedOrFailure
   const documentRevision = seed.document.documentVersion
   const failures: CoreReadBindingFailure[] = []
 
