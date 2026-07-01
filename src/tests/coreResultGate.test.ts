@@ -15,6 +15,7 @@ function createRuntimeState() {
 function createFreshRenderSummary() {
   const state = createRuntimeState()
   const summary = createRenderProjectionSummary(projectRenderDocument(state.view), {
+    documentId: state.core.envelope.documentId,
     kind: "live",
     projectionId: "projection:3:live-test",
     sourceRevision: state.core.envelope.documentRevision,
@@ -31,6 +32,7 @@ describe("core result gate hardening", () => {
     const { state, summary } = createFreshRenderSummary()
     const applied = applyRuntimeRenderProjectionResult(state, {
       baseRevision: state.core.envelope.documentRevision,
+      documentId: state.core.envelope.documentId,
       renderProjection: summary,
       sourceRevision: state.core.envelope.documentRevision,
     })
@@ -50,6 +52,7 @@ describe("core result gate hardening", () => {
     const { state, summary } = createFreshRenderSummary()
     const applied = applyRuntimeRenderProjectionResult(state, {
       baseRevision: state.core.envelope.documentRevision - 1,
+      documentId: state.core.envelope.documentId,
       renderProjection: {
         ...summary,
         projectionId: "projection:old",
@@ -69,6 +72,7 @@ describe("core result gate hardening", () => {
     const state = createRuntimeState()
     const applied = applyRuntimeDiagnosticsResult(state, {
       baseRevision: state.core.envelope.documentRevision,
+      documentId: state.core.envelope.documentId,
       diagnostics: {
         ...state.core.diagnostics,
         artifactStatus: "ready",
@@ -93,6 +97,7 @@ describe("core result gate hardening", () => {
     const state = createRuntimeState()
     const applied = applyRuntimeDiagnosticsResult(state, {
       baseRevision: state.core.envelope.documentRevision,
+      documentId: state.core.envelope.documentId,
       diagnostics: {
         ...state.core.diagnostics,
         artifactStatus: "ready",

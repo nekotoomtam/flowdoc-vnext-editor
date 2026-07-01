@@ -29,14 +29,16 @@ The working set must keep these parts revision-aligned:
 
 ```txt
 envelope.documentRevision
+envelope.documentId
 readModel.sourceRevision
 capabilities.sourceRevision
 renderProjection.sourceRevision
+renderProjection.documentId
 diagnostics source
 ```
 
 Any core-derived result that cannot prove it belongs to the active document
-revision must be blocked as stale.
+and revision must be blocked as stale.
 
 ## Owned Shape
 
@@ -88,6 +90,7 @@ capabilities
 diagnostics
 layoutGeneration
 measurementProfileId
+failures
 ```
 
 Allowed `sourceKind` values:
@@ -102,6 +105,57 @@ mutation-result
 
 The frontend must treat `sourceKind` as provenance, not permission to bypass
 guards.
+
+## Read Result Envelope
+
+The adapter read path uses a request/result envelope before a working set is
+created.
+
+Required request facts:
+
+```txt
+documentId
+baseRevision
+requestedAt
+sourceKind
+requireDiagnostics
+requireRenderProjection
+```
+
+Required result envelope facts:
+
+```txt
+documentId
+baseRevision
+documentRevision
+snapshotRevision
+coreRevision
+sourceKind
+status
+receivedAt
+failures
+```
+
+`status: blocked` means the frontend must not create a working set from that
+result. `status: partial` may bind a working set only when failures are
+represented explicitly.
+
+## Failure Vocabulary
+
+Read binding failures must use this shared vocabulary:
+
+```txt
+core-unavailable
+invalid-envelope
+document-mismatch
+revision-stale
+missing-diagnostics
+missing-render-projection
+blocked-by-core
+unknown-core-result
+```
+
+Do not introduce ad hoc failure strings in adapter, factory, or apply paths.
 
 ## Read Model
 
@@ -147,6 +201,7 @@ Allowed summary facts:
 
 ```txt
 kind
+documentId
 sourceRevision
 projectionId
 pageCount
@@ -175,6 +230,7 @@ Required checks:
 
 ```txt
 baseRevision matches envelope.documentRevision when present
+documentId matches envelope.documentId
 sourceRevision matches envelope.documentRevision
 stale cache flags are rejected
 stale envelopes are not treated as fresh
@@ -185,6 +241,7 @@ Blocked apply behavior:
 
 ```txt
 apply result with old baseRevision
+apply result with different documentId
 apply result with old sourceRevision
 apply result marked stale
 apply result into stale active envelope without explicit recovery path
@@ -234,11 +291,13 @@ Allowed now:
 
 ```txt
 bind read-only core snapshots into FrontendCoreWorkingSet
+bind adapter request/result envelopes before working set creation
 derive normalized read model
 derive command capability mirror
 derive render projection summary
+represent blocked and partial read results with shared failures
 apply fresh diagnostics/render/job results through revision gates
-block stale results
+block stale or document-mismatched results
 test source import boundaries
 ```
 
@@ -259,7 +318,9 @@ direct core source imports
 
 - Working set is the single runtime read projection for core-derived data.
 - Envelope, read model, capabilities, and render projection are revision-aligned.
+- Core read result envelopes include document id, revision, status, and failures.
 - Core-derived async results use stale guards before applying.
+- Stale guards reject document mismatch, revision mismatch, stale cache, and non-fresh envelopes.
 - Core imports remain behind `src/core/`.
 - Frontend runtime state remains separate from canonical core truth.
 
@@ -271,6 +332,8 @@ Block the phase if:
 - Any editor/app/component module imports `@flowdoc/vnext-core` directly.
 - Any source file imports `../flowdoc-vnext-core/src/**`.
 - A stale result can overwrite active working set data.
+- A document-mismatched result can overwrite active working set data.
+- Failure modes are represented with ad hoc strings instead of the shared vocabulary.
 - Render projection summary is treated as exact/export layout truth.
 - Selection, viewport, draft, or DOM state is stored inside the working set.
 
@@ -298,7 +361,9 @@ envelope construction
 readModel sourceRevision
 capability mirror sourceRevision
 renderProjection sourceRevision
-revision/sourceRevision stale guard
+renderProjection documentId
+revision/sourceRevision/documentId stale guard
+read result fresh/stale/document mismatch/missing projection behavior
 no direct core source import
 no direct package import outside src/core
 ```

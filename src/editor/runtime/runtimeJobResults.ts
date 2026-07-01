@@ -1,4 +1,4 @@
-import type { CoreDerivedApplyBlockReason } from "../coreBinding/revisionGuards"
+import type { CoreDerivedApplyBlockReason, CoreDerivedApplyRef } from "../coreBinding/revisionGuards"
 import { applyEditorJobResult, type EditorJobResult } from "../jobs/jobResults"
 import { applyRuntimeCoreDerivedResult } from "./runtimeApplyGate"
 import type { EditorRuntimeState } from "./editorState"
@@ -13,7 +13,7 @@ export interface RuntimeJobResultApply {
 
 function markJobResultStale(
   state: EditorRuntimeState,
-  result: EditorJobResult,
+  result: EditorJobResult & CoreDerivedApplyRef,
   reason: CoreDerivedApplyBlockReason,
 ): EditorRuntimeState {
   return {
@@ -44,6 +44,7 @@ export function applyRuntimeJobResult(
     {
       ...result,
       baseRevision: job.requestRevision,
+      documentId: result.producedDocumentId ?? state.core.envelope.documentId,
       sourceRevision: result.producedRevision ?? job.requestRevision,
       stale: result.status === "stale",
     },

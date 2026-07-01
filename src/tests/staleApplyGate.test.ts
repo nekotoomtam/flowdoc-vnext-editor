@@ -30,10 +30,12 @@ describe("revision stale apply gate", () => {
 
     expect(getCoreDerivedApplyBlockReason({
       baseRevision: job.requestRevision,
+      documentId: state.core.envelope.documentId,
       sourceRevision: job.requestRevision,
     }, state.core.envelope)).toBeNull()
     expect(canApplyCoreDerivedResultToEnvelope({
       baseRevision: job.requestRevision,
+      documentId: state.core.envelope.documentId,
       sourceRevision: job.requestRevision,
     }, state.core.envelope)).toBe(true)
   })
@@ -43,8 +45,19 @@ describe("revision stale apply gate", () => {
 
     expect(getCoreDerivedApplyBlockReason({
       baseRevision: state.core.envelope.documentRevision - 1,
+      documentId: state.core.envelope.documentId,
       sourceRevision: state.core.envelope.documentRevision,
     }, state.core.envelope)).toBe("base-revision-mismatch")
+  })
+
+  it("blocks core-derived results from a different document id", () => {
+    const state = createStateWithQueuedLayoutJob()
+
+    expect(getCoreDerivedApplyBlockReason({
+      baseRevision: state.core.envelope.documentRevision,
+      documentId: "other-document",
+      sourceRevision: state.core.envelope.documentRevision,
+    }, state.core.envelope)).toBe("document-mismatch")
   })
 
   it("applies fresh runtime job results", () => {
@@ -89,6 +102,27 @@ describe("revision stale apply gate", () => {
 
     expect(applied).toMatchObject({
       reason: "base-revision-mismatch",
+      status: "blocked-stale",
+    })
+    expect(applied.state.jobs.jobs[0]).toMatchObject({
+      id: job.id,
+      status: "stale",
+    })
+  })
+
+  it("marks runtime job results from another document stale instead of applying them", () => {
+    const state = createStateWithQueuedLayoutJob()
+    const job = state.jobs.jobs[0]
+    const applied = applyRuntimeJobResult(state, {
+      jobId: job.id,
+      producedDocumentId: "other-document",
+      producedRevision: job.requestRevision,
+      status: "completed",
+      summary: "Wrong document live layout result",
+    })
+
+    expect(applied).toMatchObject({
+      reason: "document-mismatch",
       status: "blocked-stale",
     })
     expect(applied.state.jobs.jobs[0]).toMatchObject({

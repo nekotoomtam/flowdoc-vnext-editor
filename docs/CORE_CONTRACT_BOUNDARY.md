@@ -168,18 +168,18 @@ It should expose only editor-safe functions.
 Initial expected responsibilities:
 
 ```txt
-load/parse canonical package
-serialize canonical package when needed
-create core-backed editable/session facts when allowed
+load read-only core request/result envelopes
 read document metadata
 read graph facts
 read key/data diagnostics
 build editor-safe node summaries
-run allowed text/rich-inline transaction planning
-return operation results and dirty scopes
 return diagnostics/readiness summaries
 return renderer/layout contract summaries when available
+represent read failures with shared vocabulary
 ```
+
+Mutation and serialization responsibilities are future work and remain blocked
+until their phase explicitly opens.
 
 The adapter should not expose broad raw core access to React components.
 

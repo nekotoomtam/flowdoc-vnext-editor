@@ -9,6 +9,7 @@ export interface EditorJobResult {
   changed?: EditorJobTarget
   error?: string
   jobId: string
+  producedDocumentId?: string
   producedRevision?: number
   status: CompletedEditorJobStatus
   summary: string

@@ -172,7 +172,7 @@ Phase 9: WYSIWYG Gate
 Phase 10: Active Text-Block Island
 ```
 
-Implementation should start only with Phase 0, Phase 1, and Phase 1.5.
+Implementation may proceed through Phase 1.6 while staying read-only.
 
 Do not start WYSIWYG early.
 
@@ -411,11 +411,13 @@ features.
 ```txt
 FrontendCoreWorkingSet
 core snapshot envelope
+core read request/result envelope
 normalized read model
 capability mirror
 render projection summary
 diagnostics summary
-revision/sourceRevision stale guards
+documentId/revision/sourceRevision stale guards
+shared read failure vocabulary
 runtime apply gates for derived results
 boundary tests for direct core source imports
 ```
@@ -424,7 +426,11 @@ boundary tests for direct core source imports
 
 ```txt
 envelope/readModel/capabilities/renderProjection share source revision
+coreAdapter returns read-only request/result envelope
+working set is built from adapter read result
 stale baseRevision/sourceRevision results are blocked
+document-mismatched results are blocked
+missing diagnostics/render projection are represented as controlled failures
 no direct @flowdoc/vnext-core import outside src/core/
 no direct ../flowdoc-vnext-core/src/** import anywhere in src/
 working set does not own selection/viewport/draft/DOM state

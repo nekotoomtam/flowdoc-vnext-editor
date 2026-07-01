@@ -4,6 +4,7 @@ export type RenderProjectionKind = "exact-readonly" | "live" | "placeholder"
 
 export interface RenderProjectionSummary {
   blockCount: number
+  documentId: string
   kind: RenderProjectionKind
   layoutGeneration: string | null
   nodeToBlockIds: Record<string, string[]>
@@ -15,6 +16,7 @@ export interface RenderProjectionSummary {
 }
 
 export interface RenderProjectionSummaryOptions {
+  documentId?: string
   kind?: RenderProjectionKind
   layoutGeneration?: string | null
   projectionId?: string
@@ -47,6 +49,7 @@ export function createRenderProjectionSummary(
 
   return {
     blockCount: projection.pages.reduce((count, page) => count + page.nodeIds.length, 0),
+    documentId: options.documentId ?? "unknown-document",
     kind,
     layoutGeneration: options.layoutGeneration ?? null,
     nodeToBlockIds: mapNodesToProjectionIds(projection.pages, "block"),

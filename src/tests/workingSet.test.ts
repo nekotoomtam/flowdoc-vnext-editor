@@ -88,6 +88,7 @@ describe("frontend core working set definitions", () => {
     const readModel = createEditorReadModel(seed)
     const projection = projectRenderDocument(readModel)
     const summary = createRenderProjectionSummary(projection, {
+      documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision,
     })
     const olderEnvelope = createCoreSnapshotEnvelope(seed, {

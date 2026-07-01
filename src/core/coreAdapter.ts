@@ -1,4 +1,13 @@
-import type { CoreAdapterSnapshot, CoreEditorNodeSummary, CoreEditorSeed } from "./coreTypes"
+import {
+  cloneCoreReadBindingFailures,
+  type CoreAdapterReadRequest,
+  type CoreAdapterReadResult,
+  type CoreAdapterSnapshot,
+  type CoreAdapterSnapshotSourceKind,
+  type CoreEditorNodeSummary,
+  type CoreEditorSeed,
+  type CoreReadBindingFailure,
+} from "./coreTypes"
 
 interface FixtureContentNode {
   id: string
@@ -109,6 +118,10 @@ const FIXTURE_CONTENT_NODES: FixtureContentNode[] = [
   },
 ]
 
+const DEFAULT_DOCUMENT_ID = "placeholder-document"
+const DEFAULT_PACKAGE_VERSION = 2
+const DEFAULT_DOCUMENT_VERSION = 3
+
 function createFixtureContentNode(node: FixtureContentNode): CoreEditorNodeSummary {
   return {
     childIds: [],
@@ -121,13 +134,17 @@ function createFixtureContentNode(node: FixtureContentNode): CoreEditorNodeSumma
   }
 }
 
-export function loadInitialEditorSeed(): CoreEditorSeed {
+interface CreateFixtureEditorSeedOptions {
+  documentId?: string
+}
+
+function createFixtureEditorSeed(options: CreateFixtureEditorSeedOptions = {}): CoreEditorSeed {
   return {
     document: {
-      id: "placeholder-document",
+      id: options.documentId ?? DEFAULT_DOCUMENT_ID,
       title: "FlowDoc vNext Editor",
-      packageVersion: 2,
-      documentVersion: 3,
+      packageVersion: DEFAULT_PACKAGE_VERSION,
+      documentVersion: DEFAULT_DOCUMENT_VERSION,
     },
     diagnostics: {
       artifactStatus: "unknown",
@@ -182,25 +199,184 @@ export function loadInitialEditorSeed(): CoreEditorSeed {
   }
 }
 
+export function loadInitialEditorSeed(): CoreEditorSeed {
+  return createFixtureEditorSeed()
+}
+
+export interface LoadReadOnlyCoreSnapshotOptions {
+  baseRevision?: number | null
+  createdAt?: number
+  documentId?: string
+  fixtureDocumentId?: string
+  requireDiagnostics?: boolean
+  requireRenderProjection?: boolean
+  simulateCoreUnavailable?: boolean
+  simulateInvalidEnvelope?: boolean
+  simulateMissingDiagnostics?: boolean
+  simulateMissingRenderProjection?: boolean
+  sourceKind?: CoreAdapterSnapshotSourceKind
+}
+
 export interface LoadInitialCoreSnapshotOptions {
   createdAt?: number
+}
+
+function createCoreReadFailure(
+  failure: CoreReadBindingFailure,
+): CoreReadBindingFailure {
+  return { ...failure }
+}
+
+function createReadRequest(options: LoadReadOnlyCoreSnapshotOptions = {}): CoreAdapterReadRequest {
+  return {
+    baseRevision: options.baseRevision ?? null,
+    documentId: options.documentId ?? DEFAULT_DOCUMENT_ID,
+    requestedAt: options.createdAt ?? Date.now(),
+    requireDiagnostics: options.requireDiagnostics ?? true,
+    requireRenderProjection: options.requireRenderProjection ?? true,
+    sourceKind: options.sourceKind ?? "fixture",
+  }
+}
+
+function createReadResultEnvelope(
+  request: CoreAdapterReadRequest,
+  snapshot: CoreAdapterSnapshot | null,
+  failures: CoreReadBindingFailure[],
+): CoreAdapterReadResult["envelope"] {
+  return {
+    baseRevision: request.baseRevision,
+    coreRevision: snapshot?.coreRevision ?? null,
+    documentId: request.documentId,
+    documentRevision: snapshot?.seed.document.documentVersion ?? null,
+    failures: cloneCoreReadBindingFailures(failures),
+    receivedAt: request.requestedAt,
+    snapshotRevision: snapshot?.snapshotRevision ?? null,
+    sourceKind: request.sourceKind,
+    status: snapshot?.status ?? "blocked",
+  }
+}
+
+export function loadReadOnlyCoreSnapshot(
+  options: LoadReadOnlyCoreSnapshotOptions = {},
+): CoreAdapterReadResult {
+  const request = createReadRequest(options)
+
+  if (options.simulateCoreUnavailable) {
+    const failures = [
+      createCoreReadFailure({
+        code: "core-unavailable",
+        documentId: request.documentId,
+        message: "The read-only core snapshot is unavailable.",
+      }),
+    ]
+
+    return {
+      envelope: createReadResultEnvelope(request, null, failures),
+      request,
+      snapshot: null,
+    }
+  }
+
+  if (options.simulateInvalidEnvelope) {
+    const failures = [
+      createCoreReadFailure({
+        code: "invalid-envelope",
+        documentId: request.documentId,
+        message: "The read-only core result envelope is invalid.",
+      }),
+    ]
+
+    return {
+      envelope: createReadResultEnvelope(request, null, failures),
+      request,
+      snapshot: null,
+    }
+  }
+
+  const seed = createFixtureEditorSeed({
+    documentId: options.fixtureDocumentId ?? request.documentId,
+  })
+  const documentRevision = seed.document.documentVersion
+  const failures: CoreReadBindingFailure[] = []
+
+  if (request.documentId !== seed.document.id) {
+    failures.push(createCoreReadFailure({
+      code: "document-mismatch",
+      documentId: seed.document.id,
+      expectedDocumentId: request.documentId,
+      message: "The core snapshot document does not match the requested document.",
+      sourceRevision: documentRevision,
+    }))
+  }
+
+  if (request.baseRevision !== null && request.baseRevision !== documentRevision) {
+    failures.push(createCoreReadFailure({
+      baseRevision: request.baseRevision,
+      code: "revision-stale",
+      documentId: seed.document.id,
+      message: "The core snapshot does not match the requested base revision.",
+      sourceRevision: documentRevision,
+    }))
+  }
+
+  if (options.simulateMissingDiagnostics && request.requireDiagnostics) {
+    failures.push(createCoreReadFailure({
+      code: "missing-diagnostics",
+      documentId: seed.document.id,
+      message: "The core snapshot did not include diagnostics.",
+      sourceRevision: documentRevision,
+    }))
+  }
+
+  if (options.simulateMissingRenderProjection && request.requireRenderProjection) {
+    failures.push(createCoreReadFailure({
+      code: "missing-render-projection",
+      documentId: seed.document.id,
+      message: "The core snapshot did not include a render projection seed.",
+      sourceRevision: documentRevision,
+    }))
+  }
+
+  const isBlocked = failures.some((failure) => (
+    failure.code === "document-mismatch" || failure.code === "revision-stale"
+  ))
+  const status = isBlocked
+    ? "blocked"
+    : failures.length > 0
+      ? "partial"
+      : "fresh"
+
+  const snapshot: CoreAdapterSnapshot = {
+    coreRevision: `fixture:${documentRevision}`,
+    createdAt: request.requestedAt,
+    failures: cloneCoreReadBindingFailures(failures),
+    layoutGeneration: null,
+    measurementProfileId: null,
+    renderProjectionAvailable: !options.simulateMissingRenderProjection,
+    schemaVersion: seed.document.packageVersion,
+    seed,
+    snapshotRevision: documentRevision,
+    sourceKind: request.sourceKind,
+    status,
+  }
+
+  return {
+    envelope: createReadResultEnvelope(request, snapshot, failures),
+    request,
+    snapshot,
+  }
 }
 
 export function loadInitialCoreSnapshot(
   options: LoadInitialCoreSnapshotOptions = {},
 ): CoreAdapterSnapshot {
-  const seed = loadInitialEditorSeed()
-  const documentRevision = seed.document.documentVersion
+  const result = loadReadOnlyCoreSnapshot({
+    createdAt: options.createdAt,
+  })
 
-  return {
-    coreRevision: `fixture:${documentRevision}`,
-    createdAt: options.createdAt ?? Date.now(),
-    layoutGeneration: null,
-    measurementProfileId: null,
-    schemaVersion: seed.document.packageVersion,
-    seed,
-    snapshotRevision: documentRevision,
-    sourceKind: "fixture",
-    status: "fresh",
+  if (!result.snapshot) {
+    throw new Error("Initial fixture core snapshot is unavailable.")
   }
+
+  return result.snapshot
 }

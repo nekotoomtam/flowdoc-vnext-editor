@@ -1,6 +1,7 @@
 import type { CoreSnapshotEnvelope } from "./coreEnvelope"
 
 export interface CoreDerivedRevisionRef {
+  documentId: string
   sourceRevision: number
   stale?: boolean
 }
@@ -16,13 +17,18 @@ export function isCoreDerivedCacheStale(
   return getCoreDerivedStaleReason(cache, envelope) !== null
 }
 
-export type CoreDerivedStaleReason = "cache-stale" | "envelope-not-fresh" | "revision-mismatch"
+export type CoreDerivedStaleReason =
+  | "cache-stale"
+  | "document-mismatch"
+  | "envelope-not-fresh"
+  | "revision-mismatch"
 
 export function getCoreDerivedStaleReason(
   cache: CoreDerivedRevisionRef,
   envelope: CoreSnapshotEnvelope,
 ): CoreDerivedStaleReason | null {
   if (cache.stale === true) return "cache-stale"
+  if (cache.documentId !== envelope.documentId) return "document-mismatch"
   if (envelope.status !== "fresh") return "envelope-not-fresh"
   if (cache.sourceRevision !== envelope.documentRevision) return "revision-mismatch"
 

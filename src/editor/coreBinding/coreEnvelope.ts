@@ -1,4 +1,9 @@
-import type { CoreDiagnosticsSummary, CoreEditorSeed } from "../../core/coreTypes"
+import {
+  cloneCoreReadBindingFailures,
+  type CoreDiagnosticsSummary,
+  type CoreEditorSeed,
+  type CoreReadBindingFailure,
+} from "../../core/coreTypes"
 
 export type WorkingSetSourceKind =
   | "api"
@@ -26,6 +31,7 @@ export interface CoreSnapshotEnvelope {
   documentId: string
   documentRevision: number
   documentVersion: number
+  failures: CoreReadBindingFailure[]
   layoutGeneration: string | null
   measurementProfileId: string | null
   packageVersion: number
@@ -39,6 +45,7 @@ export interface CoreSnapshotEnvelopeOptions {
   capabilities?: CoreCapabilitySummary
   coreRevision?: string
   createdAt?: number
+  failures?: CoreReadBindingFailure[]
   layoutGeneration?: string | null
   measurementProfileId?: string | null
   schemaVersion?: number
@@ -73,6 +80,7 @@ export function createCoreSnapshotEnvelope(
     documentId: seed.document.id,
     documentRevision,
     documentVersion: seed.document.documentVersion,
+    failures: cloneCoreReadBindingFailures(options.failures ?? []),
     layoutGeneration: options.layoutGeneration ?? null,
     measurementProfileId: options.measurementProfileId ?? null,
     packageVersion: seed.document.packageVersion,

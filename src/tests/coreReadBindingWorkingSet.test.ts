@@ -65,23 +65,33 @@ describe("core read binding working set", () => {
 
     expect(canApplyCoreDerivedResultToEnvelope({
       baseRevision: envelope.documentRevision,
+      documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision,
     }, envelope)).toBe(true)
     expect(getCoreDerivedApplyBlockReason({
       baseRevision: envelope.documentRevision - 1,
+      documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision,
     }, envelope)).toBe("base-revision-mismatch")
     expect(getCoreDerivedApplyBlockReason({
       baseRevision: envelope.documentRevision,
+      documentId: "other-document",
+      sourceRevision: envelope.documentRevision,
+    }, envelope)).toBe("document-mismatch")
+    expect(getCoreDerivedApplyBlockReason({
+      baseRevision: envelope.documentRevision,
+      documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision - 1,
     }, envelope)).toBe("revision-mismatch")
     expect(getCoreDerivedApplyBlockReason({
       baseRevision: envelope.documentRevision,
+      documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision,
       stale: true,
     }, envelope)).toBe("cache-stale")
     expect(getCoreDerivedApplyBlockReason({
       baseRevision: envelope.documentRevision,
+      documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision,
     }, {
       ...envelope,
