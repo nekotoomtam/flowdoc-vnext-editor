@@ -21,6 +21,7 @@ export interface CommandCapabilityMirror {
   byNodeId: Record<string, NodeCommandCapabilities>
   global: GlobalCommandCapabilities
   revision: number
+  sourceRevision: number
 }
 
 function createNodeCapabilities(readModel: EditorReadModel, nodeId: string): NodeCommandCapabilities {
@@ -49,5 +50,6 @@ export function createCommandCapabilityMirror(readModel: EditorReadModel): Comma
       canRequestLiveLayout: true,
     },
     revision: readModel.revision,
+    sourceRevision: readModel.sourceRevision,
   }
 }

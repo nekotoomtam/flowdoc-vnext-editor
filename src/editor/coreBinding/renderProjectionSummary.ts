@@ -2,18 +2,19 @@ import type { RenderDocumentProjection, RenderPageSummary } from "../render/rend
 
 export type RenderProjectionKind = "exact-readonly" | "live" | "placeholder"
 
-export interface RenderProjectionCache {
+export interface RenderProjectionSummary {
+  blockCount: number
   kind: RenderProjectionKind
   layoutGeneration: string | null
-  nodeToBlocks: Record<string, string[]>
-  nodeToFragments: Record<string, string[]>
-  pages: RenderPageSummary[]
+  nodeToBlockIds: Record<string, string[]>
+  nodeToFragmentIds: Record<string, string[]>
+  pageCount: number
   projectionId: string
   sourceRevision: number
   stale: boolean
 }
 
-export interface RenderProjectionCacheOptions {
+export interface RenderProjectionSummaryOptions {
   kind?: RenderProjectionKind
   layoutGeneration?: string | null
   projectionId?: string
@@ -37,19 +38,20 @@ function mapNodesToProjectionIds(
   }, {})
 }
 
-export function createRenderProjectionCache(
+export function createRenderProjectionSummary(
   projection: RenderDocumentProjection,
-  options: RenderProjectionCacheOptions = {},
-): RenderProjectionCache {
+  options: RenderProjectionSummaryOptions = {},
+): RenderProjectionSummary {
   const kind = options.kind ?? "placeholder"
   const sourceRevision = options.sourceRevision ?? projection.revision
 
   return {
+    blockCount: projection.pages.reduce((count, page) => count + page.nodeIds.length, 0),
     kind,
     layoutGeneration: options.layoutGeneration ?? null,
-    nodeToBlocks: mapNodesToProjectionIds(projection.pages, "block"),
-    nodeToFragments: mapNodesToProjectionIds(projection.pages, "fragment"),
-    pages: projection.pages,
+    nodeToBlockIds: mapNodesToProjectionIds(projection.pages, "block"),
+    nodeToFragmentIds: mapNodesToProjectionIds(projection.pages, "fragment"),
+    pageCount: projection.pages.length,
     projectionId: options.projectionId ?? `projection:${sourceRevision}:${kind}`,
     sourceRevision,
     stale: options.stale ?? false,

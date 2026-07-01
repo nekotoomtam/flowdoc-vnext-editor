@@ -3,24 +3,31 @@ import { loadInitialEditorSeed } from "../core/coreAdapter"
 import { createCommandCapabilityMirror } from "../editor/coreBinding/capabilityMirror"
 import { createCoreSnapshotEnvelope } from "../editor/coreBinding/coreEnvelope"
 import { createEditorReadModel } from "../editor/coreBinding/readModel"
-import { createRenderProjectionCache } from "../editor/coreBinding/renderProjectionCache"
-import { isCoreDerivedCacheStale } from "../editor/coreBinding/revisionGuards"
+import { createRenderProjectionSummary } from "../editor/coreBinding/renderProjectionSummary"
+import {
+  canApplyCoreDerivedResult,
+  getCoreDerivedStaleReason,
+  isCoreDerivedCacheStale,
+} from "../editor/coreBinding/revisionGuards"
 import { projectRenderDocument } from "../editor/render/renderProjector"
 
 describe("frontend core working set definitions", () => {
   it("creates a revisioned core snapshot envelope from adapter-safe seed data", () => {
     const seed = loadInitialEditorSeed()
-    const envelope = createCoreSnapshotEnvelope(seed)
+    const envelope = createCoreSnapshotEnvelope(seed, {
+      createdAt: 100,
+    })
 
     expect(envelope).toMatchObject({
       coreRevision: "fixture:3",
+      createdAt: 100,
       documentId: "placeholder-document",
       documentRevision: 3,
       documentVersion: 3,
       packageVersion: 2,
       schemaVersion: 2,
       snapshotRevision: 3,
-      source: "fixture",
+      sourceKind: "fixture",
       status: "fresh",
     })
     expect(envelope.capabilities).toMatchObject({
@@ -35,11 +42,19 @@ describe("frontend core working set definitions", () => {
     const seed = loadInitialEditorSeed()
     const readModel = createEditorReadModel(seed)
     const capabilities = createCommandCapabilityMirror(readModel)
+    const seedNode = seed.nodes.find((node) => node.id === "qa-scroll")
 
     expect(readModel.revision).toBe(seed.document.documentVersion)
+    expect(readModel.sourceRevision).toBe(seed.document.documentVersion)
     expect(readModel.nodeById["qa-scroll"]?.label).toContain("Scroll should remain")
+    expect(readModel.nodeById["qa-scroll"]).not.toBe(seedNode)
     expect(readModel.parentById["qa-scroll"]).toBe("zone-main")
+    expect(readModel.childrenById["zone-main"]).toContain("qa-scroll")
+    expect(readModel.childrenById["zone-main"]).toEqual(
+      seed.nodes.find((node) => node.id === "zone-main")?.childIds,
+    )
     expect(capabilities.revision).toBe(readModel.revision)
+    expect(capabilities.sourceRevision).toBe(readModel.sourceRevision)
     expect(capabilities.byNodeId["qa-scroll"]).toMatchObject({
       canOpenTextDraft: true,
       editable: true,
@@ -52,36 +67,61 @@ describe("frontend core working set definitions", () => {
     })
   })
 
-  it("creates render projection cache with node maps and stale guards", () => {
+  it("keeps read model objects isolated from later seed object mutation", () => {
     const seed = loadInitialEditorSeed()
-    const envelope = createCoreSnapshotEnvelope(seed)
+    const readModel = createEditorReadModel(seed)
+    const seedNode = seed.nodes.find((node) => node.id === "qa-scroll")
+
+    if (!seedNode) throw new Error("qa-scroll fixture node is missing")
+    seedNode.label = "mutated after read model build"
+    seedNode.childIds.push("mutated-child")
+
+    expect(readModel.nodeById["qa-scroll"]?.label).toContain("Scroll should remain")
+    expect(readModel.childrenById["qa-scroll"]).toEqual([])
+  })
+
+  it("creates render projection summary with node maps and stale guards", () => {
+    const seed = loadInitialEditorSeed()
+    const envelope = createCoreSnapshotEnvelope(seed, {
+      createdAt: 100,
+    })
     const readModel = createEditorReadModel(seed)
     const projection = projectRenderDocument(readModel)
-    const cache = createRenderProjectionCache(projection, {
+    const summary = createRenderProjectionSummary(projection, {
       sourceRevision: envelope.documentRevision,
     })
     const olderEnvelope = createCoreSnapshotEnvelope(seed, {
+      createdAt: 200,
       coreRevision: "fixture:4",
       snapshotRevision: 4,
     })
     const staleEnvelope = createCoreSnapshotEnvelope(seed, {
+      createdAt: 300,
       status: "stale",
     })
 
-    expect(cache).toMatchObject({
+    expect(summary).toMatchObject({
+      blockCount: readModel.renderableNodeIds.length,
       kind: "placeholder",
+      pageCount: projection.pages.length,
       projectionId: "projection:3:placeholder",
       sourceRevision: 3,
       stale: false,
     })
-    expect(cache.pages.length).toBeGreaterThan(1)
-    expect(cache.nodeToBlocks["qa-scroll"]).toEqual(["preview-page-4:block:qa-scroll"])
-    expect(cache.nodeToFragments["qa-scroll"]).toEqual(["preview-page-4:fragment:qa-scroll"])
-    expect(isCoreDerivedCacheStale(cache, envelope)).toBe(false)
-    expect(isCoreDerivedCacheStale(cache, {
+    expect("pages" in summary).toBe(false)
+    expect(summary.pageCount).toBeGreaterThan(1)
+    expect(summary.nodeToBlockIds["qa-scroll"]).toEqual(["preview-page-4:block:qa-scroll"])
+    expect(summary.nodeToFragmentIds["qa-scroll"]).toEqual(["preview-page-4:fragment:qa-scroll"])
+    expect(isCoreDerivedCacheStale(summary, envelope)).toBe(false)
+    expect(canApplyCoreDerivedResult(summary, envelope)).toBe(true)
+    expect(getCoreDerivedStaleReason(summary, {
       ...olderEnvelope,
       documentRevision: 4,
-    })).toBe(true)
-    expect(isCoreDerivedCacheStale(cache, staleEnvelope)).toBe(true)
+    })).toBe("revision-mismatch")
+    expect(isCoreDerivedCacheStale(summary, staleEnvelope)).toBe(true)
+    expect(getCoreDerivedStaleReason({
+      ...summary,
+      stale: true,
+    }, envelope)).toBe("cache-stale")
   })
 })

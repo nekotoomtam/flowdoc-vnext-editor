@@ -16,15 +16,21 @@ The important distinction is ownership:
 
 ## Working Set Invariants
 
-The Frontend Core Working Set is not canonical truth.
+These are hard rules:
 
-It is:
+```txt
+FrontendCoreWorkingSet is not canonical truth.
+FrontendCoreWorkingSet is derived.
+FrontendCoreWorkingSet is revisioned.
+FrontendCoreWorkingSet may be stale.
+FrontendCoreWorkingSet must be rebuildable.
+```
 
-- revisioned;
-- allowed to become stale;
-- rebuildable from a core/package/result packet;
-- guarded by source and revision metadata;
-- never persisted back into the package as-is.
+It must also:
+
+- carry source kind and source revision metadata;
+- never expose mutable canonical package objects to React components;
+- never be persisted back into the package as-is.
 
 ## Ownership Groups
 
@@ -89,8 +95,9 @@ schemaVersion
 coreRevision
 documentRevision
 snapshotRevision
-source
+sourceKind
 status
+createdAt
 capabilities
 diagnostics
 ```
@@ -125,11 +132,24 @@ context menu actions
 keyboard shortcut preflight
 ```
 
+The split is:
+
+```txt
+CommandCapabilityMirror
+  -> UI enable/disable hint
+
+CommandPolicy
+  -> current runtime preflight
+
+Core operation validation
+  -> final validation at commit time
+```
+
 Final validation still runs through command policy, mutation bridge, core adapter, and core operation validation when mutations exist.
 
-## Render Projection Cache
+## Render Projection Summary
 
-Render projection is local display state. It may be:
+The working set stores render projection metadata and lookup maps first, not a heavy layout model. It may be:
 
 ```txt
 placeholder
@@ -138,6 +158,20 @@ exact-readonly
 ```
 
 Even an exact-readonly projection is a read cache. It may draw exact results returned by core/backend, but it must not certify export readiness or artifact truth.
+
+The summary can include:
+
+```txt
+projectionId
+kind
+sourceRevision
+layoutGeneration
+stale
+pageCount
+blockCount
+nodeToBlockIds
+nodeToFragmentIds
+```
 
 ## Operation And Parser Nuance
 
@@ -171,11 +205,21 @@ frontend owns working set/cache/runtime
 backend owns durable/exact/artifact
 ```
 
+More specifically:
+
+```txt
+core owns rules
+frontend core binding owns derived working set
+frontend runtime owns browser interaction truth
+backend owns durable/exact/artifact
+```
+
 ## Exit Criteria For This Gate
 
 - Working set definitions exist in `src/editor/coreBinding`.
 - Core-derived types carry revision/source/stale metadata.
-- Tests prove envelope/read model/render projection cache revision behavior.
+- Tests prove envelope/read model/render projection summary revision behavior.
+- Tests prove read model objects are not the same mutable references as the adapter seed.
 - No runtime rewiring is required in this gate.
 - `npm run check` passes.
 
