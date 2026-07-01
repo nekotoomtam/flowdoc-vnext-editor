@@ -5,6 +5,10 @@ export interface CoreDerivedRevisionRef {
   stale?: boolean
 }
 
+export interface CoreDerivedApplyRef extends CoreDerivedRevisionRef {
+  baseRevision: number
+}
+
 export function isCoreDerivedCacheStale(
   cache: CoreDerivedRevisionRef,
   envelope: CoreSnapshotEnvelope,
@@ -25,9 +29,27 @@ export function getCoreDerivedStaleReason(
   return null
 }
 
+export type CoreDerivedApplyBlockReason = CoreDerivedStaleReason | "base-revision-mismatch"
+
+export function getCoreDerivedApplyBlockReason(
+  result: CoreDerivedApplyRef,
+  envelope: CoreSnapshotEnvelope,
+): CoreDerivedApplyBlockReason | null {
+  if (result.baseRevision !== envelope.documentRevision) return "base-revision-mismatch"
+
+  return getCoreDerivedStaleReason(result, envelope)
+}
+
 export function canApplyCoreDerivedResult(
   result: CoreDerivedRevisionRef,
   envelope: CoreSnapshotEnvelope,
 ): boolean {
   return getCoreDerivedStaleReason(result, envelope) === null
+}
+
+export function canApplyCoreDerivedResultToEnvelope(
+  result: CoreDerivedApplyRef,
+  envelope: CoreSnapshotEnvelope,
+): boolean {
+  return getCoreDerivedApplyBlockReason(result, envelope) === null
 }
