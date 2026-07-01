@@ -1,4 +1,4 @@
-import type { CoreEditorNodeSummary, CoreEditorSeed } from "./coreTypes"
+import type { CoreAdapterSnapshot, CoreEditorNodeSummary, CoreEditorSeed } from "./coreTypes"
 
 interface FixtureContentNode {
   id: string
@@ -179,5 +179,28 @@ export function loadInitialEditorSeed(): CoreEditorSeed {
       },
       ...FIXTURE_CONTENT_NODES.map(createFixtureContentNode),
     ],
+  }
+}
+
+export interface LoadInitialCoreSnapshotOptions {
+  createdAt?: number
+}
+
+export function loadInitialCoreSnapshot(
+  options: LoadInitialCoreSnapshotOptions = {},
+): CoreAdapterSnapshot {
+  const seed = loadInitialEditorSeed()
+  const documentRevision = seed.document.documentVersion
+
+  return {
+    coreRevision: `fixture:${documentRevision}`,
+    createdAt: options.createdAt ?? Date.now(),
+    layoutGeneration: null,
+    measurementProfileId: null,
+    schemaVersion: seed.document.packageVersion,
+    seed,
+    snapshotRevision: documentRevision,
+    sourceKind: "fixture",
+    status: "fresh",
   }
 }

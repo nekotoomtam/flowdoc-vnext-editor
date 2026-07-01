@@ -41,3 +41,24 @@ export interface CoreEditorSeed {
   sections: CoreEditorSectionSummary[]
   zones: CoreEditorZoneSummary[]
 }
+
+export type CoreAdapterSnapshotSourceKind =
+  | "api"
+  | "fixture"
+  | "job-result"
+  | "local-draft"
+  | "mutation-result"
+
+export type CoreAdapterSnapshotStatus = "blocked" | "fresh" | "partial" | "stale"
+
+export interface CoreAdapterSnapshot {
+  coreRevision: string
+  createdAt: number
+  layoutGeneration: string | null
+  measurementProfileId: string | null
+  schemaVersion: number
+  seed: CoreEditorSeed
+  snapshotRevision: number
+  sourceKind: CoreAdapterSnapshotSourceKind
+  status: CoreAdapterSnapshotStatus
+}

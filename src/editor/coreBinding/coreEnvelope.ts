@@ -63,12 +63,13 @@ export function createCoreSnapshotEnvelope(
   options: CoreSnapshotEnvelopeOptions = {},
 ): CoreSnapshotEnvelope {
   const documentRevision = seed.document.documentVersion
+  const capabilities = options.capabilities ?? createDefaultCoreCapabilitySummary()
 
   return {
-    capabilities: options.capabilities ?? createDefaultCoreCapabilitySummary(),
+    capabilities: { ...capabilities },
     coreRevision: options.coreRevision ?? `fixture:${documentRevision}`,
     createdAt: options.createdAt ?? Date.now(),
-    diagnostics: seed.diagnostics,
+    diagnostics: { ...seed.diagnostics },
     documentId: seed.document.id,
     documentRevision,
     documentVersion: seed.document.documentVersion,
