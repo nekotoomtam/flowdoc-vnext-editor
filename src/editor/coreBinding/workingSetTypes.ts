@@ -1,4 +1,4 @@
-import type { CoreDiagnosticsSummary } from "../../core/coreTypes"
+import type { CoreDiagnosticsSummary, CoreEditorDocumentSummary } from "../../core/coreTypes"
 import type { EditorJobKind, EditorJobStatus } from "../jobs/jobTypes"
 import type { CommandCapabilityMirror } from "./capabilityMirror"
 import type { CoreSnapshotEnvelope } from "./coreEnvelope"
@@ -27,6 +27,7 @@ export interface EditorJobEnvelope {
 export interface FrontendCoreWorkingSet {
   capabilities: CommandCapabilityMirror
   diagnostics: CoreDiagnosticsSummary
+  document: CoreEditorDocumentSummary
   envelope: CoreSnapshotEnvelope
   readModel: EditorReadModel
   renderProjection: RenderProjectionSummary | null

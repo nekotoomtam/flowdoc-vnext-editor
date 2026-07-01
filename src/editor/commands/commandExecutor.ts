@@ -43,7 +43,7 @@ export function executeEditorCommand(
           kind: "layout.live",
           priority: "visible",
           reason: command.reason,
-          requestRevision: state.seed.document.documentVersion,
+          requestRevision: state.core.envelope.documentRevision,
           target: targetNodeIds.length > 0 ? { nodeIds: targetNodeIds } : undefined,
         }),
         state,

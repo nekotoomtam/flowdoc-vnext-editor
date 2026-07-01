@@ -1,4 +1,6 @@
 import type { CoreEditorSeed } from "../../core/coreTypes"
+import { createFrontendCoreWorkingSetFromSeed } from "../coreBinding/workingSetFactory"
+import type { FrontendCoreWorkingSet } from "../coreBinding/workingSetTypes"
 import { createHistoryStackState } from "../history/historyStack"
 import type { HistoryStackState } from "../history/historyTypes"
 import { createJobQueueState } from "../jobs/jobQueue"
@@ -13,8 +15,10 @@ import {
 import { applyViewportAction } from "../viewport/viewportActions"
 import { createViewportState, type ViewportState } from "../viewport/viewportState"
 import { createEditorView, type EditorView } from "./editorView"
+import { createEditorSeedFromWorkingSet } from "./runtimeCoreBinding"
 
 export interface EditorRuntimeState {
+  core: FrontendCoreWorkingSet
   history: HistoryStackState
   jobs: EditorJobQueueState
   paper: PaperModel
@@ -29,12 +33,16 @@ function syncPaperWithViewport(paper: PaperModel, viewport: ViewportState): Pape
   return setPaperZoom(paper, viewport.zoom)
 }
 
-export function createInitialEditorState(seed: CoreEditorSeed): EditorRuntimeState {
-  const view = createEditorView(seed)
+function createEditorRuntimeState(
+  core: FrontendCoreWorkingSet,
+  seed: CoreEditorSeed,
+  view: EditorView,
+): EditorRuntimeState {
   const paper = createDefaultPaperModel()
   const viewport = createViewportState(paper.zoom)
 
   return {
+    core,
     history: createHistoryStackState(),
     jobs: createJobQueueState(),
     paper: syncPaperWithViewport(paper, viewport),
@@ -44,6 +52,22 @@ export function createInitialEditorState(seed: CoreEditorSeed): EditorRuntimeSta
     viewport,
     view,
   }
+}
+
+export function createInitialEditorStateFromWorkingSet(
+  workingSet: FrontendCoreWorkingSet,
+): EditorRuntimeState {
+  return createEditorRuntimeState(
+    workingSet,
+    createEditorSeedFromWorkingSet(workingSet),
+    workingSet.readModel,
+  )
+}
+
+export function createInitialEditorState(seed: CoreEditorSeed): EditorRuntimeState {
+  const workingSet = createFrontendCoreWorkingSetFromSeed(seed)
+
+  return createEditorRuntimeState(workingSet, seed, createEditorView(seed))
 }
 
 export function selectEditorNode(

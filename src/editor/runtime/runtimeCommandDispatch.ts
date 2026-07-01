@@ -12,7 +12,7 @@ export interface EditorRuntimeCommandDispatch {
 }
 
 function getDocumentRevision(state: EditorRuntimeState): number {
-  return state.seed.document.documentVersion
+  return state.core.envelope.documentRevision
 }
 
 export function dispatchEditorRuntimeCommand(

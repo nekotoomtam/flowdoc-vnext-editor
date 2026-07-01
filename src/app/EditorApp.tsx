@@ -1,13 +1,16 @@
 import { useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
-import { loadInitialEditorSeed } from "../core/coreAdapter"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
-import { createInitialEditorState } from "../editor/runtime/editorState"
+import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
+import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
 import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDispatch"
 
 export function EditorApp() {
-  const initialState = useMemo(() => createInitialEditorState(loadInitialEditorSeed()), [])
+  const initialState = useMemo(
+    () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet()),
+    [],
+  )
   const [editorState, setEditorState] = useState(initialState)
 
   function dispatchEditorCommand(command: EditorCommand) {

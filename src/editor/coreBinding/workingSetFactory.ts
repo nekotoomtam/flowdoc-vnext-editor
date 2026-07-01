@@ -1,5 +1,5 @@
 import { loadInitialCoreSnapshot, type LoadInitialCoreSnapshotOptions } from "../../core/coreAdapter"
-import type { CoreAdapterSnapshot } from "../../core/coreTypes"
+import type { CoreAdapterSnapshot, CoreEditorSeed } from "../../core/coreTypes"
 import { projectRenderDocument } from "../render/renderProjector"
 import { createCommandCapabilityMirror } from "./capabilityMirror"
 import { createCoreSnapshotEnvelope } from "./coreEnvelope"
@@ -15,6 +15,18 @@ export interface CreateFrontendCoreWorkingSetOptions {
 export interface LoadInitialCoreWorkingSetOptions
   extends CreateFrontendCoreWorkingSetOptions,
     LoadInitialCoreSnapshotOptions {}
+
+export interface CreateFrontendCoreWorkingSetFromSeedOptions
+  extends CreateFrontendCoreWorkingSetOptions {
+  coreRevision?: string
+  createdAt?: number
+  layoutGeneration?: string | null
+  measurementProfileId?: string | null
+  schemaVersion?: number
+  snapshotRevision?: number
+  sourceKind?: CoreAdapterSnapshot["sourceKind"]
+  status?: CoreAdapterSnapshot["status"]
+}
 
 export function createFrontendCoreWorkingSetFromSnapshot(
   snapshot: CoreAdapterSnapshot,
@@ -46,10 +58,33 @@ export function createFrontendCoreWorkingSetFromSnapshot(
   return {
     capabilities,
     diagnostics: envelope.diagnostics,
+    document: { ...snapshot.seed.document },
     envelope,
     readModel,
     renderProjection,
   }
+}
+
+export function createFrontendCoreWorkingSetFromSeed(
+  seed: CoreEditorSeed,
+  options: CreateFrontendCoreWorkingSetFromSeedOptions = {},
+): FrontendCoreWorkingSet {
+  const documentRevision = seed.document.documentVersion
+
+  return createFrontendCoreWorkingSetFromSnapshot(
+    {
+      coreRevision: options.coreRevision ?? `fixture:${documentRevision}`,
+      createdAt: options.createdAt ?? Date.now(),
+      layoutGeneration: options.layoutGeneration ?? null,
+      measurementProfileId: options.measurementProfileId ?? null,
+      schemaVersion: options.schemaVersion ?? seed.document.packageVersion,
+      seed,
+      snapshotRevision: options.snapshotRevision ?? documentRevision,
+      sourceKind: options.sourceKind ?? "fixture",
+      status: options.status ?? "fresh",
+    },
+    options,
+  )
 }
 
 export function loadInitialCoreWorkingSet(

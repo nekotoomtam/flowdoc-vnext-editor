@@ -24,16 +24,17 @@ export function EditorShell({
   onSelectPaperPreset,
   onSelectPaperZoom,
 }: EditorShellProps) {
-  const { jobs, paper, seed, selectedNodeId, selectionReason, view } = editorState
+  const { core, jobs, paper, selectedNodeId, selectionReason, view } = editorState
+  const { diagnostics, document } = core
   const inspectorFacts = getInspectorFacts(view, selectedNodeId)
   const outlineItems = getOutlineItems(view)
   const renderablePages = projectPreviewPages(view)
 
   return (
     <div className="editor-shell">
-      <AppHeader document={seed.document} diagnostics={seed.diagnostics} />
+      <AppHeader document={document} diagnostics={diagnostics} />
       <EditorToolbar
-        diagnostics={seed.diagnostics}
+        diagnostics={diagnostics}
         paper={paper}
         onSelectPaperPreset={onSelectPaperPreset}
         onSelectPaperZoom={onSelectPaperZoom}
@@ -41,7 +42,7 @@ export function EditorShell({
       <main className="editor-workspace" aria-label="FlowDoc editor workspace">
         <OutlinePanel items={outlineItems} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
         <CanvasSurface
-          document={seed.document}
+          document={document}
           pages={renderablePages}
           paper={paper}
           selectedNodeId={selectedNodeId}
@@ -50,14 +51,15 @@ export function EditorShell({
         <aside className="editor-side-panel" aria-label="Inspector and diagnostics">
           <InspectorPanel facts={inspectorFacts} />
           <DiagnosticsPanel
-            diagnostics={seed.diagnostics}
+            diagnostics={diagnostics}
             selectionReason={selectionReason}
             view={view}
           />
         </aside>
       </main>
       <StatusBar
-        document={seed.document}
+        core={core}
+        document={document}
         history={editorState.history}
         jobs={jobs}
         paper={paper}

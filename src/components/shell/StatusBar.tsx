@@ -1,4 +1,5 @@
 import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
+import type { FrontendCoreWorkingSet } from "../../editor/coreBinding/workingSetTypes"
 import type { HistoryStackState } from "../../editor/history/historyTypes"
 import { getJobCounts } from "../../editor/jobs/jobSelectors"
 import type { EditorJobQueueState } from "../../editor/jobs/jobTypes"
@@ -6,6 +7,7 @@ import type { PaperModel } from "../../editor/paper/paperModel"
 import type { EditorView } from "../../editor/runtime/editorView"
 
 export interface StatusBarProps {
+  core: FrontendCoreWorkingSet
   document: CoreEditorDocumentSummary
   history: HistoryStackState
   jobs: EditorJobQueueState
@@ -16,6 +18,7 @@ export interface StatusBarProps {
 }
 
 export function StatusBar({
+  core,
   document,
   history,
   jobs,
@@ -25,10 +28,15 @@ export function StatusBar({
   view,
 }: StatusBarProps) {
   const jobCounts = getJobCounts(jobs)
+  const renderKind = core.renderProjection?.kind ?? "none"
 
   return (
     <footer className="status-bar">
       <span>Document: {document.id}</span>
+      <span>
+        Core: {core.envelope.sourceKind} r{core.envelope.documentRevision}
+      </span>
+      <span>Render: {renderKind}</span>
       <span>Selected: {selectedNodeId}</span>
       <span>
         Paper: {paper.label} / {Math.round(paper.zoom * 100)}%
