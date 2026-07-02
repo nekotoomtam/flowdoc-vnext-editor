@@ -256,6 +256,14 @@ export interface LoadReadOnlyCoreSnapshotFromPackageOptions {
   sourceKind?: CoreAdapterSnapshotSourceKind
 }
 
+export interface LoadReadOnlyCoreSnapshotFromCoreFixtureTransportOptions {
+  baseRevision?: number | null
+  createdAt?: number
+  documentId?: string
+  envelopeId?: string
+  purpose?: CoreReadEnvelopePurpose
+}
+
 export interface LoadInitialCoreSnapshotOptions {
   createdAt?: number
 }
@@ -727,6 +735,26 @@ export function loadReadOnlyCoreSnapshotFromEnvelope(
     createdAt: envelope.receivedAt,
     documentId: envelope.documentId,
     sourceKind: envelope.sourceKind,
+  })
+}
+
+export function loadReadOnlyCoreSnapshotFromCoreFixtureTransportEnvelope(
+  options: LoadReadOnlyCoreSnapshotFromCoreFixtureTransportOptions = {},
+): CoreAdapterReadResult {
+  const receivedAt = options.createdAt ?? Date.now()
+  const baseRevision = options.baseRevision ?? null
+  const purpose = options.purpose ?? (baseRevision === null ? "initial-load" : "refresh")
+  const documentId = options.documentId ?? CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID
+
+  return loadReadOnlyCoreSnapshotFromEnvelope({
+    baseRevision,
+    documentId,
+    envelopeId: options.envelopeId ?? `core-fixture:${documentId}:${purpose}:${receivedAt}`,
+    packageValue: productReportMinimalFixture,
+    purpose,
+    receivedAt,
+    requestedAt: receivedAt,
+    sourceKind: "fixture",
   })
 }
 

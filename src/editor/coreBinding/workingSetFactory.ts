@@ -1,8 +1,11 @@
 import {
   loadReadOnlyCoreSnapshot,
+  loadReadOnlyCoreSnapshotFromCoreFixtureTransportEnvelope,
+  loadReadOnlyCoreSnapshotFromEnvelope,
   type LoadReadOnlyCoreSnapshotOptions,
 } from "../../core/coreAdapter"
 import {
+  type ActiveCoreReadRevision,
   cloneCoreReadBindingFailures,
   type CoreAdapterReadResult,
   type CoreAdapterSnapshot,
@@ -24,6 +27,11 @@ export interface CreateFrontendCoreWorkingSetOptions {
 export interface LoadInitialCoreWorkingSetOptions
   extends CreateFrontendCoreWorkingSetOptions,
     LoadReadOnlyCoreSnapshotOptions {}
+
+export interface LoadFrontendCoreWorkingSetFromTransportEnvelopeOptions
+  extends CreateFrontendCoreWorkingSetOptions {
+  active?: ActiveCoreReadRevision
+}
 
 export interface CreateFrontendCoreWorkingSetFromSeedOptions
   extends CreateFrontendCoreWorkingSetOptions {
@@ -110,6 +118,35 @@ export function bindFrontendCoreWorkingSetFromReadResult(
   }
 }
 
+export function bindFrontendCoreWorkingSetFromTransportEnvelope(
+  envelopeValue: unknown,
+  active?: ActiveCoreReadRevision,
+  options: CreateFrontendCoreWorkingSetOptions = {},
+): FrontendCoreWorkingSetBinding {
+  return bindFrontendCoreWorkingSetFromReadResult(
+    loadReadOnlyCoreSnapshotFromEnvelope(envelopeValue, active),
+    options,
+  )
+}
+
+export function loadFrontendCoreWorkingSetFromTransportEnvelope(
+  envelopeValue: unknown,
+  options: LoadFrontendCoreWorkingSetFromTransportEnvelopeOptions = {},
+): FrontendCoreWorkingSet {
+  const { active, ...workingSetOptions } = options
+  const binding = bindFrontendCoreWorkingSetFromTransportEnvelope(
+    envelopeValue,
+    active,
+    workingSetOptions,
+  )
+
+  if (!binding.workingSet) {
+    throw new Error("Core working set is blocked by the read-only transport envelope.")
+  }
+
+  return binding.workingSet
+}
+
 export function createFrontendCoreWorkingSetFromSeed(
   seed: CoreEditorSeed,
   options: CreateFrontendCoreWorkingSetFromSeedOptions = {},
@@ -134,11 +171,35 @@ export function createFrontendCoreWorkingSetFromSeed(
   )
 }
 
+function shouldLoadCoreFixtureThroughTransportEnvelope(
+  options: LoadInitialCoreWorkingSetOptions,
+): boolean {
+  return options.fixtureSource === "core-product-report-minimal"
+    && !options.simulateCoreUnavailable
+    && !options.simulateInvalidEnvelope
+    && !options.simulateMissingDiagnostics
+    && !options.simulateMissingRenderProjection
+}
+
+function loadInitialCoreReadResult(
+  options: LoadInitialCoreWorkingSetOptions,
+): CoreAdapterReadResult {
+  if (shouldLoadCoreFixtureThroughTransportEnvelope(options)) {
+    return loadReadOnlyCoreSnapshotFromCoreFixtureTransportEnvelope({
+      baseRevision: options.baseRevision,
+      createdAt: options.createdAt,
+      documentId: options.documentId,
+    })
+  }
+
+  return loadReadOnlyCoreSnapshot(options)
+}
+
 export function loadInitialCoreWorkingSet(
   options: LoadInitialCoreWorkingSetOptions = {},
 ): FrontendCoreWorkingSet {
   const binding = bindFrontendCoreWorkingSetFromReadResult(
-    loadReadOnlyCoreSnapshot(options),
+    loadInitialCoreReadResult(options),
     options,
   )
 

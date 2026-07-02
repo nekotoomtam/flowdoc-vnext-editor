@@ -156,6 +156,25 @@ CoreReadTransportEnvelope
   -> FrontendCoreWorkingSet
 ```
 
+External transport entry flow:
+
+```txt
+runtime boundary
+  -> loadFrontendCoreWorkingSetFromTransportEnvelope(...)
+  -> bindFrontendCoreWorkingSetFromTransportEnvelope(...)
+  -> loadReadOnlyCoreSnapshotFromEnvelope(...)
+  -> bindFrontendCoreWorkingSetFromReadResult(...)
+  -> FrontendCoreWorkingSet
+```
+
+Initial core fixture boot still enters through `loadInitialCoreWorkingSet(...)`,
+but the core fixture package value is created and consumed inside `src/core/`
+before the resulting `CoreAdapterReadResult` is bound by the working set factory.
+
+UI and app modules must not call `loadReadOnlyCoreSnapshotFromEnvelope(...)`
+directly. They should use working set factory loaders so the binding boundary
+owns blocked/fresh result handling.
+
 Required transport envelope facts:
 
 ```txt
@@ -366,6 +385,7 @@ Allowed now:
 bind read-only core snapshots into FrontendCoreWorkingSet
 bind adapter request/result envelopes before working set creation
 bind read-only transport envelopes through a validation gate
+bind transport envelopes through the working set factory boundary
 bind caller-supplied canonical package input through the read-only adapter
 derive normalized read model
 derive command capability mirror
@@ -396,6 +416,7 @@ packageValue storage in EditorRuntimeState or FrontendCoreWorkingSet
 - Envelope, read model, capabilities, and render projection are revision-aligned.
 - Core read result envelopes include document id, revision, status, and failures.
 - Transport envelopes validate runtime sourceKind, purpose, timestamps, package input, and base revision policy.
+- Working set factory exposes transport-envelope binding loaders for external read inputs.
 - Core-derived async results use stale guards before applying.
 - Stale guards reject document mismatch, revision mismatch, stale cache, and non-fresh envelopes.
 - Core imports remain behind `src/core/`.
@@ -414,6 +435,7 @@ Block the phase if:
 - Render projection summary is treated as exact/export layout truth.
 - Selection, viewport, draft, or DOM state is stored inside the working set.
 - `packageValue` is stored in EditorRuntimeState, FrontendCoreWorkingSet, or React component state.
+- App/components call `loadReadOnlyCoreSnapshotFromEnvelope(...)` directly instead of using working set factory loaders.
 
 ## RISK
 
@@ -445,10 +467,12 @@ read result fresh/stale/document mismatch/missing projection behavior
 caller-supplied canonical package input behavior
 invalid caller-supplied package input behavior
 valid transport envelope behavior
+valid transport envelope to working set factory behavior
 initial-load transport envelope with null baseRevision
 missing packageValue behavior
 invalid transport sourceKind behavior
 transport envelope active revision stale guard
+blocked transport envelope binding behavior
 packageValue is not exposed by FrontendCoreWorkingSet
 no direct core source import
 no direct package import outside src/core
