@@ -254,12 +254,14 @@ describe("core working set factory", () => {
     expect(workingSet.capabilities.byNodeId.title).toMatchObject({
       canOpenTextDraft: true,
       deletable: true,
+      duplicable: true,
       editable: true,
       reorderable: true,
     })
     expect(workingSet.capabilities.byNodeId["detail-table"]).toMatchObject({
       canOpenTextDraft: false,
       deletable: true,
+      duplicable: true,
       editable: false,
       reorderable: true,
     })

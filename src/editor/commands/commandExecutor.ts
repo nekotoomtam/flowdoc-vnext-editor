@@ -6,17 +6,34 @@ import {
 } from "../runtime/editorState"
 import { resolveEditorSelectionTarget } from "../runtime/editorView"
 import { canExecuteCommand } from "./commandPolicy"
+import { normalizeCommandTargetNodeId } from "./commandTargets"
 import {
   createAppliedCommandResult,
+  createDryRunCommandResult,
   createNoopCommandResult,
   createQueuedCommandResult,
   createRejectedCommandResult,
   type CommandExecutionResult,
 } from "./commandResult"
-import type { EditorCommand } from "./commandTypes"
+import type { EditorCommand, NodeSurfaceCommand } from "./commandTypes"
 
 function isSameState(left: EditorRuntimeState, right: EditorRuntimeState): boolean {
   return left === right
+}
+
+function normalizeSurfaceCommand(
+  state: EditorRuntimeState,
+  command: NodeSurfaceCommand,
+): NodeSurfaceCommand {
+  const nodeId = normalizeCommandTargetNodeId(state, command.target.nodeId)
+  if (nodeId === command.target.nodeId) return command
+
+  return {
+    ...command,
+    target: {
+      nodeId,
+    },
+  }
 }
 
 export function executeEditorCommand(
@@ -47,6 +64,22 @@ export function executeEditorCommand(
           requestRevision: state.core.envelope.documentRevision,
           target: targetNodeIds.length > 0 ? { nodeIds: targetNodeIds } : undefined,
         }),
+        state,
+      }
+    }
+
+    case "node.delete":
+    case "node.duplicate":
+    case "node.openTextDraft":
+    case "node.reorder": {
+      const normalizedCommand = normalizeSurfaceCommand(state, command)
+
+      return {
+        command: normalizedCommand,
+        result: createDryRunCommandResult(
+          command.kind,
+          "Operation surface command passed policy; mutation bridge is not enabled.",
+        ),
         state,
       }
     }

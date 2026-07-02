@@ -11,6 +11,7 @@ export interface NodeCommandCapabilities {
   canInsertFieldChip: boolean
   canOpenTextDraft: boolean
   deletable: boolean
+  duplicable: boolean
   editable: boolean
   reasons: string[]
   reorderable: boolean
@@ -32,8 +33,9 @@ function createNodeCapabilities(readModel: EditorReadModel, nodeId: string): Nod
     canInsertFieldChip: editable,
     canOpenTextDraft: editable,
     deletable: coreCapabilities?.canBeDeleted ?? false,
+    duplicable: coreCapabilities?.canBeDuplicated ?? false,
     editable,
-    reasons: editable ? [] : ["Phase 1 only opens draft capabilities for text-like nodes"],
+    reasons: editable ? [] : ["Operation surface cannot open a text draft"],
     reorderable: coreCapabilities?.canBeReordered ?? false,
     selectable: Boolean(readModel.nodeById[nodeId]),
   }

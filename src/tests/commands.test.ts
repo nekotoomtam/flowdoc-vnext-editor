@@ -1,8 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { loadInitialEditorSeed } from "../core/coreAdapter"
+import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID, loadInitialEditorSeed } from "../core/coreAdapter"
 import { canExecuteCommand } from "../editor/commands/commandPolicy"
+import type { EditorCommand } from "../editor/commands/commandTypes"
 import { executeEditorCommand } from "../editor/commands/commandExecutor"
-import { createInitialEditorState } from "../editor/runtime/editorState"
+import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
+import {
+  createInitialEditorState,
+  createInitialEditorStateFromWorkingSet,
+} from "../editor/runtime/editorState"
+
+function createCoreFixtureState() {
+  return createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
+    baseRevision: 3,
+    createdAt: 100,
+    documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+    fixtureSource: "core-product-report-minimal",
+  }))
+}
 
 describe("command foundation", () => {
   it("queues live layout requests without mutating document state", () => {
@@ -50,6 +64,79 @@ describe("command foundation", () => {
     expect(result.state.selection.selectionReason).toBe("outline-select")
   })
 
+  it("authorizes operation-surface commands as dry runs with normalized targets", () => {
+    const state = createCoreFixtureState()
+
+    const openDraft = executeEditorCommand(state, {
+      kind: "node.openTextDraft",
+      reason: "toolbar-open",
+      source: "toolbar",
+      target: {
+        nodeId: "title",
+      },
+    })
+    const deleteFromInternalText = executeEditorCommand(state, {
+      kind: "node.delete",
+      reason: "keyboard-delete",
+      source: "keyboard",
+      target: {
+        nodeId: "detail-cell-b-text",
+      },
+    })
+    const reorderFromInternalText = executeEditorCommand(state, {
+      kind: "node.reorder",
+      payload: {
+        direction: "down",
+      },
+      reason: "keyboard-reorder",
+      source: "keyboard",
+      target: {
+        nodeId: "summary-left-text",
+      },
+    })
+
+    expect(canExecuteCommand({
+      kind: "node.duplicate",
+      reason: "toolbar-duplicate",
+      source: "toolbar",
+      target: {
+        nodeId: "detail-table",
+      },
+    }, state)).toMatchObject({
+      allowed: true,
+    })
+    expect(openDraft.result).toMatchObject({
+      command: "node.openTextDraft",
+      stateChanged: false,
+      status: "dry-run",
+    })
+    expect(openDraft.state).toBe(state)
+    expect(openDraft.command).toMatchObject({
+      target: {
+        nodeId: "title",
+      },
+    })
+    expect(deleteFromInternalText.result).toMatchObject({
+      command: "node.delete",
+      stateChanged: false,
+      status: "dry-run",
+    })
+    expect(deleteFromInternalText.command).toMatchObject({
+      target: {
+        nodeId: "detail-table",
+      },
+    })
+    expect(reorderFromInternalText.command).toMatchObject({
+      target: {
+        nodeId: "summary-columns",
+      },
+    })
+    expect(reorderFromInternalText.result).toMatchObject({
+      command: "node.reorder",
+      status: "dry-run",
+    })
+  })
+
   it("rejects commands with invalid targets or payloads", () => {
     const state = createInitialEditorState(loadInitialEditorSeed())
     const missingNode = {
@@ -90,6 +177,55 @@ describe("command foundation", () => {
     })
     expect(executeEditorCommand(state, invalidLayoutTarget).result).toMatchObject({
       command: "layout.requestLive",
+      status: "rejected",
+    })
+  })
+
+  it("rejects operation-surface commands that fail surface or capability policy", () => {
+    const state = createCoreFixtureState()
+    const tableTextDraft = {
+      kind: "node.openTextDraft" as const,
+      reason: "test",
+      source: "toolbar" as const,
+      target: {
+        nodeId: "detail-cell-b-text",
+      },
+    }
+    const rootDelete = {
+      kind: "node.delete" as const,
+      reason: "test",
+      source: "keyboard" as const,
+      target: {
+        nodeId: "root",
+      },
+    }
+    const invalidReorderDirection = {
+      kind: "node.reorder",
+      payload: {
+        direction: "sideways",
+      },
+      reason: "test",
+      source: "keyboard",
+      target: {
+        nodeId: "title",
+      },
+    } as unknown as EditorCommand
+
+    expect(canExecuteCommand(tableTextDraft, state)).toMatchObject({
+      allowed: false,
+      reason: "Operation surface cannot open a text draft",
+      severity: "blocked",
+    })
+    expect(executeEditorCommand(state, tableTextDraft).result).toMatchObject({
+      command: "node.openTextDraft",
+      status: "rejected",
+    })
+    expect(canExecuteCommand(rootDelete, state)).toMatchObject({
+      allowed: false,
+      reason: "Node does not resolve to an operation surface: root",
+    })
+    expect(executeEditorCommand(state, invalidReorderDirection).result).toMatchObject({
+      command: "node.reorder",
       status: "rejected",
     })
   })

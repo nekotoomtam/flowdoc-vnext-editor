@@ -13,12 +13,28 @@ export interface HistoryRecordInput {
 function getCommandTargetNodeIds(command: EditorCommand): string[] {
   if (command.kind === "selection.selectNode") return [command.target.nodeId]
   if (command.kind === "layout.requestLive") return command.target?.nodeIds ?? []
+  if (
+    command.kind === "node.delete"
+    || command.kind === "node.duplicate"
+    || command.kind === "node.openTextDraft"
+    || command.kind === "node.reorder"
+  ) {
+    return [command.target.nodeId]
+  }
   return []
 }
 
 function getHistoryRecordKind(command: EditorCommand): HistoryRecordKind {
   if (command.kind === "layout.requestLive") return "layoutRequest"
   if (command.kind === "selection.selectNode") return "selection"
+  if (
+    command.kind === "node.delete"
+    || command.kind === "node.duplicate"
+    || command.kind === "node.openTextDraft"
+    || command.kind === "node.reorder"
+  ) {
+    return "structuralCommand"
+  }
   return "viewport"
 }
 
@@ -26,6 +42,14 @@ function getHistoryRecordLabel(command: EditorCommand): string {
   switch (command.kind) {
     case "layout.requestLive":
       return "Request live layout"
+    case "node.delete":
+      return "Delete node"
+    case "node.duplicate":
+      return "Duplicate node"
+    case "node.openTextDraft":
+      return "Open text draft"
+    case "node.reorder":
+      return "Reorder node"
     case "selection.selectNode":
       return "Select node"
     case "viewport.setPaperPreset":
@@ -39,6 +63,12 @@ function getPayloadSummary(command: EditorCommand): string | null {
   switch (command.kind) {
     case "layout.requestLive":
       return command.target?.nodeIds?.join(", ") ?? "document"
+    case "node.delete":
+    case "node.duplicate":
+    case "node.openTextDraft":
+      return command.target.nodeId
+    case "node.reorder":
+      return `${command.target.nodeId} ${command.payload.direction}`
     case "selection.selectNode":
       return command.target.nodeId
     case "viewport.setPaperPreset":

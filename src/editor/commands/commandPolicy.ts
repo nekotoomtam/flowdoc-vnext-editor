@@ -1,4 +1,6 @@
 import type { EditorRuntimeState } from "../runtime/editorState"
+import type { NodeCommandCapabilities } from "../coreBinding/capabilityMirror"
+import { resolveCommandNodeTarget } from "./commandTargets"
 import type { EditorCommand, CommandPolicySeverity } from "./commandTypes"
 
 export interface CommandPolicyResult {
@@ -23,6 +25,41 @@ export function rejectCommand(reason: string, severity: CommandPolicySeverity = 
   }
 }
 
+interface SurfacePolicyTarget {
+  capabilities: NodeCommandCapabilities
+  nodeId: string
+}
+
+function isReorderDirection(value: unknown): boolean {
+  return value === "down" || value === "up"
+}
+
+function resolveSurfacePolicyTarget(
+  state: EditorRuntimeState,
+  nodeId: string,
+): CommandPolicyResult | SurfacePolicyTarget {
+  const target = resolveCommandNodeTarget(state, nodeId)
+
+  if (!target.inputNodeExists) {
+    return rejectCommand(`Unknown node: ${nodeId}`)
+  }
+  if (!target.nodeId) {
+    return rejectCommand(`Node does not resolve to an operation surface: ${nodeId}`)
+  }
+  if (!target.capabilities?.selectable) {
+    return rejectCommand(`Operation surface is not selectable: ${target.nodeId}`)
+  }
+
+  return {
+    capabilities: target.capabilities,
+    nodeId: target.nodeId,
+  }
+}
+
+function isCommandPolicyResult(value: CommandPolicyResult | SurfacePolicyTarget): value is CommandPolicyResult {
+  return "allowed" in value
+}
+
 export function canExecuteCommand(command: EditorCommand, state: EditorRuntimeState): CommandPolicyResult {
   switch (command.kind) {
     case "layout.requestLive": {
@@ -33,11 +70,52 @@ export function canExecuteCommand(command: EditorCommand, state: EditorRuntimeSt
       return allowCommand()
     }
 
-    case "selection.selectNode":
-      if (!state.view.nodeById[command.target.nodeId]) {
-        return rejectCommand(`Unknown node: ${command.target.nodeId}`)
+    case "selection.selectNode": {
+      const target = resolveSurfacePolicyTarget(state, command.target.nodeId)
+      if (isCommandPolicyResult(target)) return target
+      return allowCommand()
+    }
+
+    case "node.openTextDraft": {
+      const target = resolveSurfacePolicyTarget(state, command.target.nodeId)
+      if (isCommandPolicyResult(target)) return target
+      if (!target.capabilities.canOpenTextDraft) {
+        return rejectCommand(
+          target.capabilities.reasons[0] ?? `Operation surface cannot open a text draft: ${target.nodeId}`,
+        )
       }
       return allowCommand()
+    }
+
+    case "node.delete": {
+      const target = resolveSurfacePolicyTarget(state, command.target.nodeId)
+      if (isCommandPolicyResult(target)) return target
+      if (!target.capabilities.deletable) {
+        return rejectCommand(`Operation surface cannot be deleted: ${target.nodeId}`)
+      }
+      return allowCommand()
+    }
+
+    case "node.duplicate": {
+      const target = resolveSurfacePolicyTarget(state, command.target.nodeId)
+      if (isCommandPolicyResult(target)) return target
+      if (!target.capabilities.duplicable) {
+        return rejectCommand(`Operation surface cannot be duplicated: ${target.nodeId}`)
+      }
+      return allowCommand()
+    }
+
+    case "node.reorder": {
+      const target = resolveSurfacePolicyTarget(state, command.target.nodeId)
+      if (isCommandPolicyResult(target)) return target
+      if (!isReorderDirection(command.payload.direction)) {
+        return rejectCommand(`Unsupported reorder direction: ${String(command.payload.direction)}`)
+      }
+      if (!target.capabilities.reorderable) {
+        return rejectCommand(`Operation surface cannot be reordered: ${target.nodeId}`)
+      }
+      return allowCommand()
+    }
 
     case "viewport.setZoom":
       if (!Number.isFinite(command.payload.zoom)) {

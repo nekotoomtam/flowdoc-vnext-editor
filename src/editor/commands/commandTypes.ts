@@ -2,11 +2,16 @@ import type { PaperPreset } from "../paper/paperModel"
 
 export type EditorCommandKind =
   | "layout.requestLive"
+  | "node.delete"
+  | "node.duplicate"
+  | "node.openTextDraft"
+  | "node.reorder"
   | "selection.selectNode"
   | "viewport.setZoom"
   | "viewport.setPaperPreset"
 
 export type EditorCommandSource = "canvas" | "keyboard" | "outline" | "system" | "toolbar"
+export type NodeReorderDirection = "down" | "up"
 
 interface BaseEditorCommand {
   kind: EditorCommandKind
@@ -43,8 +48,53 @@ export interface RequestLiveLayoutCommand extends BaseEditorCommand {
   }
 }
 
+export interface OpenTextDraftCommand extends BaseEditorCommand {
+  kind: "node.openTextDraft"
+  reason: string
+  target: {
+    nodeId: string
+  }
+}
+
+export interface DeleteNodeCommand extends BaseEditorCommand {
+  kind: "node.delete"
+  reason: string
+  target: {
+    nodeId: string
+  }
+}
+
+export interface DuplicateNodeCommand extends BaseEditorCommand {
+  kind: "node.duplicate"
+  reason: string
+  target: {
+    nodeId: string
+  }
+}
+
+export interface ReorderNodeCommand extends BaseEditorCommand {
+  kind: "node.reorder"
+  payload: {
+    direction: NodeReorderDirection
+  }
+  reason: string
+  target: {
+    nodeId: string
+  }
+}
+
+export type NodeSurfaceCommand =
+  | DeleteNodeCommand
+  | DuplicateNodeCommand
+  | OpenTextDraftCommand
+  | ReorderNodeCommand
+
 export type EditorCommand =
+  | DeleteNodeCommand
+  | DuplicateNodeCommand
+  | OpenTextDraftCommand
   | RequestLiveLayoutCommand
+  | ReorderNodeCommand
   | SelectNodeCommand
   | SetViewportZoomCommand
   | SetPaperPresetCommand

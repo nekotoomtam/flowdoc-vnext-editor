@@ -18,6 +18,12 @@ export type CommandResult =
       command: EditorCommandKind
       reason: string
       stateChanged: false
+      status: "dry-run"
+    }
+  | {
+      command: EditorCommandKind
+      reason: string
+      stateChanged: false
       status: "rejected"
     }
   | {
@@ -51,6 +57,15 @@ export function createNoopCommandResult(command: EditorCommandKind, reason: stri
     reason,
     stateChanged: false,
     status: "noop",
+  }
+}
+
+export function createDryRunCommandResult(command: EditorCommandKind, reason: string): CommandResult {
+  return {
+    command,
+    reason,
+    stateChanged: false,
+    status: "dry-run",
   }
 }
 
