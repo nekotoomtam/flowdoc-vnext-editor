@@ -1,9 +1,9 @@
-import type { CSSProperties } from "react"
+import { useMemo } from "react"
 import { CanvasScrollRoot } from "./CanvasScrollRoot"
-import { PaperPage } from "../paper/PaperPage"
+import { CanvasStage } from "./CanvasStage"
 import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
-import { getPaperDocumentStackGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
+import { createCanvasRenderModel } from "../../editor/render/canvasRenderModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
 import type { ViewportScrollRootFacts } from "../../editor/viewport/viewportMeasurement"
 
@@ -24,40 +24,21 @@ export function CanvasSurface({
   selectedNodeId,
   onViewportFactsChange,
 }: CanvasSurfaceProps) {
-  const pageCount = pages.length
-  const stackGeometry = getPaperDocumentStackGeometry(paper, pageCount)
-  const viewportMeasurementKey = `${paper.preset}:${paper.zoom}:${stackGeometry.stackHeightPx}:${pageCount}`
-  const canvasPaperStyle = {
-    "--paper-shell-width": `${stackGeometry.pageWidthPx}px`,
-    "--paper-stack-gap": `${stackGeometry.pageGapPx}px`,
-    "--paper-stack-height": `${stackGeometry.stackHeightPx}px`,
-  } as CSSProperties
+  const renderModel = useMemo(
+    () => createCanvasRenderModel({ document, pages, paper }),
+    [document, pages, paper],
+  )
 
   return (
     <CanvasScrollRoot
-      measurementKey={viewportMeasurementKey}
+      measurementKey={renderModel.viewportMeasurementKey}
       onViewportFactsChange={onViewportFactsChange}
     >
-      <div className="canvas-stage" style={canvasPaperStyle}>
-        <div className="canvas-page-meta" aria-label="Current page summary">
-          <span>{document.title}</span>
-          <span>
-            {pageCount} preview pages / {paper.label} / {paper.widthPx} x {paper.heightPx}px
-          </span>
-        </div>
-        <div className="paper-page-stack" aria-label="Preview page stack">
-          {pages.map((page) => (
-            <PaperPage
-              key={page.id}
-              page={page}
-              pageCount={pageCount}
-              paper={paper}
-              selectedNodeId={selectedNodeId}
-              onSelectNode={onSelectNode}
-            />
-          ))}
-        </div>
-      </div>
+      <CanvasStage
+        onSelectNode={onSelectNode}
+        renderModel={renderModel}
+        selectedNodeId={selectedNodeId}
+      />
     </CanvasScrollRoot>
   )
 }

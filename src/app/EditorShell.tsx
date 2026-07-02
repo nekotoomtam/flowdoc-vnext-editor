@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { AppHeader } from "../components/shell/AppHeader"
 import { EditorToolbar } from "../components/shell/EditorToolbar"
 import { StatusBar } from "../components/shell/StatusBar"
@@ -7,7 +8,7 @@ import { InspectorPanel } from "../components/inspector/InspectorPanel"
 import { OutlinePanel } from "../components/outline/OutlinePanel"
 import type { EditorCommandSource } from "../editor/commands/commandTypes"
 import type { PaperPreset } from "../editor/paper/paperModel"
-import { projectPreviewPages } from "../editor/render/renderProjector"
+import { createEditorCanvasRenderView } from "../editor/runtime/editorCanvasRenderView"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
@@ -32,7 +33,7 @@ export function EditorShell({
   const selectedNodeId = selection.selectedNodeId
   const inspectorFacts = getInspectorFacts(view, selectedNodeId)
   const outlineItems = getOutlineItems(view)
-  const renderablePages = projectPreviewPages(view)
+  const canvasRenderView = useMemo(() => createEditorCanvasRenderView(view), [view])
 
   return (
     <div className="editor-shell">
@@ -47,7 +48,7 @@ export function EditorShell({
         <OutlinePanel items={outlineItems} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
         <CanvasSurface
           document={document}
-          pages={renderablePages}
+          pages={canvasRenderView.pages}
           paper={paper}
           selectedNodeId={selectedNodeId}
           onSelectNode={onSelectNode}
@@ -68,7 +69,7 @@ export function EditorShell({
         history={editorState.history}
         jobs={jobs}
         paper={paper}
-        previewPageCount={renderablePages.length}
+        previewPageCount={canvasRenderView.pages.length}
         selection={selection}
         view={view}
       />

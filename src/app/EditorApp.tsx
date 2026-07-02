@@ -22,11 +22,11 @@ export function EditorApp() {
   )
   const [editorState, setEditorState] = useState(initialState)
 
-  function dispatchEditorCommand(command: EditorCommand) {
+  const dispatchEditorCommand = useCallback((command: EditorCommand) => {
     setEditorState((currentState) => dispatchEditorRuntimeCommand(currentState, command).state)
-  }
+  }, [])
 
-  function handleSelectNode(nodeId: string, source: EditorCommandSource) {
+  const handleSelectNode = useCallback((nodeId: string, source: EditorCommandSource) => {
     dispatchEditorCommand({
       kind: "selection.selectNode",
       reason: `${source}-select`,
@@ -35,9 +35,9 @@ export function EditorApp() {
         nodeId,
       },
     })
-  }
+  }, [dispatchEditorCommand])
 
-  function handleSelectPaperPreset(preset: PaperPreset) {
+  const handleSelectPaperPreset = useCallback((preset: PaperPreset) => {
     dispatchEditorCommand({
       kind: "viewport.setPaperPreset",
       payload: {
@@ -45,9 +45,9 @@ export function EditorApp() {
       },
       source: "toolbar",
     })
-  }
+  }, [dispatchEditorCommand])
 
-  function handleSelectPaperZoom(zoom: number) {
+  const handleSelectPaperZoom = useCallback((zoom: number) => {
     dispatchEditorCommand({
       kind: "viewport.setZoom",
       payload: {
@@ -55,7 +55,7 @@ export function EditorApp() {
       },
       source: "toolbar",
     })
-  }
+  }, [dispatchEditorCommand])
 
   const handleViewportFactsChange = useCallback((facts: ViewportScrollRootFacts) => {
     setEditorState((currentState) => recordViewportScrollRootFacts(currentState, facts))
