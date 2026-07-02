@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react"
+import { useRef, type CSSProperties } from "react"
 import { CanvasOverlayLayer } from "./CanvasOverlayLayer"
 import { CanvasPageMeta } from "./CanvasPageMeta"
 import { PaperPageStack } from "../paper/PaperPageStack"
@@ -15,6 +15,7 @@ export function CanvasStage({
   renderModel,
   selectedNodeId,
 }: CanvasStageProps) {
+  const stageRef = useRef<HTMLDivElement | null>(null)
   const canvasPaperStyle = {
     "--paper-shell-width": `${renderModel.stackGeometry.pageWidthPx}px`,
     "--paper-stack-gap": `${renderModel.stackGeometry.pageGapPx}px`,
@@ -22,7 +23,7 @@ export function CanvasStage({
   } as CSSProperties
 
   return (
-    <div className="canvas-stage" style={canvasPaperStyle}>
+    <div className="canvas-stage" ref={stageRef} style={canvasPaperStyle}>
       <CanvasPageMeta renderModel={renderModel} />
       <PaperPageStack
         onSelectNode={onSelectNode}
@@ -31,7 +32,11 @@ export function CanvasStage({
         paper={renderModel.paper}
         selectedNodeId={selectedNodeId}
       />
-      <CanvasOverlayLayer renderModel={renderModel} selectedNodeId={selectedNodeId} />
+      <CanvasOverlayLayer
+        renderModel={renderModel}
+        selectedNodeId={selectedNodeId}
+        stageRef={stageRef}
+      />
     </div>
   )
 }

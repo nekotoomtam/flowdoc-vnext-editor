@@ -107,6 +107,18 @@
   z-index: 2;
 }
 
+.canvas-selection-outline {
+  border: 2px solid var(--color-focus);
+  border-radius: var(--radius-control);
+  box-sizing: border-box;
+  box-shadow: 0 0 0 3px rgb(30 111 103 / 14%);
+  height: var(--selection-overlay-height);
+  left: var(--selection-overlay-left);
+  position: absolute;
+  top: var(--selection-overlay-top);
+  width: var(--selection-overlay-width);
+}
+
 .canvas-page-meta {
   align-items: center;
   color: var(--color-text-muted);
