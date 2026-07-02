@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react"
-import { getPaperBounds } from "../../editor/paper/paperGeometry"
+import { getPaperPageGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderNodeSummary, RenderPageSummary } from "../../editor/render/renderTypes"
 
@@ -41,15 +41,15 @@ export function PaperPage({
   paper,
   selectedNodeId,
 }: PaperPageProps) {
-  const bounds = getPaperBounds(paper)
+  const geometry = getPaperPageGeometry(paper)
   const shellStyle = {
-    "--paper-shell-height": `${bounds.height}px`,
-    "--paper-shell-width": `${bounds.width}px`,
+    "--paper-shell-height": `${geometry.shellBounds.height}px`,
+    "--paper-shell-width": `${geometry.shellBounds.width}px`,
   } as CSSProperties
   const pageStyle = {
-    "--paper-height": `${paper.heightPx}px`,
-    "--paper-margin": `${paper.marginPx}px`,
-    "--paper-width": `${paper.widthPx}px`,
+    "--paper-height": `${geometry.pageBounds.height}px`,
+    "--paper-margin": `${geometry.marginPx}px`,
+    "--paper-width": `${geometry.pageBounds.width}px`,
     "--paper-zoom": paper.zoom,
   } as CSSProperties
 

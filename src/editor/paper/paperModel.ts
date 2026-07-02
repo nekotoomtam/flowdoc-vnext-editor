@@ -2,14 +2,16 @@ import { clampViewportZoom, VIEWPORT_ZOOM_DEFAULT } from "../viewport/zoomPolicy
 
 export type PaperPreset = "A4" | "Letter"
 
+export interface PaperPresetDimensions {
+  heightPx: number
+  label: string
+  marginPx: number
+  widthPx: number
+}
+
 export const PAPER_PRESET_DIMENSIONS: Record<
   PaperPreset,
-  {
-    heightPx: number
-    label: string
-    marginPx: number
-    widthPx: number
-  }
+  PaperPresetDimensions
 > = {
   A4: {
     heightPx: 1123,
@@ -35,6 +37,8 @@ export interface PaperModel {
   zoom: number
 }
 
+export const DEFAULT_PAPER_GAP_PX = 28
+
 export function clampPaperZoom(zoom: number): number {
   return clampViewportZoom(zoom)
 }
@@ -43,7 +47,7 @@ export function createPaperModel(preset: PaperPreset, zoom = VIEWPORT_ZOOM_DEFAU
   const dimensions = PAPER_PRESET_DIMENSIONS[preset]
 
   return {
-    gapPx: 28,
+    gapPx: DEFAULT_PAPER_GAP_PX,
     heightPx: dimensions.heightPx,
     label: dimensions.label,
     marginPx: dimensions.marginPx,

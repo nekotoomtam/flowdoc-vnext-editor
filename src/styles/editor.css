@@ -120,6 +120,7 @@
 
 .paper-page-shell {
   height: var(--paper-shell-height);
+  overflow: hidden;
   position: relative;
   width: var(--paper-shell-width);
 }
@@ -128,16 +129,20 @@
   display: grid;
   gap: var(--paper-stack-gap, var(--space-5));
   justify-items: center;
+  min-height: var(--paper-stack-height);
 }
 
 .paper-page {
   background: var(--color-paper);
   border: 1px solid #d6dee6;
+  box-sizing: border-box;
   box-shadow: var(--shadow-paper);
   display: grid;
   gap: var(--space-4);
   grid-template-rows: auto minmax(0, 1fr);
-  min-height: var(--paper-height);
+  height: var(--paper-height);
+  min-height: 0;
+  overflow: hidden;
   padding: var(--paper-margin);
   transform: scale(var(--paper-zoom));
   transform-origin: top left;
@@ -159,7 +164,8 @@
   border: 1px dashed #d7dee4;
   display: grid;
   gap: var(--space-3);
-  min-height: 100%;
+  min-height: 0;
+  overflow: hidden;
   padding: var(--space-4);
 }
 

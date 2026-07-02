@@ -2,6 +2,7 @@ import type { CSSProperties } from "react"
 import { CanvasScrollRoot } from "./CanvasScrollRoot"
 import { PaperPage } from "../paper/PaperPage"
 import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
+import { getPaperDocumentStackGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
 
@@ -21,20 +22,23 @@ export function CanvasSurface({
   selectedNodeId,
 }: CanvasSurfaceProps) {
   const pageCount = pages.length
-  const pageStackStyle = {
-    "--paper-stack-gap": `${Math.max(18, paper.gapPx * paper.zoom)}px`,
+  const stackGeometry = getPaperDocumentStackGeometry(paper, pageCount)
+  const canvasPaperStyle = {
+    "--paper-shell-width": `${stackGeometry.pageWidthPx}px`,
+    "--paper-stack-gap": `${stackGeometry.pageGapPx}px`,
+    "--paper-stack-height": `${stackGeometry.stackHeightPx}px`,
   } as CSSProperties
 
   return (
     <CanvasScrollRoot>
-      <div className="canvas-stage">
+      <div className="canvas-stage" style={canvasPaperStyle}>
         <div className="canvas-page-meta" aria-label="Current page summary">
           <span>{document.title}</span>
           <span>
             {pageCount} preview pages / {paper.label} / {paper.widthPx} x {paper.heightPx}px
           </span>
         </div>
-        <div className="paper-page-stack" aria-label="Preview page stack" style={pageStackStyle}>
+        <div className="paper-page-stack" aria-label="Preview page stack">
           {pages.map((page) => (
             <PaperPage
               key={page.id}
