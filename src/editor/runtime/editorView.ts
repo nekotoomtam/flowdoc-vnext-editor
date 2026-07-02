@@ -4,13 +4,16 @@ import type {
   CoreEditorSeed,
   CoreEditorZoneSummary,
 } from "../../core/coreTypes"
+import {
+  createNodePresentation,
+  resolvePresentationSelectionTarget,
+} from "../presentation/nodePresentationProjector"
+import type {
+  EditorNodePresentation,
+  EditorPresentationOutlineItem,
+} from "../presentation/nodePresentationTypes"
 
-export interface EditorOutlineItem {
-  depth: number
-  id: string
-  label: string
-  type: string
-}
+export type EditorOutlineItem = EditorPresentationOutlineItem
 
 export interface EditorInspectorFacts {
   childCount: number
@@ -30,6 +33,7 @@ export interface EditorView {
   nodeOrder: string[]
   outlineItems: EditorOutlineItem[]
   parentById: Record<string, string | null>
+  presentation: EditorNodePresentation
   renderableNodeIds: string[]
   sectionById: Record<string, CoreEditorSectionSummary>
   tableIds: string[]
@@ -46,29 +50,6 @@ function isTextLikeType(type: string): boolean {
   return type === "text-block" || type === "heading" || type === "paragraph"
 }
 
-function isStructuralType(type: string): boolean {
-  return type === "document" || type === "section" || type === "zone"
-}
-
-function buildOutlineItems(
-  nodeById: Record<string, CoreEditorNodeSummary>,
-  nodeId: string,
-  depth: number,
-): EditorOutlineItem[] {
-  const node = nodeById[nodeId]
-  if (!node) return []
-
-  const current = {
-    depth,
-    id: node.id,
-    label: node.label,
-    type: node.type,
-  }
-  const childItems = node.childIds.flatMap((childId) => buildOutlineItems(nodeById, childId, depth + 1))
-
-  return [current, ...childItems]
-}
-
 export function createEditorView(seed: CoreEditorSeed): EditorView {
   const nodeById = indexById(seed.nodes)
   const sectionById = indexById(seed.sections)
@@ -77,10 +58,12 @@ export function createEditorView(seed: CoreEditorSeed): EditorView {
   const childrenById = Object.fromEntries(seed.nodes.map((node) => [node.id, node.childIds]))
   const nodeOrder = seed.nodes.map((node) => node.id)
   const visibleNodeIds = nodeOrder.filter((nodeId) => nodeId !== "root")
-  const renderableNodeIds = visibleNodeIds.filter((nodeId) => {
-    const node = nodeById[nodeId]
-    return node ? !isStructuralType(node.type) : false
+  const presentation = createNodePresentation({
+    childrenById,
+    nodeById,
+    nodeOrder,
   })
+  const renderableNodeIds = [...presentation.canvasSurfaceNodeIds]
 
   return {
     changedSubtreeIds: [],
@@ -88,8 +71,9 @@ export function createEditorView(seed: CoreEditorSeed): EditorView {
     dirtyNodeIds: [],
     nodeById,
     nodeOrder,
-    outlineItems: buildOutlineItems(nodeById, "root", 0),
+    outlineItems: presentation.outlineItems,
     parentById,
+    presentation,
     renderableNodeIds,
     sectionById,
     tableIds: seed.nodes.filter((node) => node.type === "table").map((node) => node.id),
@@ -113,10 +97,15 @@ export function getOutlineItems(view: EditorView): EditorOutlineItem[] {
   return view.outlineItems
 }
 
-export function getInspectorFacts(view: EditorView, nodeId: string | null): EditorInspectorFacts | null {
-  if (!nodeId) return null
+export function resolveEditorSelectionTarget(view: EditorView, nodeId: string | null): string | null {
+  return resolvePresentationSelectionTarget(view.presentation, nodeId)
+}
 
-  const node = getNodeById(view, nodeId)
+export function getInspectorFacts(view: EditorView, nodeId: string | null): EditorInspectorFacts | null {
+  const selectionTargetId = resolveEditorSelectionTarget(view, nodeId)
+  if (!selectionTargetId) return null
+
+  const node = getNodeById(view, selectionTargetId)
   if (!node) return null
 
   return {

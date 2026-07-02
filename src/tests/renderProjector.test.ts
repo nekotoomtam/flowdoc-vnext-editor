@@ -4,7 +4,7 @@ import { projectPreviewPages, projectRenderDocument, projectRenderNodes } from "
 import { createEditorView } from "../editor/runtime/editorView"
 
 describe("render projector", () => {
-  it("projects render nodes without structural document containers", () => {
+  it("projects render nodes from product-facing presentation surfaces", () => {
     const view = createEditorView(loadInitialEditorSeed())
     const nodes = projectRenderNodes(view)
 

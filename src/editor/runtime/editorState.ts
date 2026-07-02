@@ -16,7 +16,7 @@ import { createSelectionState, selectNode, type SelectionState } from "../select
 import { applyViewportAction } from "../viewport/viewportActions"
 import type { ViewportScrollRootFacts } from "../viewport/viewportMeasurement"
 import { createViewportState, type ViewportState } from "../viewport/viewportState"
-import { createEditorView, type EditorView } from "./editorView"
+import { createEditorView, resolveEditorSelectionTarget, type EditorView } from "./editorView"
 import { createEditorSeedFromWorkingSet } from "./runtimeCoreBinding"
 
 export interface EditorRuntimeState {
@@ -78,11 +78,13 @@ export function selectEditorNode(
   nodeId: string,
   reason: string,
 ): EditorRuntimeState {
-  if (!state.view.nodeById[nodeId]) return state
+  const selectionTargetId = resolveEditorSelectionTarget(state.view, nodeId)
+  if (!selectionTargetId || !state.view.nodeById[selectionTargetId]) return state
+  if (state.selection.selectedNodeId === selectionTargetId) return state
 
   return {
     ...state,
-    selection: selectNode(state.selection, nodeId, reason),
+    selection: selectNode(state.selection, selectionTargetId, reason),
   }
 }
 

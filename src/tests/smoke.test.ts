@@ -23,7 +23,7 @@ describe("product editor scaffold smoke", () => {
     expect(view.textBlockIds).toContain("qa-scroll")
     expect(view.tableIds).toEqual(["revenue-table", "adoption-table", "operations-table"])
     expect(view.renderableNodeIds).toHaveLength(20)
-    expect(getOutlineItems(view).map((item) => item.id)).toEqual(view.nodeOrder)
+    expect(getOutlineItems(view).map((item) => item.id)).toEqual(view.renderableNodeIds)
     expect(renderableNodes.map((node) => node.id)).toEqual(view.renderableNodeIds)
     expect(previewPages.length).toBeGreaterThan(1)
     expect(previewPages.flatMap((page) => page.nodeIds)).toEqual(view.renderableNodeIds)

@@ -1,4 +1,11 @@
-export type RenderNodeKind = "generic" | "heading" | "paragraph" | "table"
+export type RenderNodeKind =
+  | "columns"
+  | "generic"
+  | "heading"
+  | "page-break"
+  | "paragraph"
+  | "table"
+  | "toc"
 
 export interface RenderNodeSummary {
   childCount: number

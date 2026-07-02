@@ -7,8 +7,11 @@ export interface PaperBlockProps {
 }
 
 function getBlockPreview(node: RenderNodeSummary): string {
+  if (node.renderKind === "columns") return "Columns"
   if (node.renderKind === "heading") return "Heading"
+  if (node.renderKind === "page-break") return "Page break"
   if (node.renderKind === "table") return "Table placeholder"
+  if (node.renderKind === "toc") return "Table of contents"
   if (node.renderKind === "paragraph") return "Paragraph"
   return node.type
 }

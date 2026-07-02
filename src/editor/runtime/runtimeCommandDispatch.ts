@@ -28,7 +28,7 @@ export function dispatchEditorRuntimeCommand(
         }
       : commandResult.state
   const record = createHistoryRecord({
-    command,
+    command: commandResult.command,
     documentRevisionAfter: getDocumentRevision(commandState),
     documentRevisionBefore: getDocumentRevision(state),
     result: commandResult.result,

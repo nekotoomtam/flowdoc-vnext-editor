@@ -5,15 +5,21 @@ import type { RenderDocumentProjection, RenderNodeKind, RenderNodeSummary, Rende
 const PREVIEW_PAGE_WEIGHT_LIMIT = 8
 
 function getRenderKind(type: string): RenderNodeKind {
+  if (type === "columns") return "columns"
   if (type === "heading") return "heading"
+  if (type === "page-break") return "page-break"
   if (type === "paragraph" || type === "text-block") return "paragraph"
   if (type === "table") return "table"
+  if (type === "toc") return "toc"
   return "generic"
 }
 
 function getPreviewPageWeight(node: RenderNodeSummary): number {
+  if (node.renderKind === "columns") return 3
   if (node.renderKind === "table") return 4
   if (node.renderKind === "heading") return 2
+  if (node.renderKind === "toc") return 2
+  if (node.renderKind === "page-break") return PREVIEW_PAGE_WEIGHT_LIMIT
   return 1
 }
 
@@ -31,7 +37,7 @@ function toRenderNodeSummary(view: EditorView, node: CoreEditorNodeSummary): Ren
 }
 
 export function projectRenderNodes(view: EditorView): RenderNodeSummary[] {
-  return view.renderableNodeIds
+  return view.presentation.canvasSurfaceNodeIds
     .map((nodeId) => view.nodeById[nodeId])
     .filter((node): node is CoreEditorNodeSummary => Boolean(node))
     .map((node) => toRenderNodeSummary(view, node))

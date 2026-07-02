@@ -4,6 +4,7 @@ import {
   selectPaperZoom,
   type EditorRuntimeState,
 } from "../runtime/editorState"
+import { resolveEditorSelectionTarget } from "../runtime/editorView"
 import { canExecuteCommand } from "./commandPolicy"
 import {
   createAppliedCommandResult,
@@ -51,9 +52,26 @@ export function executeEditorCommand(
     }
 
     case "selection.selectNode": {
-      if (state.selection.selectedNodeId === command.target.nodeId) {
+      const selectionTargetId = resolveEditorSelectionTarget(state.view, command.target.nodeId)
+      if (!selectionTargetId) {
         return {
           command,
+          result: createNoopCommandResult(command.kind, "Node is not selectable"),
+          state,
+        }
+      }
+      const normalizedCommand = selectionTargetId === command.target.nodeId
+        ? command
+        : {
+            ...command,
+            target: {
+              nodeId: selectionTargetId,
+            },
+          }
+
+      if (state.selection.selectedNodeId === selectionTargetId) {
+        return {
+          command: normalizedCommand,
           result: createNoopCommandResult(command.kind, "Node is already selected"),
           state,
         }
@@ -61,7 +79,7 @@ export function executeEditorCommand(
 
       const nextState = selectEditorNode(state, command.target.nodeId, command.reason)
       return {
-        command,
+        command: normalizedCommand,
         result: createAppliedCommandResult(command.kind, ["selection"]),
         state: nextState,
       }
