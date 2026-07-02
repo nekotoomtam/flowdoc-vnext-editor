@@ -11,6 +11,9 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 - `npm audit --audit-level=moderate` reports 0 vulnerabilities.
 - Dev server responds at `http://127.0.0.1:4001/`.
 - Boundary tests keep blocked editor dependencies out of package metadata.
+- Boundary tests scan source imports so direct core package access stays behind
+  `src/core`, direct package imports stay at `src/core/coreAdapter.ts`, and core
+  adapter read submodules stay internal to `src/core`.
 - Runtime source still has no WYSIWYG, `contenteditable`, whole-app `innerHTML`, or direct `@flowdoc/vnext-core` imports outside the intended package dependency.
 - Read-only core binding now uses the public `@flowdoc/vnext-core` runtime
   session path for the core product-report fixture through the adapter,
@@ -27,6 +30,32 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R5 | WYSIWYG pressure can start early because the shell now looks more real. | High | AGENTS and boundary tests block `contenteditable` and rich editor frameworks. | Require a written WYSIWYG gate decision before adding draft/input runtime. |
 | R6 | Design tokens are local Phase 1 tokens, not a validated design system. | Medium | Palette is restrained and app-specific. | Run a visual QA pass on desktop/mobile before treating tokens as stable. |
 | R7 | The editor now reads `@flowdoc/vnext-core` through the adapter, but only for read-only fixture/package binding; backend/API transport and mutation packets are still deferred. | Medium | Core imports remain isolated to `src/core`, and working set tests cover read envelopes, stale guards, caller-supplied canonical packages, and blocked transport cases. | Keep Phase 2/3 work read-only; document the final API envelope before backend transport or mutation bridge work begins. |
+| R8 | Direct internal core submodule imports could bypass the `coreAdapter` facade as CRB files grow. | High | `src/tests/boundary.test.ts` scans source imports for direct core package access and internal read submodule access outside `src/core`. | Keep this scan current whenever new adapter submodules are added. |
+| R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
+| R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists. | Record date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
+| R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership and checks; browser timing is still manual. | Add simple manual timing notes or dev diagnostics before treating Phase 2 scroll behavior as stable. |
+
+## Priority Gates
+
+P0 before closing Phase 1:
+
+- R1 browser QA instability.
+- R3 paper geometry, scroll, and future hit-test drift.
+- R5 WYSIWYG pressure.
+
+P1 before adding new product behavior:
+
+- R2 frontend-placeholder fallback discipline.
+- R4 toolbar and paper component responsibility split.
+- R7 read-only core binding limitations.
+- R8 adapter facade import boundary.
+
+P2 polish and evidence quality:
+
+- R6 design tokens.
+- R9 partial read status clarity.
+- R10 manual QA result format.
+- R11 lightweight performance markers.
 
 ## Core Binding Fallback Intent
 
@@ -52,6 +81,7 @@ the test is explicitly proving fallback or failure behavior.
 6. Prefer one small UX change plus verification over broad visual rewrites.
 7. Do not add new frontend-placeholder assumptions when a canonical package
    transport fixture can prove the same behavior.
+8. Do not add draft/input runtime until a written WYSIWYG gate exists.
 
 ## Manual QA Checklist
 
@@ -61,11 +91,23 @@ Run this before declaring Phase 1 UX complete:
 2. Confirm browser body does not scroll.
 3. Confirm only the canvas scrolls vertically.
 4. Scroll to the top and bottom quickly; confirm no bounce-back or stuck range.
-5. Click each visible paper block; confirm selected block, outline, inspector, and status bar agree.
+5. Click visible paper blocks across the first, middle, and last preview page; confirm selected block, outline, inspector, and status bar agree.
 6. Switch A4 and Letter; confirm page dimensions change without layout collapse.
 7. Use zoom out, zoom in, and reset; confirm canvas scroll remains usable.
 8. Resize below 980px; confirm side panels hide and canvas remains usable.
 9. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
+10. Reload after switching zoom and paper preset; confirm the initial state is sane.
+11. Click the selected block again; confirm no unexpected toggle or visual drift.
+12. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
+
+Record each manual QA pass with:
+
+- date;
+- browser;
+- viewport size;
+- result: pass/fail;
+- notes;
+- blocking issue, if any.
 
 ## Manual QA Notes
 
@@ -84,4 +126,5 @@ Phase 1 risk can be downgraded only when:
 - Selection and paper geometry have tests for scaled click targets.
 - Read-only core adapter contract keeps passing with the public core fixture and
   canonical caller-supplied package input.
+- Core boundary scan tests pass after adapter splits.
 - `npm run check` remains green after the QA fixes.
