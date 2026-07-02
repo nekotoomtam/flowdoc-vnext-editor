@@ -39,6 +39,41 @@ describe("selection overlay geometry", () => {
     })
   })
 
+  it("keeps overlay coordinates stable when scroll moves the stage and node together", () => {
+    const beforeScroll = createSelectionOverlayRect({
+      nodeBounds: {
+        bottom: 420,
+        left: 220,
+        right: 560,
+        top: 320,
+      },
+      nodeId: "detail-table",
+      stageBounds: {
+        bottom: 1200,
+        left: 160,
+        right: 900,
+        top: 120,
+      },
+    })
+    const afterScroll = createSelectionOverlayRect({
+      nodeBounds: {
+        bottom: 120,
+        left: 220,
+        right: 560,
+        top: 20,
+      },
+      nodeId: "detail-table",
+      stageBounds: {
+        bottom: 900,
+        left: 160,
+        right: 900,
+        top: -180,
+      },
+    })
+
+    expect(afterScroll).toEqual(beforeScroll)
+  })
+
   it("rejects empty, invalid, and zero-size overlay bounds", () => {
     const stageBounds = { bottom: 600, left: 10, right: 500, top: 20 }
     const nodeBounds = { bottom: 140, left: 80, right: 220, top: 100 }

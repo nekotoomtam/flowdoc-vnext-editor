@@ -2,6 +2,10 @@
 
 Status: accepted phase plan for the FlowDoc vNext product editor frontend.
 
+Current implementation note: Phase 2-5 frontend foundation slices are recorded
+in `docs/PHASE_2_TO_5_CLOSEOUT.md` for review. They are not a WYSIWYG,
+pagination, mutation, or export-truth closeout.
+
 ## Purpose
 
 This document defines the product editor frontend plan for `flowdoc-vnext-editor`.

@@ -25,15 +25,15 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | --- | --- | --- | --- | --- |
 | R1 | Browser automation became unstable during final visual QA. | Medium | Build/test/HTTP checks still pass. | Add a lighter manual QA checklist before trusting Phase 1 UX as complete. |
 | R2 | The core adapter is no longer a static placeholder, but the initial loader still keeps a frontend-placeholder fallback for tests, simulated failures, and fixtures that are not canonical package transport input yet. | Medium | `src/core/coreAdapter.ts` calls the public core runtime session path, and the fallback remains isolated behind `src/core/coreFixtureRead.ts` plus the working set factory loader. | Prefer the `core-product-report-minimal` transport-envelope path for new UI evidence; retire the frontend-placeholder fallback only after replacement fixtures are canonical package transport inputs. |
-| R3 | Paper preview uses frontend geometry and CSS transform for zoom; scroll/hit-test can drift later. | High | Paper model has explicit preset dimensions and bounded zoom. | Before hit-test work, add geometry tests for scaled bounds and click target mapping. |
-| R4 | `EditorToolbar.tsx` and `PaperPage.tsx` are the first files likely to grow into mixed-responsibility components. | Medium | Runtime state remains outside components. | Split toolbar controls and paper block rendering before adding more commands or block types. |
+| R3 | Paper preview uses frontend geometry and CSS transform for zoom; scroll/hit-test can drift later. | High | Paper model, scroll-root facts, hit-test boundary, and selected overlay now have focused tests plus browser QA evidence. | User-visible review should confirm scroll/zoom/selection behavior before downgrading. |
+| R4 | `EditorToolbar.tsx` and `PaperPage.tsx` are the first files likely to grow into mixed-responsibility components. | Medium | Paper block rendering is split into `PaperBlock`, `PaperPage`, and `PaperPageStack`; canvas render partitions are split through `CanvasStage` and overlay components. | Split toolbar controls before adding more toolbar commands. |
 | R5 | WYSIWYG pressure can start early because the shell now looks more real. | High | AGENTS and boundary tests block `contenteditable` and rich editor frameworks. | Require a written WYSIWYG gate decision before adding draft/input runtime. |
 | R6 | Design tokens are local Phase 1 tokens, not a validated design system. | Medium | Palette is restrained and app-specific. | Run a visual QA pass on desktop/mobile before treating tokens as stable. |
 | R7 | The editor now reads `@flowdoc/vnext-core` through the adapter, but only for read-only fixture/package binding; backend/API transport and mutation packets are still deferred. | Medium | Core imports remain isolated to `src/core`, and working set tests cover read envelopes, stale guards, caller-supplied canonical packages, and blocked transport cases. | Keep Phase 2/3 work read-only; document the final API envelope before backend transport or mutation bridge work begins. |
 | R8 | Direct internal core submodule imports could bypass the `coreAdapter` facade as CRB files grow. | High | `src/tests/boundary.test.ts` scans source imports for direct core package access and internal read submodule access outside `src/core`. | Keep this scan current whenever new adapter submodules are added. |
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
-| R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists. | Record date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
-| R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership and checks; browser timing is still manual. | Add simple manual timing notes or dev diagnostics before treating Phase 2 scroll behavior as stable. |
+| R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
+| R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership; browser QA now records stable scroll and selection observations. | Add simple manual timing notes or dev diagnostics before treating long-document behavior as stable. |
 
 ## Priority Gates
 
@@ -146,6 +146,28 @@ Record each manual QA pass with:
 - Decision: do not downgrade R1 or R3 yet. Phase 2 paper work may proceed, but
   selection/hit-test work still requires full manual browser QA plus scaled
   geometry tests.
+
+2026-07-02 Phase 2-5 closeout evidence:
+
+- Closeout doc: `docs/PHASE_2_TO_5_CLOSEOUT.md`.
+- QA pass: in-app browser automation against `http://127.0.0.1:4001/`.
+- Result: review-ready pass, pending user-visible confirmation.
+- PASS: paper geometry, viewport scroll facts, render partition, hit-test, and
+  selection overlay tests were added and passed.
+- PASS: browser click on the available `detail-table` canvas block selected the
+  same node in canvas, outline, inspector, and status.
+- PASS: real scroll reached bottom at about `2428.8` of max `2429`, then
+  reverse scroll returned to `0`.
+- PASS: click-after-scroll on `detail-cell-b-text` selected the same node in
+  canvas, outline, inspector, and status.
+- PASS: selected-node overlay matched selected block rects within about `0.01px`.
+- PASS: overlay layer computed `pointer-events: none`.
+- PASS: Letter preset updated canvas meta to `3 preview pages / Letter / 816 x
+  1056px`.
+- PASS: responsive QA at `900 x 720` hid side panels while canvas scrolling
+  stayed available.
+- Decision: keep R1/R3 active until user review, but Phase 2-5 have enough
+  recorded evidence for closeout review.
 
 ## Exit Criteria
 
