@@ -37,6 +37,16 @@ describe("node presentation projection", () => {
       ["summary-columns", "columns"],
       ["detail-table", "table"],
     ])
+    expect(projectRenderNodes(view).find((node) => node.id === "summary-columns")?.previewLabels).toEqual([
+      "Prepared summary",
+      "Total: 0",
+    ])
+    expect(projectRenderNodes(view).find((node) => node.id === "summary-columns")?.previewColumnCount).toBe(2)
+    expect(projectRenderNodes(view).find((node) => node.id === "detail-table")?.previewLabels).toEqual([
+      "Metric",
+      "Value",
+    ])
+    expect(projectRenderNodes(view).find((node) => node.id === "detail-table")?.previewColumnCount).toBe(2)
     expect(getOutlineItems(view).map((item) => [item.id, item.type])).toEqual([
       ["title", "text-block"],
       ["summary-columns", "columns"],

@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, type CSSProperties } from "react"
 import type { RenderNodeSummary } from "../../editor/render/renderTypes"
 
 export interface PaperBlockProps {
@@ -10,24 +10,46 @@ function getBlockPreview(node: RenderNodeSummary): string {
   if (node.renderKind === "columns") return "Columns"
   if (node.renderKind === "heading") return "Heading"
   if (node.renderKind === "page-break") return "Page break"
-  if (node.renderKind === "table") return "Table placeholder"
+  if (node.renderKind === "table") return "Table"
   if (node.renderKind === "toc") return "Table of contents"
   if (node.renderKind === "paragraph") return "Paragraph"
   return node.type
 }
 
-function TablePreview() {
+function ColumnsPreview({ labels }: { labels: string[] }) {
+  const previewLabels = labels.length > 0 ? labels.slice(0, 2) : ["Column content", "Column content"]
+
   return (
-    <span className="paper-table-preview" aria-hidden="true">
-      <span>Segment</span>
-      <span>Q1</span>
-      <span>Q2</span>
-      <span>Enterprise</span>
-      <span>1.2M</span>
-      <span>1.4M</span>
-      <span>Self serve</span>
-      <span>640K</span>
-      <span>690K</span>
+    <span className="paper-columns-preview" aria-hidden="true">
+      {previewLabels.map((label, index) => (
+        <span key={`${label}-${index}`}>
+          <strong>Column {index + 1}</strong>
+          <em>{label}</em>
+        </span>
+      ))}
+    </span>
+  )
+}
+
+function TablePreview({
+  columnCount,
+  labels,
+}: {
+  columnCount: number | null
+  labels: string[]
+}) {
+  const previewLabels = labels.length > 0
+    ? labels.slice(0, 9)
+    : ["Segment", "Q1", "Q2", "Enterprise", "1.2M", "1.4M", "Self serve", "640K", "690K"]
+  const tableStyle = {
+    "--paper-table-preview-columns": Math.max(1, columnCount ?? 3),
+  } as CSSProperties
+
+  return (
+    <span className="paper-table-preview" aria-hidden="true" style={tableStyle}>
+      {previewLabels.map((label, index) => (
+        <span key={`${label}-${index}`}>{label}</span>
+      ))}
     </span>
   )
 }
@@ -45,7 +67,10 @@ export const PaperBlock = memo(function PaperBlock({
     >
       <span className="paper-block-meta">{getBlockPreview(node)}</span>
       <span className="paper-block-label">{node.label}</span>
-      {node.renderKind === "table" ? <TablePreview /> : null}
+      {node.renderKind === "columns" ? <ColumnsPreview labels={node.previewLabels} /> : null}
+      {node.renderKind === "table" ? (
+        <TablePreview columnCount={node.previewColumnCount} labels={node.previewLabels} />
+      ) : null}
     </button>
   )
 })

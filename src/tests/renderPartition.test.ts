@@ -86,5 +86,16 @@ describe("render partition boundaries", () => {
     expect(paperPageSource).toContain("<PaperBlock")
     expect(paperPageSource).not.toContain("paper-block--")
     expect(paperBlockSource).toContain("memo(function PaperBlock")
+    expect(paperBlockSource).toContain("function ColumnsPreview")
+    expect(paperBlockSource).toContain("function TablePreview")
+  })
+
+  it("keeps paper surface previews content-sized instead of stretching cards across the page", () => {
+    const editorCss = readSource("src", "styles", "editor.css")
+
+    expect(editorCss).toContain("align-content: start")
+    expect(editorCss).toContain("grid-auto-rows: max-content")
+    expect(editorCss).toContain(".paper-columns-preview")
+    expect(editorCss).toContain(".paper-table-preview")
   })
 })

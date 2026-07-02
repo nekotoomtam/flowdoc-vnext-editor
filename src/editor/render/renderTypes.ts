@@ -12,6 +12,8 @@ export interface RenderNodeSummary {
   id: string
   label: string
   parentId: string | null
+  previewColumnCount: number | null
+  previewLabels: string[]
   renderKind: RenderNodeKind
   sectionId: string | null
   type: string

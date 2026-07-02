@@ -23,12 +23,47 @@ function getPreviewPageWeight(node: RenderNodeSummary): number {
   return 1
 }
 
+function isPreviewLabelNode(node: CoreEditorNodeSummary): boolean {
+  return node.type === "text-block" || node.type === "heading" || node.type === "paragraph"
+}
+
+function getPreviewLabels(view: EditorView, node: CoreEditorNodeSummary): string[] {
+  const representedNodeIds = view.presentation.representedNodeIdsBySurfaceId[node.id] ?? []
+
+  return representedNodeIds
+    .filter((nodeId) => nodeId !== node.id)
+    .map((nodeId) => view.nodeById[nodeId])
+    .filter((representedNode): representedNode is CoreEditorNodeSummary => (
+      Boolean(representedNode) && isPreviewLabelNode(representedNode)
+    ))
+    .map((representedNode) => representedNode.label.trim())
+    .filter(Boolean)
+    .slice(0, 9)
+}
+
+function getPreviewColumnCount(view: EditorView, node: CoreEditorNodeSummary): number | null {
+  if (node.type === "columns") {
+    return Math.max(1, view.childrenById[node.id]?.length ?? 0)
+  }
+
+  if (node.type === "table") {
+    const firstRowId = view.childrenById[node.id]?.[0]
+    if (!firstRowId) return null
+
+    return Math.max(1, view.childrenById[firstRowId]?.length ?? 0)
+  }
+
+  return null
+}
+
 function toRenderNodeSummary(view: EditorView, node: CoreEditorNodeSummary): RenderNodeSummary {
   return {
     childCount: view.childrenById[node.id]?.length ?? 0,
     id: node.id,
     label: node.label,
     parentId: node.parentId,
+    previewColumnCount: getPreviewColumnCount(view, node),
+    previewLabels: getPreviewLabels(view, node),
     renderKind: getRenderKind(node),
     sectionId: node.sectionId,
     type: node.type,
