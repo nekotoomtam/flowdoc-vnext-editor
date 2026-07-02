@@ -47,6 +47,8 @@ export type CoreReadBindingFailureCode =
   | "core-unavailable"
   | "document-mismatch"
   | "invalid-envelope"
+  | "invalid-source-kind"
+  | "missing-package"
   | "missing-diagnostics"
   | "missing-render-projection"
   | "revision-stale"
@@ -67,6 +69,28 @@ export type CoreAdapterSnapshotSourceKind =
   | "job-result"
   | "local-draft"
   | "mutation-result"
+
+export type CoreReadEnvelopePurpose =
+  | "initial-load"
+  | "refresh"
+  | "job-result"
+  | "local-draft"
+
+export interface CoreReadTransportEnvelope {
+  baseRevision: number | null
+  documentId: string
+  envelopeId: string
+  packageValue: unknown
+  purpose: CoreReadEnvelopePurpose
+  receivedAt: number
+  requestedAt: number
+  sourceKind: CoreAdapterSnapshotSourceKind
+}
+
+export interface ActiveCoreReadRevision {
+  documentId: string
+  documentRevision: number
+}
 
 export type CoreAdapterSnapshotStatus = "blocked" | "fresh" | "partial" | "stale"
 

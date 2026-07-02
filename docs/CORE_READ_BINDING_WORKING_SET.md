@@ -122,6 +122,66 @@ read-only binding phase: it parses the package through the public core runtime
 session entrypoint, returns an adapter request/result envelope, and blocks
 invalid, stale, or document-mismatched input before a working set is created.
 
+## Transport Envelope Gate
+
+`CoreReadTransportEnvelope` is the transport input boundary for read-only core
+binding.
+
+It is not a backend response object.
+
+It is not the working set.
+
+It is not canonical frontend truth.
+
+It may carry `packageValue` as opaque `unknown` input, but that value must be
+consumed only inside `src/core/`.
+
+Blocked:
+
+```txt
+FrontendCoreWorkingSet stores packageValue
+EditorRuntimeState stores packageValue
+React components read packageValue
+UI paths walk packageValue.nodes or packageValue.document directly
+```
+
+Allowed flow:
+
+```txt
+CoreReadTransportEnvelope
+  -> validateCoreReadTransportEnvelope(...)
+  -> loadReadOnlyCoreSnapshotFromEnvelope(...)
+  -> loadReadOnlyCoreSnapshotFromPackage(...)
+  -> CoreAdapterReadResult
+  -> FrontendCoreWorkingSet
+```
+
+Required transport envelope facts:
+
+```txt
+envelopeId
+documentId
+baseRevision
+sourceKind
+purpose
+packageValue
+requestedAt
+receivedAt
+```
+
+Allowed `purpose` values:
+
+```txt
+initial-load
+refresh
+job-result
+local-draft
+```
+
+`initial-load` may use `baseRevision: null`. `refresh`, `job-result`, and
+`local-draft` must carry a concrete base revision so active-runtime apply paths
+can reject stale async results before parsing package input.
+
 Required request facts:
 
 ```txt
@@ -158,6 +218,8 @@ Read binding failures must use this shared vocabulary:
 ```txt
 core-unavailable
 invalid-envelope
+invalid-source-kind
+missing-package
 document-mismatch
 revision-stale
 missing-diagnostics
@@ -303,6 +365,7 @@ Allowed now:
 ```txt
 bind read-only core snapshots into FrontendCoreWorkingSet
 bind adapter request/result envelopes before working set creation
+bind read-only transport envelopes through a validation gate
 bind caller-supplied canonical package input through the read-only adapter
 derive normalized read model
 derive command capability mirror
@@ -324,6 +387,7 @@ storage/auth behavior
 artifact generation
 exact layout claims
 direct core source imports
+packageValue storage in EditorRuntimeState or FrontendCoreWorkingSet
 ```
 
 ## PASS
@@ -331,6 +395,7 @@ direct core source imports
 - Working set is the single runtime read projection for core-derived data.
 - Envelope, read model, capabilities, and render projection are revision-aligned.
 - Core read result envelopes include document id, revision, status, and failures.
+- Transport envelopes validate runtime sourceKind, purpose, timestamps, package input, and base revision policy.
 - Core-derived async results use stale guards before applying.
 - Stale guards reject document mismatch, revision mismatch, stale cache, and non-fresh envelopes.
 - Core imports remain behind `src/core/`.
@@ -348,6 +413,7 @@ Block the phase if:
 - Failure modes are represented with ad hoc strings instead of the shared vocabulary.
 - Render projection summary is treated as exact/export layout truth.
 - Selection, viewport, draft, or DOM state is stored inside the working set.
+- `packageValue` is stored in EditorRuntimeState, FrontendCoreWorkingSet, or React component state.
 
 ## RISK
 
@@ -378,6 +444,12 @@ revision/sourceRevision/documentId stale guard
 read result fresh/stale/document mismatch/missing projection behavior
 caller-supplied canonical package input behavior
 invalid caller-supplied package input behavior
+valid transport envelope behavior
+initial-load transport envelope with null baseRevision
+missing packageValue behavior
+invalid transport sourceKind behavior
+transport envelope active revision stale guard
+packageValue is not exposed by FrontendCoreWorkingSet
 no direct core source import
 no direct package import outside src/core
 ```
@@ -389,5 +461,7 @@ no WYSIWYG
 no contenteditable
 no mutation bridge execution
 no backend/API transport
+no fetch/API route implementation
 no exact layout/export implementation
+no packageValue storage in runtime or working set
 ```
