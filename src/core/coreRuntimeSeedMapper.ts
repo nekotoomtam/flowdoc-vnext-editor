@@ -1,4 +1,12 @@
-import type { CoreEditorNodeSummary, CoreEditorSeed } from "./coreTypes"
+import type {
+  CoreEditorChildrenField,
+  CoreEditorNearestContext,
+  CoreEditorNodeCapabilities,
+  CoreEditorNodeSummary,
+  CoreEditorOperationSurface,
+  CoreEditorSeed,
+  CoreEditorTextRole,
+} from "./coreTypes"
 
 type CoreRuntimeInlineNode =
   | { type: "field-ref"; fallback?: string; key: string; label?: string }
@@ -28,6 +36,18 @@ type CoreRuntimeZoneNode = {
   role: string
 }
 
+type CoreRuntimeNearestContext = CoreEditorNearestContext
+
+interface CoreRuntimeNodeCapabilities {
+  canBeDeleted: boolean
+  canBeDuplicated: boolean
+  canBeReordered: boolean
+  canContainText: boolean
+  canSplitAcrossPages: boolean
+  childrenField?: CoreEditorChildrenField
+  operationSurface: CoreEditorOperationSurface
+}
+
 export interface CoreRuntimeSessionForSeed {
   diagnostics: {
     graphIssueCount: number
@@ -44,6 +64,8 @@ export interface CoreRuntimeSessionForSeed {
   documentVersion: number
   graph: {
     childrenByNodeId: Map<string, readonly string[]>
+    capabilitiesByType?: Record<string, CoreRuntimeNodeCapabilities>
+    nearestByNodeId?: Map<string, CoreRuntimeNearestContext>
     nodesById: Map<string, CoreRuntimeAuthoredNode>
     parentByNodeId: Map<string, CoreRuntimeParentRef>
     sectionByNodeId: Map<string, string>
@@ -104,6 +126,71 @@ function labelForCoreNode(node: CoreRuntimeAuthoredNode): string {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function textRoleForCoreNode(node: CoreRuntimeAuthoredNode): CoreEditorTextRole | null {
+  if (node.type !== "text-block" || !isRecord(node.role)) return null
+
+  const role = node.role.role
+  if (
+    role === "caption"
+    || role === "heading"
+    || role === "label"
+    || role === "list-item"
+    || role === "note"
+    || role === "paragraph"
+  ) {
+    return role
+  }
+
+  return null
+}
+
+function headingLevelForCoreNode(node: CoreRuntimeAuthoredNode): number | null {
+  if (textRoleForCoreNode(node) !== "heading" || !isRecord(node.role)) return null
+
+  const level = node.role.level
+  return typeof level === "number" ? level : null
+}
+
+function capabilitiesForCoreNode(
+  session: CoreRuntimeSessionForSeed,
+  node: CoreRuntimeAuthoredNode,
+): {
+  capabilities: CoreEditorNodeCapabilities | null
+  operationSurface: CoreEditorOperationSurface | null
+} {
+  const capabilities = session.graph.capabilitiesByType?.[node.type]
+  if (!capabilities) {
+    return {
+      capabilities: null,
+      operationSurface: null,
+    }
+  }
+
+  return {
+    capabilities: {
+      canBeDeleted: capabilities.canBeDeleted,
+      canBeDuplicated: capabilities.canBeDuplicated,
+      canBeReordered: capabilities.canBeReordered,
+      canContainText: capabilities.canContainText,
+      canSplitAcrossPages: capabilities.canSplitAcrossPages,
+      childrenField: capabilities.childrenField,
+    },
+    operationSurface: capabilities.operationSurface,
+  }
+}
+
+function nearestForCoreNode(
+  session: CoreRuntimeSessionForSeed,
+  node: CoreRuntimeAuthoredNode,
+): CoreEditorNearestContext | null {
+  const nearest = session.graph.nearestByNodeId?.get(node.id)
+  return nearest ? { ...nearest } : null
+}
+
 function parentIdFromRef(ref: CoreRuntimeParentRef | undefined, fallback: string | null): string | null {
   if (!ref) return fallback
 
@@ -144,18 +231,27 @@ export function createCoreRuntimeEditorSeed(session: CoreRuntimeSessionForSeed):
     type: "section",
     zoneId: null,
   }))
-  const authoredNodes: CoreEditorNodeSummary[] = [...session.graph.nodesById.values()].map((node) => ({
-    childIds: [...(session.graph.childrenByNodeId.get(node.id) ?? [])],
-    id: node.id,
-    label: labelForCoreNode(node),
-    parentId: parentIdFromRef(
-      session.graph.parentByNodeId.get(node.id),
-      session.graph.sectionByNodeId.get(node.id) ?? null,
-    ),
-    sectionId: session.graph.sectionByNodeId.get(node.id) ?? null,
-    type: node.type,
-    zoneId: session.graph.zoneByNodeId.get(node.id) ?? null,
-  }))
+  const authoredNodes: CoreEditorNodeSummary[] = [...session.graph.nodesById.values()].map((node) => {
+    const semantic = capabilitiesForCoreNode(session, node)
+
+    return {
+      capabilities: semantic.capabilities,
+      childIds: [...(session.graph.childrenByNodeId.get(node.id) ?? [])],
+      headingLevel: headingLevelForCoreNode(node),
+      id: node.id,
+      label: labelForCoreNode(node),
+      nearest: nearestForCoreNode(session, node),
+      operationSurface: semantic.operationSurface,
+      parentId: parentIdFromRef(
+        session.graph.parentByNodeId.get(node.id),
+        session.graph.sectionByNodeId.get(node.id) ?? null,
+      ),
+      sectionId: session.graph.sectionByNodeId.get(node.id) ?? null,
+      textRole: textRoleForCoreNode(node),
+      type: node.type,
+      zoneId: session.graph.zoneByNodeId.get(node.id) ?? null,
+    }
+  })
 
   return {
     diagnostics: {

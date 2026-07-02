@@ -25,15 +25,16 @@ export interface CommandCapabilityMirror {
 }
 
 function createNodeCapabilities(readModel: EditorReadModel, nodeId: string): NodeCommandCapabilities {
-  const editable = readModel.textBlockIds.includes(nodeId)
+  const coreCapabilities = readModel.nodeById[nodeId]?.capabilities
+  const editable = coreCapabilities?.canContainText ?? readModel.textBlockIds.includes(nodeId)
 
   return {
     canInsertFieldChip: editable,
     canOpenTextDraft: editable,
-    deletable: false,
+    deletable: coreCapabilities?.canBeDeleted ?? false,
     editable,
     reasons: editable ? [] : ["Phase 1 only opens draft capabilities for text-like nodes"],
-    reorderable: false,
+    reorderable: coreCapabilities?.canBeReordered ?? false,
     selectable: Boolean(readModel.nodeById[nodeId]),
   }
 }

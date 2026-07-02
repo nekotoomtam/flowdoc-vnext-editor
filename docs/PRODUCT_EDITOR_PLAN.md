@@ -4,8 +4,9 @@ Status: accepted phase plan for the FlowDoc vNext product editor frontend.
 
 Current implementation note: Phase 2-5 frontend foundation slices are recorded
 in `docs/PHASE_2_TO_5_CLOSEOUT.md` for review. Phase 5.5 node presentation is
-recorded in `docs/PHASE_5_5_NODE_PRESENTATION.md`. These are not a WYSIWYG,
-pagination, mutation, or export-truth closeout.
+recorded in `docs/PHASE_5_5_NODE_PRESENTATION.md`, and Phase 5.6 core semantic
+bridge is recorded in `docs/PHASE_5_6_CORE_SEMANTIC_BRIDGE.md`. These are not
+a WYSIWYG, pagination, mutation, or export-truth closeout.
 
 ## Purpose
 

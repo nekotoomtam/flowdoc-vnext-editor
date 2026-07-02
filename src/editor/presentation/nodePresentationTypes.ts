@@ -1,3 +1,10 @@
+import type {
+  CoreEditorNearestContext,
+  CoreEditorNodeCapabilities,
+  CoreEditorOperationSurface,
+  CoreEditorTextRole,
+} from "../../core/coreTypes"
+
 export type EditorPresentationSurfaceType =
   | "columns"
   | "page-break"
@@ -19,8 +26,11 @@ export interface EditorPresentationOutlineItem {
 }
 
 export interface EditorPresentationNode {
+  capabilities: CoreEditorNodeCapabilities | null
   id: string
   label: string
+  nearest: CoreEditorNearestContext | null
+  operationSurface: CoreEditorOperationSurface | null
   parentId: string | null
   rawType: string
   representedBySurfaceId: string | null
@@ -28,6 +38,7 @@ export interface EditorPresentationNode {
   role: EditorPresentationNodeRole
   selectionTargetId: string | null
   surfaceType: EditorPresentationSurfaceType | null
+  textRole: CoreEditorTextRole | null
 }
 
 export interface EditorNodePresentation {

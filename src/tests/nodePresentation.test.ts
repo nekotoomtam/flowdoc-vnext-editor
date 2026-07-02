@@ -33,7 +33,7 @@ describe("node presentation projection", () => {
       view.presentation.canvasSurfaceNodeIds,
     )
     expect(projectRenderNodes(view).map((node) => [node.id, node.renderKind])).toEqual([
-      ["title", "paragraph"],
+      ["title", "heading"],
       ["summary-columns", "columns"],
       ["detail-table", "table"],
     ])
@@ -53,9 +53,19 @@ describe("node presentation projection", () => {
     expect(resolveEditorSelectionTarget(view, "summary-left-text")).toBe("summary-columns")
     expect(resolveEditorSelectionTarget(view, "detail-cell-b-text")).toBe("detail-table")
     expect(view.presentation.presentationNodeById["summary-left"]).toMatchObject({
+      operationSurface: "columns",
       representedBySurfaceId: "summary-columns",
       role: "internal",
       selectionTargetId: "summary-columns",
+    })
+    expect(view.presentation.presentationNodeById["detail-cell-b-text"]).toMatchObject({
+      nearest: {
+        tableCellId: "detail-cell-b",
+        tableId: "detail-table",
+      },
+      operationSurface: "text-block",
+      representedBySurfaceId: "detail-table",
+      textRole: "label",
     })
     expect(view.presentation.representedNodeIdsBySurfaceId["detail-table"]).toEqual([
       "detail-table",
@@ -66,7 +76,9 @@ describe("node presentation projection", () => {
       "detail-cell-b-text",
     ])
     expect(getInspectorFacts(view, "detail-cell-b-text")).toMatchObject({
+      canBeDeleted: true,
       id: "detail-table",
+      operationSurface: "table",
       type: "table",
     })
   })

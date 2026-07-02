@@ -248,6 +248,20 @@ describe("core working set factory", () => {
     expect(workingSet.document.title).toBe("Product Report vNext Minimal")
     expect(workingSet.readModel.nodeById.title).toMatchObject({
       label: "Product Report for Customer",
+      operationSurface: "text-block",
+      textRole: "heading",
+    })
+    expect(workingSet.capabilities.byNodeId.title).toMatchObject({
+      canOpenTextDraft: true,
+      deletable: true,
+      editable: true,
+      reorderable: true,
+    })
+    expect(workingSet.capabilities.byNodeId["detail-table"]).toMatchObject({
+      canOpenTextDraft: false,
+      deletable: true,
+      editable: false,
+      reorderable: true,
     })
   })
 

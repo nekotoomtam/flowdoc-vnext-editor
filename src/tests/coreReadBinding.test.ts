@@ -113,9 +113,31 @@ describe("real core read binding contract", () => {
       title: "Product Report vNext Minimal",
     })
     expect(binding.workingSet?.readModel.nodeById.title).toMatchObject({
+      capabilities: {
+        canContainText: true,
+        canSplitAcrossPages: true,
+      },
+      headingLevel: 1,
       label: "Product Report for Customer",
+      nearest: {
+        blockId: "title",
+        textBlockId: "title",
+        zoneId: "zone-cover-body",
+      },
+      operationSurface: "text-block",
       parentId: "zone-cover-body",
+      textRole: "heading",
       type: "text-block",
+    })
+    expect(binding.workingSet?.readModel.nodeById["detail-cell-b-text"]).toMatchObject({
+      nearest: {
+        blockId: "detail-cell-b-text",
+        tableCellId: "detail-cell-b",
+        tableId: "detail-table",
+        tableRowId: "detail-header-row",
+      },
+      operationSurface: "text-block",
+      textRole: "label",
     })
     expect(binding.workingSet?.readModel.childrenById["summary-columns"]).toEqual([
       "summary-left",
@@ -160,7 +182,13 @@ describe("real core read binding contract", () => {
     })
     expect(binding.workingSet?.readModel.nodeById["body-text"]).toMatchObject({
       label: "Caller package body",
+      nearest: {
+        blockId: "body-text",
+        zoneId: "zone-body",
+      },
+      operationSurface: "text-block",
       parentId: "zone-body",
+      textRole: "paragraph",
       type: "text-block",
     })
     expect(binding.workingSet?.renderProjection).toMatchObject({

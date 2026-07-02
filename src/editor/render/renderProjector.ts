@@ -4,13 +4,13 @@ import type { RenderDocumentProjection, RenderNodeKind, RenderNodeSummary, Rende
 
 const PREVIEW_PAGE_WEIGHT_LIMIT = 8
 
-function getRenderKind(type: string): RenderNodeKind {
-  if (type === "columns") return "columns"
-  if (type === "heading") return "heading"
-  if (type === "page-break") return "page-break"
-  if (type === "paragraph" || type === "text-block") return "paragraph"
-  if (type === "table") return "table"
-  if (type === "toc") return "toc"
+function getRenderKind(node: CoreEditorNodeSummary): RenderNodeKind {
+  if (node.type === "columns") return "columns"
+  if (node.type === "heading" || node.textRole === "heading") return "heading"
+  if (node.type === "page-break") return "page-break"
+  if (node.type === "paragraph" || node.type === "text-block") return "paragraph"
+  if (node.type === "table") return "table"
+  if (node.type === "toc") return "toc"
   return "generic"
 }
 
@@ -29,7 +29,7 @@ function toRenderNodeSummary(view: EditorView, node: CoreEditorNodeSummary): Ren
     id: node.id,
     label: node.label,
     parentId: node.parentId,
-    renderKind: getRenderKind(node.type),
+    renderKind: getRenderKind(node),
     sectionId: node.sectionId,
     type: node.type,
     zoneId: node.zoneId,

@@ -92,8 +92,11 @@ export function createNodePresentation({
 
     selectionTargetByNodeId[node.id] = selectionTargetId
     presentationNodeById[node.id] = {
+      capabilities: node.capabilities ?? null,
       id: node.id,
       label: node.label,
+      nearest: node.nearest ?? null,
+      operationSurface: node.operationSurface ?? null,
       parentId: node.parentId,
       rawType: node.type,
       representedBySurfaceId,
@@ -101,6 +104,7 @@ export function createNodePresentation({
       role,
       selectionTargetId,
       surfaceType,
+      textRole: node.textRole ?? null,
     }
 
     for (const childId of childrenById[node.id] ?? []) {

@@ -17,10 +17,14 @@ export type EditorOutlineItem = EditorPresentationOutlineItem
 
 export interface EditorInspectorFacts {
   childCount: number
+  canBeDeleted: boolean | null
+  canBeReordered: boolean | null
   id: string
   label: string
+  operationSurface: string | null
   parentId: string | null
   sectionId: string | null
+  textRole: string | null
   type: string
   zoneId: string | null
 }
@@ -110,10 +114,14 @@ export function getInspectorFacts(view: EditorView, nodeId: string | null): Edit
 
   return {
     childCount: view.childrenById[node.id]?.length ?? 0,
+    canBeDeleted: node.capabilities?.canBeDeleted ?? null,
+    canBeReordered: node.capabilities?.canBeReordered ?? null,
     id: node.id,
     label: node.label,
+    operationSurface: node.operationSurface ?? null,
     parentId: node.parentId,
     sectionId: node.sectionId,
+    textRole: node.textRole ?? null,
     type: node.type,
     zoneId: node.zoneId,
   }

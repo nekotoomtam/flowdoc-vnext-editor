@@ -24,12 +24,56 @@ export interface CoreEditorZoneSummary {
   sectionId: string
 }
 
+export type CoreEditorChildrenField = "cellIds" | "childIds" | "columnIds" | "rowIds"
+
+export type CoreEditorOperationSurface =
+  | "columns"
+  | "generated"
+  | "table"
+  | "text-block"
+  | "utility"
+  | "zone"
+
+export type CoreEditorTextRole =
+  | "caption"
+  | "heading"
+  | "label"
+  | "list-item"
+  | "note"
+  | "paragraph"
+
+export interface CoreEditorNearestContext {
+  blockId: string | null
+  columnId: string | null
+  columnsId: string | null
+  sectionId: string
+  tableCellId: string | null
+  tableId: string | null
+  tableRowId: string | null
+  textBlockId: string | null
+  zoneId: string
+}
+
+export interface CoreEditorNodeCapabilities {
+  canBeDeleted: boolean
+  canBeDuplicated: boolean
+  canBeReordered: boolean
+  canContainText: boolean
+  canSplitAcrossPages: boolean
+  childrenField?: CoreEditorChildrenField
+}
+
 export interface CoreEditorNodeSummary {
+  capabilities?: CoreEditorNodeCapabilities | null
   childIds: string[]
+  headingLevel?: number | null
   id: string
   label: string
+  nearest?: CoreEditorNearestContext | null
+  operationSurface?: CoreEditorOperationSurface | null
   parentId: string | null
   sectionId: string | null
+  textRole?: CoreEditorTextRole | null
   type: string
   zoneId: string | null
 }

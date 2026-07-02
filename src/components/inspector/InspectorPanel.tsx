@@ -23,8 +23,24 @@ export function InspectorPanel({ facts }: InspectorPanelProps) {
             <dd>{facts.type}</dd>
           </div>
           <div>
+            <dt>Role</dt>
+            <dd>{facts.textRole ?? "none"}</dd>
+          </div>
+          <div>
+            <dt>Surface</dt>
+            <dd>{facts.operationSurface ?? "none"}</dd>
+          </div>
+          <div>
             <dt>Children</dt>
             <dd>{facts.childCount}</dd>
+          </div>
+          <div>
+            <dt>Delete</dt>
+            <dd>{facts.canBeDeleted === null ? "unknown" : facts.canBeDeleted ? "yes" : "no"}</dd>
+          </div>
+          <div>
+            <dt>Reorder</dt>
+            <dd>{facts.canBeReordered === null ? "unknown" : facts.canBeReordered ? "yes" : "no"}</dd>
           </div>
           <div>
             <dt>Section</dt>

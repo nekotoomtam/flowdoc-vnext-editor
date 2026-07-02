@@ -19,7 +19,9 @@ export interface EditorReadModelOptions {
 function cloneNodeSummary(node: CoreEditorNodeSummary): CoreEditorNodeSummary {
   return {
     ...node,
+    capabilities: node.capabilities ? { ...node.capabilities } : node.capabilities,
     childIds: [...node.childIds],
+    nearest: node.nearest ? { ...node.nearest } : node.nearest,
   }
 }
 

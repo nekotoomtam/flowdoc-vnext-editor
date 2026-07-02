@@ -118,8 +118,8 @@ Latest full check result:
 
 - Core adapter still does not pass `nearest`, `operationSurface`, capabilities,
   or text-block role into the editor seed.
-- Text blocks from canonical core currently render as paragraph-like blocks
-  because the editor seed does not yet carry text role.
+- Phase 5.6 now carries core text role into the editor seed, but richer
+  product styling for non-heading text roles is still future work.
 - Deeper table/cell selection is intentionally collapsed to the owning table
   surface until command policy and editing targets are designed.
 - `divider` and `spacer` remain core-supported but unopened in the current
