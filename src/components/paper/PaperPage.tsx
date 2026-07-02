@@ -5,7 +5,6 @@ import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
 
 export interface PaperPageProps {
-  onSelectNode: (nodeId: string, source: "canvas") => void
   page: RenderPageSummary
   pageCount: number
   paper: PaperModel
@@ -13,7 +12,6 @@ export interface PaperPageProps {
 }
 
 export function PaperPage({
-  onSelectNode,
   page,
   pageCount,
   paper,
@@ -51,7 +49,6 @@ export function PaperPage({
               isSelected={node.id === selectedNodeId}
               key={node.id}
               node={node}
-              onSelectNode={onSelectNode}
             />
           ))}
         </div>

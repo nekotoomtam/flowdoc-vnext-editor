@@ -4,7 +4,6 @@ import type { RenderNodeSummary } from "../../editor/render/renderTypes"
 export interface PaperBlockProps {
   isSelected: boolean
   node: RenderNodeSummary
-  onSelectNode: (nodeId: string, source: "canvas") => void
 }
 
 function getBlockPreview(node: RenderNodeSummary): string {
@@ -33,14 +32,12 @@ function TablePreview() {
 export const PaperBlock = memo(function PaperBlock({
   isSelected,
   node,
-  onSelectNode,
 }: PaperBlockProps) {
   return (
     <button
       className={`paper-block paper-block--${node.renderKind}`}
       data-node-id={node.id}
       data-selected={isSelected ? "true" : "false"}
-      onClick={() => onSelectNode(node.id, "canvas")}
       type="button"
     >
       <span className="paper-block-meta">{getBlockPreview(node)}</span>
