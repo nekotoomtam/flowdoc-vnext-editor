@@ -360,9 +360,20 @@ src/** imports ../flowdoc-vnext-core/src/**
 The frontend must use adapter-safe shapes from `src/core/coreAdapter.ts` and
 `src/core/coreTypes.ts`.
 
+`src/core/coreAdapter.ts` is the public facade. Other `src/core/core*Read*.ts`
+modules are internal implementation details and must not be imported by
+app/component/editor runtime modules.
+
 ## Current Implementation Files
 
 ```txt
+src/core/coreAdapter.ts
+src/core/coreFixtureRead.ts
+src/core/corePackageRead.ts
+src/core/coreReadResult.ts
+src/core/coreReadTransport.ts
+src/core/coreRuntimeSeedMapper.ts
+src/core/coreTypes.ts
 src/editor/coreBinding/coreEnvelope.ts
 src/editor/coreBinding/readModel.ts
 src/editor/coreBinding/capabilityMirror.ts
@@ -408,6 +419,7 @@ artifact generation
 exact layout claims
 direct core source imports
 packageValue storage in EditorRuntimeState or FrontendCoreWorkingSet
+app/component/editor imports from core adapter submodules
 ```
 
 ## PASS
@@ -417,6 +429,7 @@ packageValue storage in EditorRuntimeState or FrontendCoreWorkingSet
 - Core read result envelopes include document id, revision, status, and failures.
 - Transport envelopes validate runtime sourceKind, purpose, timestamps, package input, and base revision policy.
 - Working set factory exposes transport-envelope binding loaders for external read inputs.
+- Core adapter responsibilities are split behind the public `coreAdapter.ts` facade.
 - Core-derived async results use stale guards before applying.
 - Stale guards reject document mismatch, revision mismatch, stale cache, and non-fresh envelopes.
 - Core imports remain behind `src/core/`.
@@ -436,6 +449,7 @@ Block the phase if:
 - Selection, viewport, draft, or DOM state is stored inside the working set.
 - `packageValue` is stored in EditorRuntimeState, FrontendCoreWorkingSet, or React component state.
 - App/components call `loadReadOnlyCoreSnapshotFromEnvelope(...)` directly instead of using working set factory loaders.
+- App/components/editor runtime import `coreReadTransport`, `corePackageRead`, `coreFixtureRead`, or `coreReadResult` directly.
 
 ## RISK
 
@@ -475,6 +489,7 @@ transport envelope active revision stale guard
 blocked transport envelope binding behavior
 packageValue is not exposed by FrontendCoreWorkingSet
 no direct core source import
+no direct core adapter submodule import outside src/core
 no direct package import outside src/core
 ```
 

@@ -31,6 +31,34 @@ describe("product editor phase 0 boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("keeps the core package dependency bound at the adapter facade", () => {
+    const offenders = sourceFiles(sourceRoot)
+      .filter((file) => read(file).includes("@flowdoc/vnext-core"))
+      .map((file) => relative(sourceRoot, file))
+      .filter((file) => file !== join("core", "coreAdapter.ts"))
+
+    expect(offenders).toEqual([])
+  })
+
+  it("keeps core adapter submodules internal to src/core", () => {
+    const internalModules = [
+      "coreFixtureRead",
+      "corePackageRead",
+      "coreReadResult",
+      "coreReadTransport",
+    ]
+    const offenders = sourceFiles(sourceRoot)
+      .filter((file) => !relative(sourceRoot, file).startsWith("core"))
+      .filter((file) => {
+        const source = read(file)
+        return internalModules.some((moduleName) => source.includes(`/core/${moduleName}`)
+          || source.includes(`\\core\\${moduleName}`))
+      })
+      .map((file) => relative(sourceRoot, file))
+
+    expect(offenders).toEqual([])
+  })
+
   it("keeps lab runtime and app-render patterns out of source", () => {
     const source = sourceFiles(sourceRoot).map((file) => read(file)).join("\n")
 
