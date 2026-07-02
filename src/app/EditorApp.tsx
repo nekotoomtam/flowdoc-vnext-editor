@@ -1,11 +1,15 @@
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
-import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
+import {
+  createInitialEditorStateFromWorkingSet,
+  recordViewportScrollRootFacts,
+} from "../editor/runtime/editorState"
 import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDispatch"
+import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export function EditorApp() {
   const initialState = useMemo(
@@ -53,12 +57,17 @@ export function EditorApp() {
     })
   }
 
+  const handleViewportFactsChange = useCallback((facts: ViewportScrollRootFacts) => {
+    setEditorState((currentState) => recordViewportScrollRootFacts(currentState, facts))
+  }, [])
+
   return (
     <EditorShell
       editorState={editorState}
       onSelectNode={handleSelectNode}
       onSelectPaperPreset={handleSelectPaperPreset}
       onSelectPaperZoom={handleSelectPaperZoom}
+      onViewportFactsChange={handleViewportFactsChange}
     />
   )
 }

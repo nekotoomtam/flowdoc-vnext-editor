@@ -39,6 +39,16 @@ export type ViewportAction =
       visiblePageIds?: string[]
     }
   | {
+      contentHeight: number
+      contentWidth: number
+      kind: "viewport.scrollRootSynced"
+      scrollLeft: number
+      scrollTop: number
+      viewportHeight: number
+      viewportWidth: number
+      visiblePageIds?: string[]
+    }
+  | {
       anchor?: Omit<ViewportAnchor, "id">
       kind: "viewport.setZoom"
       zoom: number

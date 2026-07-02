@@ -54,7 +54,7 @@ export function PaperPage({
   } as CSSProperties
 
   return (
-    <div className="paper-page-shell" style={shellStyle}>
+    <div className="paper-page-shell" data-page-id={page.id} style={shellStyle}>
       <article
         className="paper-page"
         aria-label={`Preview page ${page.pageNumber} of ${pageCount}`}

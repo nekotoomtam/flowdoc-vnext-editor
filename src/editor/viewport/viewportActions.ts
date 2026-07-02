@@ -34,6 +34,17 @@ export function applyViewportAction(state: ViewportState, action: ViewportAction
         visiblePageIds: action.visiblePageIds ?? state.visiblePageIds,
       })
 
+    case "viewport.scrollRootSynced":
+      return withRevision(state, {
+        contentHeight: Math.max(0, action.contentHeight),
+        contentWidth: Math.max(0, action.contentWidth),
+        scrollLeft: Math.max(0, action.scrollLeft),
+        scrollTop: Math.max(0, action.scrollTop),
+        viewportHeight: Math.max(0, action.viewportHeight),
+        viewportWidth: Math.max(0, action.viewportWidth),
+        visiblePageIds: action.visiblePageIds ?? state.visiblePageIds,
+      })
+
     case "viewport.setZoom": {
       const pendingAnchor = action.anchor
         ? {

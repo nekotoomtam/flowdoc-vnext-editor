@@ -14,6 +14,7 @@ import {
 } from "../paper/paperModel"
 import { createSelectionState, selectNode, type SelectionState } from "../selection/selectionState"
 import { applyViewportAction } from "../viewport/viewportActions"
+import type { ViewportScrollRootFacts } from "../viewport/viewportMeasurement"
 import { createViewportState, type ViewportState } from "../viewport/viewportState"
 import { createEditorView, type EditorView } from "./editorView"
 import { createEditorSeedFromWorkingSet } from "./runtimeCoreBinding"
@@ -104,5 +105,37 @@ export function selectPaperZoom(state: EditorRuntimeState, zoom: number): Editor
     ...state,
     paper: syncPaperWithViewport(state.paper, viewport),
     viewport,
+  }
+}
+
+function sameStringList(left: string[], right: string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+function isViewportScrollRootFactsCurrent(
+  viewport: ViewportState,
+  facts: ViewportScrollRootFacts,
+): boolean {
+  return viewport.contentHeight === facts.contentHeight
+    && viewport.contentWidth === facts.contentWidth
+    && viewport.scrollLeft === facts.scrollLeft
+    && viewport.scrollTop === facts.scrollTop
+    && viewport.viewportHeight === facts.viewportHeight
+    && viewport.viewportWidth === facts.viewportWidth
+    && sameStringList(viewport.visiblePageIds, facts.visiblePageIds)
+}
+
+export function recordViewportScrollRootFacts(
+  state: EditorRuntimeState,
+  facts: ViewportScrollRootFacts,
+): EditorRuntimeState {
+  if (isViewportScrollRootFactsCurrent(state.viewport, facts)) return state
+
+  return {
+    ...state,
+    viewport: applyViewportAction(state.viewport, {
+      ...facts,
+      kind: "viewport.scrollRootSynced",
+    }),
   }
 }

@@ -5,6 +5,7 @@ import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
 import { getPaperDocumentStackGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
+import type { ViewportScrollRootFacts } from "../../editor/viewport/viewportMeasurement"
 
 export interface CanvasSurfaceProps {
   document: CoreEditorDocumentSummary
@@ -12,6 +13,7 @@ export interface CanvasSurfaceProps {
   pages: RenderPageSummary[]
   paper: PaperModel
   selectedNodeId: string | null
+  onViewportFactsChange: (facts: ViewportScrollRootFacts) => void
 }
 
 export function CanvasSurface({
@@ -20,9 +22,11 @@ export function CanvasSurface({
   pages,
   paper,
   selectedNodeId,
+  onViewportFactsChange,
 }: CanvasSurfaceProps) {
   const pageCount = pages.length
   const stackGeometry = getPaperDocumentStackGeometry(paper, pageCount)
+  const viewportMeasurementKey = `${paper.preset}:${paper.zoom}:${stackGeometry.stackHeightPx}:${pageCount}`
   const canvasPaperStyle = {
     "--paper-shell-width": `${stackGeometry.pageWidthPx}px`,
     "--paper-stack-gap": `${stackGeometry.pageGapPx}px`,
@@ -30,7 +34,10 @@ export function CanvasSurface({
   } as CSSProperties
 
   return (
-    <CanvasScrollRoot>
+    <CanvasScrollRoot
+      measurementKey={viewportMeasurementKey}
+      onViewportFactsChange={onViewportFactsChange}
+    >
       <div className="canvas-stage" style={canvasPaperStyle}>
         <div className="canvas-page-meta" aria-label="Current page summary">
           <span>{document.title}</span>

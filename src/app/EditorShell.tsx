@@ -10,12 +10,14 @@ import type { PaperPreset } from "../editor/paper/paperModel"
 import { projectPreviewPages } from "../editor/render/renderProjector"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView"
+import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export interface EditorShellProps {
   editorState: EditorRuntimeState
   onSelectNode: (nodeId: string, source: EditorCommandSource) => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
+  onViewportFactsChange: (facts: ViewportScrollRootFacts) => void
 }
 
 export function EditorShell({
@@ -23,6 +25,7 @@ export function EditorShell({
   onSelectNode,
   onSelectPaperPreset,
   onSelectPaperZoom,
+  onViewportFactsChange,
 }: EditorShellProps) {
   const { core, jobs, paper, selection, view } = editorState
   const { diagnostics, document } = core
@@ -48,6 +51,7 @@ export function EditorShell({
           paper={paper}
           selectedNodeId={selectedNodeId}
           onSelectNode={onSelectNode}
+          onViewportFactsChange={onViewportFactsChange}
         />
         <aside className="editor-side-panel" aria-label="Inspector and diagnostics">
           <InspectorPanel facts={inspectorFacts} />
