@@ -166,8 +166,12 @@ Record each manual QA pass with:
   1056px`.
 - PASS: responsive QA at `900 x 720` hid side panels while canvas scrolling
   stayed available.
-- Decision: keep R1/R3 active until user review, but Phase 2-5 have enough
-  recorded evidence for closeout review.
+- USER REVIEW: overall Phase 2-5 runtime behavior passed, with one follow-up:
+  node relationships still feel strange because the surface exposes structural
+  graph details too directly.
+- Decision: keep R1/R3 active until the node relationship presentation gap is
+  triaged, but Phase 2-5 runtime behavior has enough recorded evidence for
+  closeout review.
 
 ## Exit Criteria
 

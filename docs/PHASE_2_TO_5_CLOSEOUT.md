@@ -1,6 +1,6 @@
 # Phase 2-5 Closeout
 
-Status: ready for user review
+Status: user-reviewed with follow-up
 Date: 2026-07-02
 Branch: `codex/crb-closeout-risk-register`
 Scope: FlowDoc vNext Editor paper, viewport, render partition, and selection/hit-test slices
@@ -66,6 +66,29 @@ export truth.
 - Responsive QA at `900 x 720` hid outline and side panels while the canvas
   remained scrollable.
 
+## User Review Notes
+
+2026-07-02 user review:
+
+- Result: overall Phase 2-5 runtime behavior passed user review.
+- PASS: the browser-facing scroll, paper, selection, and overlay behavior was
+  acceptable enough to move out of implementation hardening.
+- FOLLOW-UP: node relationships still feel strange in the product surface.
+
+The node relationship concern is not treated as a Phase 2-5 runtime blocker.
+It is a presentation/modeling follow-up: the current UI still exposes too many
+structural nodes such as columns, table rows, and table cells as generic canvas
+blocks and outline items. That is useful evidence for the normalized runtime
+graph, but it is not yet the intended product-facing document hierarchy.
+
+The next design pass should separate:
+
+- canonical structural nodes;
+- product-facing outline nodes;
+- canvas-selectable block nodes;
+- future table/cell editing targets;
+- inspector-only relationship facts.
+
 ## Checks Run
 
 - `npx vitest run src/tests/renderPartition.test.ts`
@@ -86,6 +109,8 @@ Latest full check result at closeout:
 
 - Browser QA should still be manually reviewed by the user before downgrading
   all visual/runtime risks.
+- Node relationship presentation still needs a product-facing projection; the
+  current surface exposes structural graph details too directly.
 - Overlay measurement is DOM-based interaction truth, not core layout truth.
 - Content mutation, live layout, and export readiness are still deferred.
 - Text wrapping, table row height, caret behavior, and draft editing are still
