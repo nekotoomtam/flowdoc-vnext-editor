@@ -118,6 +118,35 @@ Record each manual QA pass with:
 - Multi-page stress fixture was added after the single-page check.
 - Multi-page scroll behavior still needs user-visible browser QA before R1/R3 can be downgraded.
 
+2026-07-02:
+
+- QA pass: in-app browser automation against `http://127.0.0.1:4001/`.
+- Viewport: 1280 x 720.
+- Result: partial pass, blocked before Phase 1 downgrade.
+- Baseline: `npm run check` passed before browser QA; HTTP check returned 200.
+- PASS: body did not scroll; canvas was the scroll container.
+- PASS: canvas fast scroll reached top and bottom without bounce-back or stuck
+  range; `scrollTop` stayed at 0 after upward settle and at max after downward
+  settle.
+- PASS: selected block, outline, inspector, and status agreed after clicks on
+  first-page, middle-page, and last-page visible blocks.
+- PASS: clicking the already selected first-page block again kept selection
+  stable without toggle or visual drift.
+- PASS: A4 and Letter controls changed page dimensions without layout collapse;
+  zoom in, zoom out, and reset kept canvas scrolling usable.
+- PASS: disabled edit commands were visible as disabled and did not imply
+  WYSIWYG readiness.
+- BLOCKED: browser automation timed out during reload sanity checking, so
+  reload-after-paper/zoom could not be trusted as complete evidence.
+- BLOCKED: below-980px side-panel-hidden scroll QA was not completed because the
+  browser automation session reset during reload recovery.
+- TOOLING NOTE: role-locator click for `Letter` timed out, but coordinate click
+  against the visible toolbar control changed state correctly. Treat this as R1
+  browser automation instability, not an app behavior failure.
+- Decision: do not downgrade R1 or R3 yet. Phase 2 paper work may proceed, but
+  selection/hit-test work still requires full manual browser QA plus scaled
+  geometry tests.
+
 ## Exit Criteria
 
 Phase 1 risk can be downgraded only when:
