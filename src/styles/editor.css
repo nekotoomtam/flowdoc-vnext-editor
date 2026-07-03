@@ -345,7 +345,18 @@
   justify-self: start;
 }
 
-.inspector-action-button:disabled {
+.inspector-action-button--danger:not(:disabled) {
+  color: var(--color-danger);
+}
+
+.inspector-action-row {
+  display: inline-flex;
+  gap: var(--space-1);
+  justify-self: start;
+}
+
+.inspector-action-button:disabled,
+.inspector-action-row .icon-button:disabled {
   color: var(--color-text-muted);
   opacity: 0.62;
 }

@@ -6,18 +6,20 @@ import { CanvasSurface } from "../components/canvas/CanvasSurface"
 import { DiagnosticsPanel } from "../components/diagnostics/DiagnosticsPanel"
 import { InspectorPanel } from "../components/inspector/InspectorPanel"
 import { OutlinePanel } from "../components/outline/OutlinePanel"
-import type { EditorCommandSource } from "../editor/commands/commandTypes"
+import type { EditorCommandSource, NodeReorderDirection } from "../editor/commands/commandTypes"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import { createEditorCanvasRenderView } from "../editor/runtime/editorCanvasRenderView"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView"
-import type { RuntimeDuplicateMutationStatus } from "../editor/runtime/runtimeMutationStatus"
+import type { RuntimeNodeMutationStatus } from "../editor/runtime/runtimeMutationStatus"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export interface EditorShellProps {
-  duplicateStatus: RuntimeDuplicateMutationStatus
   editorState: EditorRuntimeState
+  mutationStatus: RuntimeNodeMutationStatus
+  onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
+  onReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   onSelectNode: (nodeId: string, source: EditorCommandSource) => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
@@ -25,9 +27,11 @@ export interface EditorShellProps {
 }
 
 export function EditorShell({
-  duplicateStatus,
   editorState,
+  mutationStatus,
+  onDeleteNode,
   onDuplicateNode,
+  onReorderNode,
   onSelectNode,
   onSelectPaperPreset,
   onSelectPaperZoom,
@@ -61,9 +65,11 @@ export function EditorShell({
         />
         <aside className="editor-side-panel" aria-label="Inspector and diagnostics">
           <InspectorPanel
-            duplicateStatus={duplicateStatus}
             facts={inspectorFacts}
+            mutationStatus={mutationStatus}
+            onDeleteNode={onDeleteNode}
             onDuplicateNode={onDuplicateNode}
+            onReorderNode={onReorderNode}
           />
           <DiagnosticsPanel
             diagnostics={diagnostics}

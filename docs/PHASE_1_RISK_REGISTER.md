@@ -18,9 +18,9 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 - Read-only core binding now uses the public `@flowdoc/vnext-core` runtime
   session path for the core product-report fixture through the adapter,
   transport envelope, and working set factory.
-- Backend-backed reads and the first visible duplicate mutation now use the
-  editor backend transport/revision boundary instead of direct browser-side core
-  mutation.
+- Backend-backed reads and inspector-visible duplicate/delete/reorder mutations
+  now use the editor backend transport/revision boundary instead of direct
+  browser-side core mutation.
 
 ## Active Risks
 
@@ -32,7 +32,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R4 | `EditorToolbar.tsx` and `PaperPage.tsx` are the first files likely to grow into mixed-responsibility components. | Medium | Paper block rendering is split into `PaperBlock`, `PaperPage`, and `PaperPageStack`; canvas render partitions are split through `CanvasStage` and overlay components. | Split toolbar controls before adding more toolbar commands. |
 | R5 | WYSIWYG pressure can start early because the shell now looks more real. | High | AGENTS and boundary tests block `contenteditable` and rich editor frameworks. | Require a written WYSIWYG gate decision before adding draft/input runtime. |
 | R6 | Design tokens are local Phase 1 tokens, not a validated design system. | Medium | Palette is restrained and app-specific. | Run a visual QA pass on desktop/mobile before treating tokens as stable. |
-| R7 | Backend/API transport and the first duplicate mutation bridge now exist, but rejection recovery and a real mutation queue are still narrow. | Medium | Core imports remain isolated to `src/core`; backend integration tests cover read envelopes, mutation request building, stale result guards, runtime apply, and history recording. | Keep additional mutations behind command policy, backend revision gates, and explicit recovery tests before exposing more commands. |
+| R7 | Backend/API transport and inspector structural mutation controls now exist, but rejection recovery and a real mutation queue are still narrow. | Medium | Core imports remain isolated to `src/core`; backend integration tests cover read envelopes, mutation request building, surface normalization, stale result guards, runtime apply, and history recording. | Keep additional mutations behind command policy, backend revision gates, and explicit recovery tests before exposing more commands. |
 | R8 | Direct internal core submodule imports could bypass the `coreAdapter` facade as CRB files grow. | High | `src/tests/boundary.test.ts` scans source imports for direct core package access and internal read submodule access outside `src/core`. | Keep this scan current whenever new adapter submodules are added. |
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
@@ -99,10 +99,12 @@ Run this before declaring Phase 1 UX complete:
 7. Use zoom out, zoom in, and reset; confirm canvas scroll remains usable.
 8. Resize below 980px; confirm side panels hide and canvas remains usable.
 9. With the backend running, duplicate a selected duplicable node from the inspector; confirm the selected copy appears and document revision increments.
-10. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
-11. Reload after switching zoom and paper preset; confirm the initial state is sane.
-12. Click the selected block again; confirm no unexpected toggle or visual drift.
-13. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
+10. Move a middle inspector node up/down; confirm order, selected node, and revision update.
+11. Delete a deletable inspector node; confirm selection recovers to a valid node and revision updates.
+12. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
+13. Reload after switching zoom and paper preset; confirm the initial state is sane.
+14. Click the selected block again; confirm no unexpected toggle or visual drift.
+15. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
 
 Record each manual QA pass with:
 

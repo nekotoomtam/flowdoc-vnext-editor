@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
 import { resolveFlowDocBackendBaseUrl } from "../editor/backend/backendConfig"
 import { createBackendMutationRequestFromCommand } from "../editor/backend/backendMutationRequests"
 import { runBackendMutationCommand } from "../editor/backend/backendMutationRunner"
@@ -8,8 +9,12 @@ import {
   createFlowDocBackendClient,
   type BackendMutationResultEnvelope,
 } from "../editor/backend/backendTransport"
-import { loadFrontendCoreWorkingSetFromTransportEnvelope } from "../editor/coreBinding/workingSetFactory"
+import {
+  loadInitialCoreWorkingSet,
+  loadFrontendCoreWorkingSetFromTransportEnvelope,
+} from "../editor/coreBinding/workingSetFactory"
 import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
+import { getInspectorFacts } from "../editor/runtime/editorView"
 import { applyRuntimeBackendMutationResult } from "../editor/runtime/runtimeBackendMutation"
 import { applyRuntimeBackendMutationCommandResult } from "../editor/runtime/runtimeBackendMutationCommand"
 
@@ -111,6 +116,14 @@ function createStateAtBackendRevision(revision: number) {
   )
 }
 
+function createProductFixtureState() {
+  return createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
+    baseRevision: 3,
+    documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+    fixtureSource: "core-product-report-minimal",
+  }))
+}
+
 describe("editor backend integration boundary", () => {
   it("uses the local backend URL when no environment override is configured", () => {
     expect(resolveFlowDocBackendBaseUrl(undefined)).toBe("http://127.0.0.1:4011")
@@ -177,6 +190,79 @@ describe("editor backend integration boundary", () => {
         source: "inspector",
       },
       status: "ready",
+    })
+  })
+
+  it("builds delete and reorder requests from inspector operation surfaces", () => {
+    const state = createProductFixtureState()
+    const deleteBuilt = createBackendMutationRequestFromCommand(state, {
+      kind: "node.delete",
+      reason: "inspector-delete",
+      source: "inspector",
+      target: {
+        nodeId: "detail-cell-b-text",
+      },
+    }, {
+      requestId: "request-delete",
+      timestamp: 140,
+    })
+    const reorderBuilt = createBackendMutationRequestFromCommand(state, {
+      kind: "node.reorder",
+      payload: {
+        direction: "down",
+      },
+      reason: "inspector-move-down",
+      source: "inspector",
+      target: {
+        nodeId: "summary-left-text",
+      },
+    }, {
+      requestId: "request-reorder",
+      timestamp: 150,
+    })
+
+    expect(deleteBuilt).toMatchObject({
+      request: {
+        operation: {
+          kind: "node.delete",
+          nodeId: "detail-table",
+        },
+        requestId: "request-delete",
+        source: "inspector",
+      },
+      status: "ready",
+    })
+    expect(reorderBuilt).toMatchObject({
+      request: {
+        operation: {
+          kind: "node.reorder",
+          nodeId: "summary-columns",
+          toIndex: 2,
+        },
+        requestId: "request-reorder",
+        source: "inspector",
+      },
+      status: "ready",
+    })
+  })
+
+  it("exposes inspector move eligibility from sibling order", () => {
+    const state = createProductFixtureState()
+
+    expect(getInspectorFacts(state.view, "title")).toMatchObject({
+      canMoveDown: true,
+      canMoveUp: false,
+      id: "title",
+    })
+    expect(getInspectorFacts(state.view, "summary-left-text")).toMatchObject({
+      canMoveDown: true,
+      canMoveUp: true,
+      id: "summary-columns",
+    })
+    expect(getInspectorFacts(state.view, "detail-table")).toMatchObject({
+      canMoveDown: false,
+      canMoveUp: true,
+      id: "detail-table",
     })
   })
 

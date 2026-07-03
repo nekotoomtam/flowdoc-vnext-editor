@@ -1,12 +1,16 @@
-export type RuntimeDuplicateMutationStatusKind = "applied" | "failed" | "idle" | "pending"
+import type { BackendMutationCommand } from "../backend/backendMutationRequests"
 
-export interface RuntimeDuplicateMutationStatus {
+export type RuntimeNodeMutationStatusKind = "applied" | "failed" | "idle" | "pending"
+
+export interface RuntimeNodeMutationStatus {
+  command: BackendMutationCommand["kind"] | null
   message: string | null
   nodeId: string | null
-  status: RuntimeDuplicateMutationStatusKind
+  status: RuntimeNodeMutationStatusKind
 }
 
-export const IDLE_DUPLICATE_MUTATION_STATUS: RuntimeDuplicateMutationStatus = {
+export const IDLE_NODE_MUTATION_STATUS: RuntimeNodeMutationStatus = {
+  command: null,
   message: null,
   nodeId: null,
   status: "idle",

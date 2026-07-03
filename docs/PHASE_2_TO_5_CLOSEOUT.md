@@ -20,9 +20,10 @@ Phases 2 through 5 now have a reviewable frontend foundation:
 This closeout does not claim pagination, text wrapping, WYSIWYG, mutation, or
 export truth.
 
-Later note, 2026-07-04: backend-backed read boot and the first visible duplicate
-mutation slice were added after this closeout. This document remains the
-Phase 2-5 runtime closeout snapshot, not the current mutation status.
+Later note, 2026-07-04: backend-backed read boot and inspector-visible
+duplicate/delete/reorder mutation controls were added after this closeout. This
+document remains the Phase 2-5 runtime closeout snapshot, not the current
+mutation status.
 
 ## Phase Evidence
 

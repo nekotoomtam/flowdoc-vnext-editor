@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
-import { useBackendDuplicateNode } from "./useBackendDuplicateNode"
+import { useBackendNodeMutation } from "./useBackendNodeMutation"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
@@ -35,7 +35,12 @@ export function EditorApp() {
     [],
   )
   const [editorState, setEditorState] = useState(initialState)
-  const { duplicateNode, duplicateStatus } = useBackendDuplicateNode({
+  const {
+    deleteNode,
+    duplicateNode,
+    mutationStatus,
+    reorderNode,
+  } = useBackendNodeMutation({
     backendClient,
     editorState,
     setEditorState,
@@ -103,9 +108,11 @@ export function EditorApp() {
 
   return (
     <EditorShell
-      duplicateStatus={duplicateStatus}
       editorState={editorState}
+      mutationStatus={mutationStatus}
+      onDeleteNode={deleteNode}
       onDuplicateNode={duplicateNode}
+      onReorderNode={reorderNode}
       onSelectNode={handleSelectNode}
       onSelectPaperPreset={handleSelectPaperPreset}
       onSelectPaperZoom={handleSelectPaperZoom}
