@@ -17,6 +17,7 @@ export interface CreateCoreReadRequestOptions {
   requireDiagnostics?: boolean
   requireRenderProjection?: boolean
   sourceKind?: CoreAdapterSnapshotSourceKind
+  sourceRevision?: number | null
 }
 
 export interface CreateReadResultFromSeedOptions {
@@ -40,6 +41,7 @@ export function createReadRequest(
     requireDiagnostics: options.requireDiagnostics ?? true,
     requireRenderProjection: options.requireRenderProjection ?? true,
     sourceKind: options.sourceKind ?? "fixture",
+    sourceRevision: options.sourceRevision ?? null,
   }
 }
 
@@ -52,7 +54,7 @@ export function createReadResultEnvelope(
     baseRevision: request.baseRevision,
     coreRevision: snapshot?.coreRevision ?? null,
     documentId: request.documentId,
-    documentRevision: snapshot?.seed.document.documentVersion ?? null,
+    documentRevision: snapshot?.snapshotRevision ?? null,
     failures: cloneCoreReadBindingFailures(failures),
     receivedAt: request.requestedAt,
     snapshotRevision: snapshot?.snapshotRevision ?? null,
@@ -76,7 +78,7 @@ function createCoreRevision(
   request: CoreAdapterReadRequest,
   seed: CoreEditorSeed,
 ): string {
-  const documentRevision = seed.document.documentVersion
+  const documentRevision = request.sourceRevision ?? seed.document.documentVersion
 
   if (request.sourceKind === "fixture") {
     return `fixture:${documentRevision}`
@@ -90,7 +92,7 @@ export function createReadResultFromSeed(
   seed: CoreEditorSeed,
   options: CreateReadResultFromSeedOptions = {},
 ): CoreAdapterReadResult {
-  const documentRevision = seed.document.documentVersion
+  const documentRevision = request.sourceRevision ?? seed.document.documentVersion
   const failures: CoreReadBindingFailure[] = []
 
   if (request.documentId !== seed.document.id) {
@@ -103,7 +105,11 @@ export function createReadResultFromSeed(
     }))
   }
 
-  if (request.baseRevision !== null && request.baseRevision !== documentRevision) {
+  if (
+    request.baseRevision !== null
+    && request.sourceKind !== "mutation-result"
+    && request.baseRevision !== documentRevision
+  ) {
     failures.push(createCoreReadFailure({
       baseRevision: request.baseRevision,
       code: "revision-stale",

@@ -32,6 +32,7 @@ const CORE_READ_ENVELOPE_PURPOSES: CoreReadEnvelopePurpose[] = [
   "refresh",
   "job-result",
   "local-draft",
+  "mutation-result",
 ]
 
 export type CoreReadTransportEnvelopeValidation =
@@ -95,6 +96,7 @@ function transportRequestFromInput(
   const baseRevision = record.baseRevision === null || isRevision(record.baseRevision)
     ? record.baseRevision
     : null
+  const sourceRevision = isRevision(record.sourceRevision) ? record.sourceRevision : null
   const documentId =
     failure.expectedDocumentId
     ?? failure.documentId
@@ -106,6 +108,7 @@ function transportRequestFromInput(
     createdAt: requestedAt,
     documentId,
     sourceKind,
+    sourceRevision,
   })
 }
 
@@ -163,12 +166,40 @@ export function validateCoreReadTransportEnvelope(
     }))
   }
 
+  if (input.purpose === "mutation-result" && input.sourceKind !== "mutation-result") {
+    return rejectedTransportEnvelope(input, createCoreReadFailure({
+      code: "invalid-envelope",
+      documentId,
+      message: "Mutation result envelopes must use mutation-result sourceKind.",
+    }))
+  }
+
   const baseRevision = input.baseRevision
   if (baseRevision !== null && !isRevision(baseRevision)) {
     return rejectedTransportEnvelope(input, createCoreReadFailure({
       code: "invalid-envelope",
       documentId,
       message: "The core read transport envelope baseRevision must be a non-negative integer or null.",
+    }))
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(input, "sourceRevision")
+    && input.sourceRevision !== null
+    && !isRevision(input.sourceRevision)
+  ) {
+    return rejectedTransportEnvelope(input, createCoreReadFailure({
+      code: "invalid-envelope",
+      documentId,
+      message: "The core read transport envelope sourceRevision must be a non-negative integer or null.",
+    }))
+  }
+
+  if (input.purpose === "mutation-result" && !isRevision(input.sourceRevision)) {
+    return rejectedTransportEnvelope(input, createCoreReadFailure({
+      code: "invalid-envelope",
+      documentId,
+      message: "Mutation result envelopes require sourceRevision.",
     }))
   }
 
@@ -206,6 +237,7 @@ export function validateCoreReadTransportEnvelope(
       receivedAt: input.receivedAt,
       requestedAt: input.requestedAt,
       sourceKind: input.sourceKind,
+      sourceRevision: isRevision(input.sourceRevision) ? input.sourceRevision : null,
     },
     status: "accepted",
   }
@@ -228,6 +260,7 @@ export function loadReadOnlyCoreSnapshotFromEnvelope(
     createdAt: envelope.receivedAt,
     documentId: envelope.documentId,
     sourceKind: envelope.sourceKind,
+    sourceRevision: envelope.sourceRevision,
   })
 
   if (active && active.documentId !== envelope.documentId) {
@@ -263,5 +296,6 @@ export function loadReadOnlyCoreSnapshotFromEnvelope(
     createdAt: envelope.receivedAt,
     documentId: envelope.documentId,
     sourceKind: envelope.sourceKind,
+    sourceRevision: envelope.sourceRevision,
   }, dependencies)
 }

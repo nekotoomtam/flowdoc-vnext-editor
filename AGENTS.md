@@ -20,6 +20,18 @@ Core rules:
 9. Do not add ProseMirror, Slate, TipTap, Tailwind, UI kits, or Playwright in Phase 0.
 10. React components render state and dispatch intent; runtime modules own behavior.
 
+Cross-repo coordination:
+- Before backend/API transport, mutation packets, or core contract integration,
+  read `../flowdoc-vnext-core/docs/CROSS_REPO_OPERATING_MAP.md`.
+- Default integration flow is editor intent -> backend transport/revision gate
+  -> `@flowdoc/vnext-core` semantics -> backend response envelope -> editor
+  stale-gated runtime apply.
+- Do not bypass the backend for service-owned mutation/persistence behavior
+  unless the task is explicitly a browser-safe read-only core adapter slice.
+- For broad delegated topics, follow the delegated major topic workflow in the
+  cross-repo map: split into phases, execute until complete or blocked, then
+  hand off with the required review output.
+
 Required review output:
 - PASS
 - FAIL / BLOCKER

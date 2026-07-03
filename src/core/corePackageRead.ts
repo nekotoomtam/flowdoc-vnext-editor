@@ -22,6 +22,7 @@ export interface LoadReadOnlyCoreSnapshotFromPackageOptions {
   simulateMissingDiagnostics?: boolean
   simulateMissingRenderProjection?: boolean
   sourceKind?: CoreAdapterSnapshotSourceKind
+  sourceRevision?: number | null
 }
 
 type CoreRuntimeSessionSource = "canonical-vnext-package" | "fixture"

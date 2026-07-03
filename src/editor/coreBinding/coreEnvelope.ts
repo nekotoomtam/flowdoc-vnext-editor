@@ -69,7 +69,7 @@ export function createCoreSnapshotEnvelope(
   seed: CoreEditorSeed,
   options: CoreSnapshotEnvelopeOptions = {},
 ): CoreSnapshotEnvelope {
-  const documentRevision = seed.document.documentVersion
+  const documentRevision = options.snapshotRevision ?? seed.document.documentVersion
   const capabilities = options.capabilities ?? createDefaultCoreCapabilitySummary()
 
   return {

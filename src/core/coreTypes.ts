@@ -119,6 +119,7 @@ export type CoreReadEnvelopePurpose =
   | "refresh"
   | "job-result"
   | "local-draft"
+  | "mutation-result"
 
 export interface CoreReadTransportEnvelope {
   baseRevision: number | null
@@ -129,6 +130,7 @@ export interface CoreReadTransportEnvelope {
   receivedAt: number
   requestedAt: number
   sourceKind: CoreAdapterSnapshotSourceKind
+  sourceRevision?: number | null
 }
 
 export interface ActiveCoreReadRevision {
@@ -159,6 +161,7 @@ export interface CoreAdapterReadRequest {
   requireDiagnostics: boolean
   requireRenderProjection: boolean
   sourceKind: CoreAdapterSnapshotSourceKind
+  sourceRevision: number | null
 }
 
 export interface CoreAdapterReadResultEnvelope {
