@@ -31,6 +31,43 @@ function staleReason(state: EditorRuntimeState, result: BackendMutationResultEnv
   return null
 }
 
+function resolveSelectableTarget(
+  nextView: EditorRuntimeState["view"],
+  nodeId: string,
+): string | null {
+  const selectionTargetId = nextView.presentation.selectionTargetByNodeId[nodeId] ?? null
+  return selectionTargetId && nextView.nodeById[selectionTargetId] ? selectionTargetId : null
+}
+
+function selectAfterDelete(
+  state: EditorRuntimeState,
+  result: BackendMutationResultEnvelope,
+  nextView: EditorRuntimeState["view"],
+): string | null {
+  if (result.operationKind !== "node.delete") return null
+
+  for (const deletedNodeId of result.targetNodeIds) {
+    const parentId = state.view.parentById[deletedNodeId]
+    if (!parentId) continue
+
+    const siblings = state.view.childrenById[parentId] ?? []
+    const deletedIndex = siblings.indexOf(deletedNodeId)
+    if (deletedIndex < 0) continue
+
+    const recoveryCandidates = [
+      ...siblings.slice(0, deletedIndex).reverse(),
+      ...siblings.slice(deletedIndex + 1),
+    ]
+    const recoveryTarget = recoveryCandidates
+      .map((nodeId) => resolveSelectableTarget(nextView, nodeId))
+      .find((nodeId): nodeId is string => Boolean(nodeId))
+
+    if (recoveryTarget) return recoveryTarget
+  }
+
+  return null
+}
+
 function selectAfterMutation(
   state: EditorRuntimeState,
   result: BackendMutationResultEnvelope,
@@ -38,11 +75,18 @@ function selectAfterMutation(
 ): string | null {
   const preferredTarget = [...result.targetNodeIds]
     .reverse()
-    .find((nodeId) => Boolean(nextView.nodeById[nodeId]))
+    .map((nodeId) => resolveSelectableTarget(nextView, nodeId))
+    .find((nodeId): nodeId is string => Boolean(nodeId))
   if (preferredTarget) return preferredTarget
 
+  const deleteRecoveryTarget = selectAfterDelete(state, result, nextView)
+  if (deleteRecoveryTarget) return deleteRecoveryTarget
+
   const currentSelection = state.selection.selectedNodeId
-  if (currentSelection && nextView.nodeById[currentSelection]) return currentSelection
+  if (currentSelection) {
+    const currentSelectionTarget = resolveSelectableTarget(nextView, currentSelection)
+    if (currentSelectionTarget) return currentSelectionTarget
+  }
 
   return nextView.renderableNodeIds[0] ?? nextView.visibleNodeIds[0] ?? null
 }

@@ -97,10 +97,10 @@ function canonicalPackageFixture(documentId = "backend-document", includeCopy = 
   }
 }
 
-function createStateAtBackendRevision(revision: number) {
+function createStateAtBackendRevision(revision: number, includeCopy = false) {
   const read = createBackendDocumentReadResult({
     documentId: "backend-document",
-    packageValue: canonicalPackageFixture(),
+    packageValue: canonicalPackageFixture("backend-document", includeCopy),
     revision,
     status: "found",
     updatedAt: "2026-07-04T00:00:00.000Z",
@@ -379,6 +379,45 @@ describe("editor backend integration boundary", () => {
       source: "inspector",
       sourceCommand: "node.duplicate",
     })
+  })
+
+  it("selects the previous surviving sibling after deleting a selected node", () => {
+    const state = createStateAtBackendRevision(7, true)
+    const result: BackendMutationResultEnvelope = {
+      baseRevision: 7,
+      core: {
+        historyIntent: "structure",
+      },
+      documentId: "backend-document",
+      issues: [],
+      operationKind: "node.delete",
+      readEnvelope: {
+        baseRevision: 7,
+        documentId: "backend-document",
+        envelopeId: "mutation-delete:mutation-result",
+        packageValue: canonicalPackageFixture("backend-document", false),
+        purpose: "mutation-result",
+        receivedAt: 150,
+        requestedAt: 140,
+        sourceKind: "mutation-result",
+        sourceRevision: 8,
+      },
+      receivedAt: 150,
+      requestId: "mutation-delete",
+      requestedAt: 140,
+      revision: 8,
+      status: "applied",
+      targetNodeIds: ["body-text-copy"],
+    }
+
+    const applied = applyRuntimeBackendMutationResult(state, result)
+
+    expect(applied).toMatchObject({
+      reason: null,
+      status: "applied",
+    })
+    expect(applied.state.view.nodeById["body-text-copy"]).toBeUndefined()
+    expect(applied.state.selection.selectedNodeId).toBe("body-text")
   })
 
   it("blocks old backend mutation results before replacing runtime state", () => {
