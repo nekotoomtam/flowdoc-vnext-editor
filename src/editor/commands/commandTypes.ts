@@ -10,7 +10,7 @@ export type EditorCommandKind =
   | "viewport.setZoom"
   | "viewport.setPaperPreset"
 
-export type EditorCommandSource = "canvas" | "keyboard" | "outline" | "system" | "toolbar"
+export type EditorCommandSource = "canvas" | "inspector" | "keyboard" | "outline" | "system" | "toolbar"
 export type NodeReorderDirection = "down" | "up"
 
 interface BaseEditorCommand {
@@ -99,6 +99,6 @@ export type EditorCommand =
   | SetViewportZoomCommand
   | SetPaperPresetCommand
 
-export type CommandChangedArea = "jobs" | "paper" | "selection" | "viewport"
+export type CommandChangedArea = "core" | "jobs" | "paper" | "selection" | "viewport"
 
 export type CommandPolicySeverity = "blocked" | "info" | "warning"

@@ -11,10 +11,13 @@ import type { PaperPreset } from "../editor/paper/paperModel"
 import { createEditorCanvasRenderView } from "../editor/runtime/editorCanvasRenderView"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView"
+import type { RuntimeDuplicateMutationStatus } from "../editor/runtime/runtimeMutationStatus"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export interface EditorShellProps {
+  duplicateStatus: RuntimeDuplicateMutationStatus
   editorState: EditorRuntimeState
+  onDuplicateNode: (nodeId: string) => void
   onSelectNode: (nodeId: string, source: EditorCommandSource) => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
@@ -22,7 +25,9 @@ export interface EditorShellProps {
 }
 
 export function EditorShell({
+  duplicateStatus,
   editorState,
+  onDuplicateNode,
   onSelectNode,
   onSelectPaperPreset,
   onSelectPaperZoom,
@@ -55,7 +60,11 @@ export function EditorShell({
           onViewportFactsChange={onViewportFactsChange}
         />
         <aside className="editor-side-panel" aria-label="Inspector and diagnostics">
-          <InspectorPanel facts={inspectorFacts} />
+          <InspectorPanel
+            duplicateStatus={duplicateStatus}
+            facts={inspectorFacts}
+            onDuplicateNode={onDuplicateNode}
+          />
           <DiagnosticsPanel
             diagnostics={diagnostics}
             selection={selection}

@@ -669,8 +669,8 @@ Rules:
 ```txt
 UI dispatches intent
 command policy validates intent
-mutation bridge commits through coreAdapter
-runtime cache applies accepted packet/result
+mutation bridge commits through backend transport/revision gate
+runtime cache applies accepted read envelope/result
 rejected result is surfaced safely
 older response must not overwrite newer draft/runtime state
 ```
@@ -680,12 +680,12 @@ Mutation flow:
 ```txt
 user event
   -> command policy
-  -> mutation queue
-  -> commit bridge
-  -> coreAdapter
-  -> core operation/transaction
-  -> result/packet/dirty scope
-  -> runtimeCache apply
+  -> mutation request builder
+  -> backend transport
+  -> backend revision gate
+  -> core operation through backend
+  -> mutation result/read envelope
+  -> runtime apply
   -> layout status update
   -> UI render update
 ```
@@ -953,7 +953,7 @@ CSS shell
 basic components
 ```
 
-Do not implement yet:
+Initial scaffold did not implement:
 
 ```txt
 real WYSIWYG draft runtime
@@ -966,7 +966,9 @@ backend API integration
 artifact rendering
 ```
 
-Even placeholders should live in the intended ownership folders.
+Even placeholders should live in the intended ownership folders. Later backend
+integration must stay in `src/editor/backend` plus runtime apply boundaries, not
+inside React components.
 
 ## PASS
 
@@ -1061,7 +1063,7 @@ Scope:
 - ensure components do not import core directly
 ```
 
-Do not implement:
+The initial scaffold handoff did not implement:
 
 ```txt
 - WYSIWYG

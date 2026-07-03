@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { resolveFlowDocBackendBaseUrl } from "../editor/backend/backendConfig"
 import { createBackendMutationRequestFromCommand } from "../editor/backend/backendMutationRequests"
 import { runBackendMutationCommand } from "../editor/backend/backendMutationRunner"
 import {
@@ -10,6 +11,7 @@ import {
 import { loadFrontendCoreWorkingSetFromTransportEnvelope } from "../editor/coreBinding/workingSetFactory"
 import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
 import { applyRuntimeBackendMutationResult } from "../editor/runtime/runtimeBackendMutation"
+import { applyRuntimeBackendMutationCommandResult } from "../editor/runtime/runtimeBackendMutationCommand"
 
 function canonicalPackageFixture(documentId = "backend-document", includeCopy = false): unknown {
   return {
@@ -110,6 +112,11 @@ function createStateAtBackendRevision(revision: number) {
 }
 
 describe("editor backend integration boundary", () => {
+  it("uses the local backend URL when no environment override is configured", () => {
+    expect(resolveFlowDocBackendBaseUrl(undefined)).toBe("http://127.0.0.1:4011")
+    expect(resolveFlowDocBackendBaseUrl(" http://backend.test ")).toBe("http://backend.test")
+  })
+
   it("turns backend read responses into source-revisioned core transport envelopes", () => {
     const result = createBackendDocumentReadResult({
       documentId: "backend-document",
@@ -148,8 +155,8 @@ describe("editor backend integration boundary", () => {
     const state = createStateAtBackendRevision(7)
     const built = createBackendMutationRequestFromCommand(state, {
       kind: "node.duplicate",
-      reason: "toolbar-duplicate",
-      source: "toolbar",
+      reason: "inspector-duplicate",
+      source: "inspector",
       target: {
         nodeId: "body-text",
       },
@@ -167,7 +174,7 @@ describe("editor backend integration boundary", () => {
           nodeId: "body-text",
         },
         requestId: "request-1",
-        source: "toolbar",
+        source: "inspector",
       },
       status: "ready",
     })
@@ -224,6 +231,68 @@ describe("editor backend integration boundary", () => {
       type: "text-block",
     })
     expect(applied.state.selection.selectedNodeId).toBe("body-text-copy")
+  })
+
+  it("records history when a backend mutation command applies", () => {
+    const state = createStateAtBackendRevision(7)
+    const result: BackendMutationResultEnvelope = {
+      baseRevision: 7,
+      core: {
+        historyIntent: "structure",
+      },
+      documentId: "backend-document",
+      issues: [],
+      operationKind: "node.duplicate",
+      readEnvelope: {
+        baseRevision: 7,
+        documentId: "backend-document",
+        envelopeId: "mutation-history:mutation-result",
+        packageValue: canonicalPackageFixture("backend-document", true),
+        purpose: "mutation-result",
+        receivedAt: 150,
+        requestedAt: 140,
+        sourceKind: "mutation-result",
+        sourceRevision: 8,
+      },
+      receivedAt: 150,
+      requestId: "mutation-history",
+      requestedAt: 140,
+      revision: 8,
+      status: "applied",
+      targetNodeIds: ["body-text", "body-text-copy"],
+    }
+
+    const applied = applyRuntimeBackendMutationCommandResult(
+      state,
+      {
+        kind: "node.duplicate",
+        reason: "inspector-duplicate",
+        source: "inspector",
+        target: {
+          nodeId: "body-text",
+        },
+      },
+      result,
+      {
+        timestamp: 160,
+      },
+    )
+
+    expect(applied.commandResult.result).toMatchObject({
+      changed: ["core", "selection"],
+      command: "node.duplicate",
+      status: "applied",
+    })
+    expect(applied.state.history.records).toHaveLength(1)
+    expect(applied.state.history.records[0]).toMatchObject({
+      changed: ["core", "selection"],
+      documentRevisionAfter: 8,
+      documentRevisionBefore: 7,
+      kind: "structuralCommand",
+      payloadSummary: "body-text",
+      source: "inspector",
+      sourceCommand: "node.duplicate",
+    })
   })
 
   it("blocks old backend mutation results before replacing runtime state", () => {

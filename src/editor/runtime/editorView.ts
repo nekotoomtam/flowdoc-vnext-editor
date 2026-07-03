@@ -18,6 +18,7 @@ export type EditorOutlineItem = EditorPresentationOutlineItem
 export interface EditorInspectorFacts {
   childCount: number
   canBeDeleted: boolean | null
+  canBeDuplicated: boolean | null
   canBeReordered: boolean | null
   id: string
   label: string
@@ -115,6 +116,7 @@ export function getInspectorFacts(view: EditorView, nodeId: string | null): Edit
   return {
     childCount: view.childrenById[node.id]?.length ?? 0,
     canBeDeleted: node.capabilities?.canBeDeleted ?? null,
+    canBeDuplicated: node.capabilities?.canBeDuplicated ?? null,
     canBeReordered: node.capabilities?.canBeReordered ?? null,
     id: node.id,
     label: node.label,

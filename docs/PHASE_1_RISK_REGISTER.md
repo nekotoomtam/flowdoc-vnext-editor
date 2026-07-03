@@ -2,7 +2,7 @@
 
 Status: active
 Date opened: 2026-07-01
-Date updated: 2026-07-02
+Date updated: 2026-07-04
 Scope: FlowDoc vNext Editor Phase 1 UX foundation
 
 ## Current Validation Baseline
@@ -18,6 +18,9 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 - Read-only core binding now uses the public `@flowdoc/vnext-core` runtime
   session path for the core product-report fixture through the adapter,
   transport envelope, and working set factory.
+- Backend-backed reads and the first visible duplicate mutation now use the
+  editor backend transport/revision boundary instead of direct browser-side core
+  mutation.
 
 ## Active Risks
 
@@ -29,7 +32,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R4 | `EditorToolbar.tsx` and `PaperPage.tsx` are the first files likely to grow into mixed-responsibility components. | Medium | Paper block rendering is split into `PaperBlock`, `PaperPage`, and `PaperPageStack`; canvas render partitions are split through `CanvasStage` and overlay components. | Split toolbar controls before adding more toolbar commands. |
 | R5 | WYSIWYG pressure can start early because the shell now looks more real. | High | AGENTS and boundary tests block `contenteditable` and rich editor frameworks. | Require a written WYSIWYG gate decision before adding draft/input runtime. |
 | R6 | Design tokens are local Phase 1 tokens, not a validated design system. | Medium | Palette is restrained and app-specific. | Run a visual QA pass on desktop/mobile before treating tokens as stable. |
-| R7 | The editor now reads `@flowdoc/vnext-core` through the adapter, but only for read-only fixture/package binding; backend/API transport and mutation packets are still deferred. | Medium | Core imports remain isolated to `src/core`, and working set tests cover read envelopes, stale guards, caller-supplied canonical packages, and blocked transport cases. | Keep Phase 2/3 work read-only; document the final API envelope before backend transport or mutation bridge work begins. |
+| R7 | Backend/API transport and the first duplicate mutation bridge now exist, but rejection recovery and a real mutation queue are still narrow. | Medium | Core imports remain isolated to `src/core`; backend integration tests cover read envelopes, mutation request building, stale result guards, runtime apply, and history recording. | Keep additional mutations behind command policy, backend revision gates, and explicit recovery tests before exposing more commands. |
 | R8 | Direct internal core submodule imports could bypass the `coreAdapter` facade as CRB files grow. | High | `src/tests/boundary.test.ts` scans source imports for direct core package access and internal read submodule access outside `src/core`. | Keep this scan current whenever new adapter submodules are added. |
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
@@ -47,7 +50,7 @@ P1 before adding new product behavior:
 
 - R2 frontend-placeholder fallback discipline.
 - R4 toolbar and paper component responsibility split.
-- R7 read-only core binding limitations.
+- R7 backend mutation recovery/queue limitations.
 - R8 adapter facade import boundary.
 
 P2 polish and evidence quality:
@@ -76,7 +79,7 @@ the test is explicitly proving fallback or failure behavior.
 1. Do not add WYSIWYG, `contenteditable`, ProseMirror, Slate, TipTap, or DOM HTML as document truth.
 2. Do not add direct core imports outside `src/core`.
 3. Do not let `EditorShell` own behavior; keep it as composition only.
-4. Do not add mutation behavior until command policy and rejection recovery have real tests.
+4. Do not add new mutation behavior outside command policy, backend revision gates, and focused rejection/recovery tests.
 5. Treat scroll, paper geometry, and selection as one coupled risk area; test them together.
 6. Prefer one small UX change plus verification over broad visual rewrites.
 7. Do not add new frontend-placeholder assumptions when a canonical package
@@ -95,10 +98,11 @@ Run this before declaring Phase 1 UX complete:
 6. Switch A4 and Letter; confirm page dimensions change without layout collapse.
 7. Use zoom out, zoom in, and reset; confirm canvas scroll remains usable.
 8. Resize below 980px; confirm side panels hide and canvas remains usable.
-9. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
-10. Reload after switching zoom and paper preset; confirm the initial state is sane.
-11. Click the selected block again; confirm no unexpected toggle or visual drift.
-12. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
+9. With the backend running, duplicate a selected duplicable node from the inspector; confirm the selected copy appears and document revision increments.
+10. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
+11. Reload after switching zoom and paper preset; confirm the initial state is sane.
+12. Click the selected block again; confirm no unexpected toggle or visual drift.
+13. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
 
 Record each manual QA pass with:
 

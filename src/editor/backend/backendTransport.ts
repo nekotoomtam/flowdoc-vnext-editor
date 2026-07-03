@@ -2,6 +2,7 @@ import type { CoreReadTransportEnvelope } from "../../core/coreTypes"
 
 export type BackendMutationSource =
   | "canvas"
+  | "inspector"
   | "keyboard"
   | "outline"
   | "system"
