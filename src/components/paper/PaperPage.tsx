@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react"
 import { PaperBlock } from "./PaperBlock"
+import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import { getPaperPageGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
@@ -7,6 +8,7 @@ import type { RenderPageSummary } from "../../editor/render/renderTypes"
 
 export interface PaperPageProps {
   canvasReorderDrag: CanvasReorderInteraction
+  onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   page: RenderPageSummary
   pageCount: number
   paper: PaperModel
@@ -15,6 +17,7 @@ export interface PaperPageProps {
 
 export function PaperPage({
   canvasReorderDrag,
+  onKeyboardReorderNode,
   page,
   pageCount,
   paper,
@@ -52,6 +55,7 @@ export function PaperPage({
               isSelected={node.id === selectedNodeId}
               key={node.id}
               node={node}
+              onKeyboardReorderNode={onKeyboardReorderNode}
               reorderState={canvasReorderDrag.getBlockState(node.id)}
             />
           ))}

@@ -2,7 +2,7 @@
 
 Status: active implementation contract
 Date: 2026-07-04
-Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
+Scope: FlowDoc vNext editor structural reorder UX during pointer/keyboard implementation
 
 ## Current Evidence
 
@@ -26,12 +26,15 @@ Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
 - `src/editor/interaction/canvasReorderDragSession.ts` exposes `ready`,
   `noop`, and `blocked` target states plus a non-rendered reason for testable
   UI affordances.
+- Focused paper blocks expose `Control/Meta + ArrowUp/ArrowDown` as the
+  current keyboard fallback for adjacent reorder through the same backend
+  mutation path.
 - `src/editor/runtime/runtimeBackendMutation.ts` preserves backend mutation
   issue codes for rejected/stale drag-drop recovery before command status is
   shown.
 - `docs/REORDER_FAILURE_PATH_QA.md` records the safe no-hook stale recipe,
-  `reorder-blocked-target-qa` browser evidence, and the remaining stale/rejected
-  browser evidence boundaries.
+  `reorder-blocked-target-qa` browser evidence, manual stale browser evidence,
+  and the remaining rejected browser evidence boundary.
 
 ## Boundary Decision
 
@@ -75,28 +78,29 @@ accepted mutation result.
 These require explicit contracts before implementation. Do not infer them from
 pointer behavior alone.
 
-## Next Implementation Slice
+## Implemented Slice Snapshot
 
-1. Add an editor-owned transient drag session module.
-2. Hit-test canvas surfaces to a dragged node, drop target node, and placement.
-3. Call `createSiblingReorderPlacementPlan(...)` on hover to show ready,
+1. The editor owns a transient drag session module.
+2. Canvas hit testing maps a dragged node, drop target node, and placement.
+3. Hover calls `createSiblingReorderPlacementPlan(...)` to expose ready,
    blocked, or noop preview states.
-4. On drop, build the existing backend mutation request from the accepted
+4. Drop builds the existing backend mutation request from the accepted
    placement `toIndex`.
-5. Keep keyboard move up/down as the accessibility fallback until a richer
-   keyboard placement mode is designed.
+5. Focused paper blocks keep adjacent keyboard move up/down as the accessibility
+   fallback until a richer keyboard placement mode is designed.
 
 The first same-parent canvas implementation slice is now present. Pointer
-drag/drop, canvas-root auto-scroll, and blocked target affordance have browser
-QA evidence. Rejected/stale recovery has unit/contract evidence. The next slice
-should improve confidence and ergonomics rather than widen semantics:
+drag/drop, canvas-root auto-scroll, blocked target affordance, manual stale
+browser recovery, and focused keyboard fallback have evidence. Rejected/stale
+recovery also has unit/contract evidence. The next slice should improve
+confidence and ergonomics rather than widen semantics:
 
-1. Add stale recovery browser evidence using the no-hook backend revision
-   recipe once browser interaction automation can reliably dispatch the reorder
-   intent.
-2. Add rejected browser evidence only after an explicit backend-owned QA hook is
+1. Add rejected browser evidence only after an explicit backend-owned QA hook is
    approved; keep rejected recovery covered by contract tests until then.
-3. Add richer keyboard placement only after the preview/drop path is stable.
+2. Add browser keyboard fallback QA evidence during the next manual browser
+   pass; keep unit/source evidence as the current guard until then.
+3. Design richer keyboard placement, cross-parent moves, empty-container drops,
+   and multi-node behavior only after explicit product contracts exist.
 
 Current canonical product fixture note: `core-product-report-minimal` renders
 only `title`, `summary-columns`, and `detail-table` as canvas surfaces, and
@@ -169,6 +173,19 @@ surface semantics stay unchanged.
 - PASS: backend stale canvas reorder results preserve `revision-stale`, keep
   runtime state unchanged, keep selection stable, and create no history record.
 
+2026-07-04 keyboard reorder fallback:
+
+- PASS: `Control/Meta + ArrowUp/ArrowDown` maps to adjacent keyboard reorder
+  intent; plain arrows and shifted command arrows are ignored.
+- PASS: focused paper blocks expose `aria-keyshortcuts` only when the block is
+  reorderable.
+- PASS: keyboard fallback dispatches through `EditorShell` into
+  `reorderNode(..., "keyboard")`, preserving backend transport and revision
+  gates rather than applying local document order.
+- LIMIT: browser keyboard fallback QA is not yet captured, and this fallback is
+  adjacent up/down only. It does not add cross-parent, empty-container,
+  table-row, or multi-node placement semantics.
+
 ## Failure-Path QA Design
 
 2026-07-04:
@@ -180,9 +197,6 @@ surface semantics stay unchanged.
   `reorder-blocked-target-qa` fixture path, not product drag/drop semantics.
 - PASS: rejected browser gap is intentionally left to contract tests unless a
   backend-owned, disabled-by-default QA hook is approved later.
-- LIMIT: in-app browser automation reached the stale setup but did not dispatch
-  a visible reorder mutation from the stale tab, so no browser stale PASS is
-  claimed yet.
 - PASS: manual stale browser QA captured a real backend `revision-stale`
   response from the stale tab without a runtime hook.
 - PASS: blocked-target browser visual evidence is captured through the

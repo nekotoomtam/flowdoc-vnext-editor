@@ -11,7 +11,7 @@ import {
   type BackendMutationCommand,
 } from "../editor/backend/backendMutationRequests"
 import type { FlowDocBackendClient } from "../editor/backend/backendTransport"
-import type { NodeReorderDirection } from "../editor/commands/commandTypes"
+import type { EditorCommandSource, NodeReorderDirection } from "../editor/commands/commandTypes"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { applyRuntimeBackendMutationCommandResult } from "../editor/runtime/runtimeBackendMutationCommand"
 import {
@@ -29,7 +29,11 @@ export interface UseBackendNodeMutationResult {
   deleteNode: (nodeId: string) => void
   duplicateNode: (nodeId: string) => void
   mutationStatus: RuntimeNodeMutationStatus
-  reorderNode: (nodeId: string, direction: NodeReorderDirection) => void
+  reorderNode: (
+    nodeId: string,
+    direction: NodeReorderDirection,
+    source?: Extract<EditorCommandSource, "inspector" | "keyboard">,
+  ) => void
   reorderNodeToIndex: (nodeId: string, toIndex: number) => void
 }
 
@@ -154,14 +158,18 @@ export function useBackendNodeMutation({
     })
   }, [runMutationCommand])
 
-  const reorderNode = useCallback((nodeId: string, direction: NodeReorderDirection) => {
+  const reorderNode = useCallback((
+    nodeId: string,
+    direction: NodeReorderDirection,
+    source: Extract<EditorCommandSource, "inspector" | "keyboard"> = "inspector",
+  ) => {
     runMutationCommand({
       kind: "node.reorder",
       payload: {
         direction,
       },
-      reason: `inspector-move-${direction}`,
-      source: "inspector",
+      reason: `${source}-move-${direction}`,
+      source,
       target: {
         nodeId,
       },

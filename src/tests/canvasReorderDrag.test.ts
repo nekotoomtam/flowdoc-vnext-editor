@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
 import { createSiblingReorderPlacementPlan } from "../editor/commands/reorderPlacement"
 import { getCanvasReorderAutoScrollDelta } from "../editor/interaction/canvasReorderAutoScroll"
+import { getCanvasKeyboardReorderAction } from "../editor/interaction/canvasReorderKeyboard"
 import {
   finishCanvasReorderDragSession,
   getCanvasReorderBlockState,
@@ -59,6 +60,41 @@ describe("canvas reorder drag boundary", () => {
       rootBottom: 700,
       rootTop: 100,
     })).toBe(0)
+  })
+
+  it("maps command-modified arrow keys to keyboard reorder directions", () => {
+    expect(getCanvasKeyboardReorderAction({
+      altKey: false,
+      ctrlKey: true,
+      key: "ArrowUp",
+      metaKey: false,
+      shiftKey: false,
+    })).toEqual({
+      direction: "up",
+    })
+    expect(getCanvasKeyboardReorderAction({
+      altKey: false,
+      ctrlKey: false,
+      key: "ArrowDown",
+      metaKey: true,
+      shiftKey: false,
+    })).toEqual({
+      direction: "down",
+    })
+    expect(getCanvasKeyboardReorderAction({
+      altKey: false,
+      ctrlKey: false,
+      key: "ArrowDown",
+      metaKey: false,
+      shiftKey: false,
+    })).toBeNull()
+    expect(getCanvasKeyboardReorderAction({
+      altKey: false,
+      ctrlKey: true,
+      key: "ArrowDown",
+      metaKey: false,
+      shiftKey: true,
+    })).toBeNull()
   })
 
   it("keeps drag state transient and exposes only a ready placement plan for commit", () => {
@@ -179,6 +215,7 @@ describe("canvas reorder drag boundary", () => {
 
   it("keeps pointer drag wiring in canvas components and commit behavior in app/runtime modules", () => {
     const appSource = readSource("src", "app", "EditorApp.tsx")
+    const shellSource = readSource("src", "app", "EditorShell.tsx")
     const hookSource = readSource("src", "app", "useCanvasReorderDrag.ts")
     const pageStackSource = readSource("src", "components", "paper", "PaperPageStack.tsx")
     const blockSource = readSource("src", "components", "paper", "PaperBlock.tsx")
@@ -186,10 +223,15 @@ describe("canvas reorder drag boundary", () => {
     expect(appSource).toContain("useCanvasReorderDrag")
     expect(hookSource).toContain("createSiblingReorderPlacementPlan")
     expect(hookSource).toContain("onReorderNodeToIndex")
+    expect(shellSource).toContain("onReorderNode(nodeId, direction, \"keyboard\")")
     expect(pageStackSource).toContain("hitTestCanvasReorderTarget")
     expect(pageStackSource).toContain("scrollCanvasReorderRootAtPointer")
     expect(pageStackSource).toContain("onPointerDown={handlePointerDown}")
     expect(pageStackSource).toContain("onPointerUp={handlePointerUp}")
+    expect(pageStackSource).toContain("onKeyboardReorderNode={onKeyboardReorderNode}")
+    expect(blockSource).toContain("getCanvasKeyboardReorderAction")
+    expect(blockSource).toContain("aria-keyshortcuts={reorderState.isDraggable")
+    expect(blockSource).toContain("onKeyDown={handleKeyDown}")
     expect(blockSource).toContain("data-reorder-draggable={reorderState.isDraggable ? \"true\" : \"false\"}")
     expect(blockSource).toContain("data-reorder-placement={reorderState.placement ?? \"none\"}")
     expect(blockSource).toContain("data-reorder-reason={reorderState.reason ?? \"\"}")

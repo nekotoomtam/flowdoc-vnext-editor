@@ -21,6 +21,8 @@ next implementation slice.
 - Delete requires explicit confirmation while undo is unavailable.
 - Move up and move down stay available only as scaffold controls for reorder
   plumbing and recovery tests.
+- Focused canvas blocks support `Control/Meta + ArrowUp/ArrowDown` as the
+  adjacent keyboard fallback through backend reorder mutation.
 - Reorder buttons must not be treated as UX pass evidence for the final editor.
 
 ## Drag/Drop Gate
@@ -35,8 +37,8 @@ Do not start drag/drop implementation until this gate is reviewed:
    the primary user model.
 4. Drop preview must show before/after placement without changing document
    state until the backend accepts the mutation.
-5. Keyboard or non-pointer reorder fallback must exist before declaring reorder
-   UX complete.
+5. Keyboard or non-pointer reorder fallback must exist before declaring
+   adjacent reorder UX complete.
 6. Stale, rejected, and failed mutation states must keep selection on a valid
    surviving node and show a recoverable status.
 7. Manual QA must cover duplicate, delete confirmation, cancel delete,
@@ -75,3 +77,7 @@ Run this while the Inspector harness remains visible:
    `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa`, drag over the
    cross-parent target, and confirm blocked affordance appears, no mutation is
    sent, and no raw graph details become the primary visible model.
+10. Focus a reorderable canvas block and press `Control/Meta + ArrowUp` or
+    `Control/Meta + ArrowDown`; confirm the backend accepts the adjacent
+    reorder mutation, revision increments only after acceptance, and selection
+    remains on the moved node.

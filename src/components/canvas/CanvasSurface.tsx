@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { CanvasScrollRoot } from "./CanvasScrollRoot"
 import { CanvasStage } from "./CanvasStage"
 import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
+import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import { createCanvasRenderModel } from "../../editor/render/canvasRenderModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
@@ -11,6 +12,7 @@ import type { ViewportScrollRootFacts } from "../../editor/viewport/viewportMeas
 export interface CanvasSurfaceProps {
   canvasReorderDrag: CanvasReorderInteraction
   document: CoreEditorDocumentSummary
+  onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   onSelectNode: (nodeId: string, source: "canvas") => void
   pages: RenderPageSummary[]
   paper: PaperModel
@@ -21,6 +23,7 @@ export interface CanvasSurfaceProps {
 export function CanvasSurface({
   canvasReorderDrag,
   document,
+  onKeyboardReorderNode,
   onSelectNode,
   pages,
   paper,
@@ -39,6 +42,7 @@ export function CanvasSurface({
     >
       <CanvasStage
         canvasReorderDrag={canvasReorderDrag}
+        onKeyboardReorderNode={onKeyboardReorderNode}
         onSelectNode={onSelectNode}
         renderModel={renderModel}
         selectedNodeId={selectedNodeId}

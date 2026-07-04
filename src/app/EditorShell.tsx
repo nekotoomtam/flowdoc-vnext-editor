@@ -21,7 +21,11 @@ export interface EditorShellProps {
   mutationStatus: RuntimeNodeMutationStatus
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
-  onReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
+  onReorderNode: (
+    nodeId: string,
+    direction: NodeReorderDirection,
+    source?: Extract<EditorCommandSource, "inspector" | "keyboard">,
+  ) => void
   onSelectNode: (nodeId: string, source: EditorCommandSource) => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
@@ -61,6 +65,7 @@ export function EditorShell({
         <CanvasSurface
           canvasReorderDrag={canvasReorderDrag}
           document={document}
+          onKeyboardReorderNode={(nodeId, direction) => onReorderNode(nodeId, direction, "keyboard")}
           pages={canvasRenderView.pages}
           paper={paper}
           selectedNodeId={selectedNodeId}

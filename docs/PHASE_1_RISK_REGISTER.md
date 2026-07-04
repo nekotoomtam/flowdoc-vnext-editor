@@ -37,7 +37,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
 | R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership; browser QA now records stable scroll and selection observations. | Add simple manual timing notes or dev diagnostics before treating long-document behavior as stable. |
-| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, `src/app/useCanvasReorderDrag.ts` owns transient drag state, `src/editor/interaction/canvasReorderAutoScroll.ts` owns canvas-root auto-scroll, blocked/noop/ready target states are data-addressable with reasons, rejected/stale canvas reorder recovery keeps state/history stable, and delete now requires confirmation while undo is unavailable. | Verify blocked-target browser feedback, accessibility fallback, and rejected/stale browser recovery before declaring reorder UX passed. |
+| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, `src/app/useCanvasReorderDrag.ts` owns transient drag state, `src/editor/interaction/canvasReorderAutoScroll.ts` owns canvas-root auto-scroll, focused canvas blocks expose adjacent keyboard fallback, blocked/noop/ready target states are data-addressable with reasons, rejected/stale canvas reorder recovery keeps state/history stable, and delete now requires confirmation while undo is unavailable. | Capture browser keyboard fallback QA and rejected browser recovery evidence before declaring reorder UX passed. |
 
 ## Priority Gates
 
@@ -203,7 +203,8 @@ Record each manual QA pass with:
   `api r3`, order `title`, `summary-columns`, `detail-table`, history `0`.
 - Decision: same-parent pointer drop, canvas-root auto-scroll, and
   blocked-target hover have enough evidence for this slice. Keep R12 active for
-  rejected browser recovery evidence and richer keyboard placement.
+  rejected browser recovery evidence, browser keyboard fallback confirmation,
+  and broader placement semantics.
 
 2026-07-04 canvas reorder failure-path contract evidence:
 
@@ -254,6 +255,20 @@ Record each manual QA pass with:
 - PASS: editor remained on `Core: api r3`; the local history count was from
   prior exploratory local clicks, not from an accepted stale mutation. The
   status bar now separates local history from doc changes for future QA.
+
+2026-07-04 keyboard reorder fallback evidence:
+
+- PASS: focused `PaperBlock` handles `Control/Meta + ArrowUp/ArrowDown` only
+  when the block is reorderable; plain arrows and shifted command arrows are
+  ignored.
+- PASS: the fallback dispatches through `EditorShell` into
+  `reorderNode(..., "keyboard")`, so keyboard reorder uses the existing backend
+  transport and revision gate rather than local document mutation.
+- PASS: focused tests cover the keyboard action mapper and component wiring,
+  including the `keyboard` source.
+- LIMIT: browser keyboard fallback QA is not yet captured, and the fallback is
+  adjacent up/down only. It does not add cross-parent, empty-container,
+  table-row, or multi-node placement semantics.
 
 2026-07-04 reorder blocked-target fixture evidence:
 

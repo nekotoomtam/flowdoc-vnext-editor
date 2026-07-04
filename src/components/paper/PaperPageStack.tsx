@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from "react"
 import { PaperPage } from "./PaperPage"
+import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import { scrollCanvasReorderRootAtPointer } from "../../editor/interaction/canvasReorderAutoScroll"
 import { hitTestCanvasReorderTarget } from "../../editor/interaction/canvasReorderHitTest"
@@ -25,6 +26,7 @@ const POINTER_DRAG_THRESHOLD_PX = 6
 
 export interface PaperPageStackProps {
   canvasReorderDrag: CanvasReorderInteraction
+  onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   onSelectNode: (nodeId: string, source: "canvas") => void
   pageCount: number
   pages: RenderPageSummary[]
@@ -34,6 +36,7 @@ export interface PaperPageStackProps {
 
 export function PaperPageStack({
   canvasReorderDrag,
+  onKeyboardReorderNode,
   onSelectNode,
   pageCount,
   pages,
@@ -213,6 +216,7 @@ export function PaperPageStack({
         <PaperPage
           canvasReorderDrag={canvasReorderDrag}
           key={page.id}
+          onKeyboardReorderNode={onKeyboardReorderNode}
           page={page}
           pageCount={pageCount}
           paper={paper}

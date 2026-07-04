@@ -1,10 +1,13 @@
-import { memo, type CSSProperties } from "react"
+import { memo, type CSSProperties, type KeyboardEvent } from "react"
+import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { CanvasReorderBlockState } from "../../editor/interaction/canvasReorderDragSession"
+import { getCanvasKeyboardReorderAction } from "../../editor/interaction/canvasReorderKeyboard"
 import type { RenderNodeSummary } from "../../editor/render/renderTypes"
 
 export interface PaperBlockProps {
   isSelected: boolean
   node: RenderNodeSummary
+  onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   reorderState: CanvasReorderBlockState
 }
 
@@ -59,10 +62,25 @@ function TablePreview({
 export const PaperBlock = memo(function PaperBlock({
   isSelected,
   node,
+  onKeyboardReorderNode,
   reorderState,
 }: PaperBlockProps) {
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (!reorderState.isDraggable) return
+
+    const action = getCanvasKeyboardReorderAction(event)
+    if (!action) return
+
+    event.preventDefault()
+    event.stopPropagation()
+    onKeyboardReorderNode(node.id, action.direction)
+  }
+
   return (
     <button
+      aria-keyshortcuts={reorderState.isDraggable
+        ? "Control+ArrowUp Control+ArrowDown Meta+ArrowUp Meta+ArrowDown"
+        : undefined}
       className={`paper-block paper-block--${node.renderKind}`}
       data-node-id={node.id}
       data-reorder-blocked={reorderState.isBlockedTarget ? "true" : "false"}
@@ -72,6 +90,7 @@ export const PaperBlock = memo(function PaperBlock({
       data-reorder-reason={reorderState.reason ?? ""}
       data-reorder-target={reorderState.targetState}
       data-selected={isSelected ? "true" : "false"}
+      onKeyDown={handleKeyDown}
       type="button"
     >
       <span className="paper-block-meta">{getBlockPreview(node)}</span>
