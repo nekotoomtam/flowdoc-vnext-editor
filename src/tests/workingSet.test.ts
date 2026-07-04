@@ -87,10 +87,13 @@ describe("frontend core working set definitions", () => {
     })
     const readModel = createEditorReadModel(seed)
     const projection = projectRenderDocument(readModel)
+    const qaScrollPage = projection.pages.find((page) => page.nodeIds.includes("qa-scroll"))
     const summary = createRenderProjectionSummary(projection, {
       documentId: envelope.documentId,
       sourceRevision: envelope.documentRevision,
     })
+
+    if (!qaScrollPage) throw new Error("qa-scroll should be projected onto a preview page")
     const olderEnvelope = createCoreSnapshotEnvelope(seed, {
       createdAt: 200,
       coreRevision: "fixture:4",
@@ -111,8 +114,8 @@ describe("frontend core working set definitions", () => {
     })
     expect("pages" in summary).toBe(false)
     expect(summary.pageCount).toBeGreaterThan(1)
-    expect(summary.nodeToBlockIds["qa-scroll"]).toEqual(["preview-page-4:block:qa-scroll"])
-    expect(summary.nodeToFragmentIds["qa-scroll"]).toEqual(["preview-page-4:fragment:qa-scroll"])
+    expect(summary.nodeToBlockIds["qa-scroll"]).toEqual([`${qaScrollPage.id}:block:qa-scroll`])
+    expect(summary.nodeToFragmentIds["qa-scroll"]).toEqual([`${qaScrollPage.id}:fragment:qa-scroll`])
     expect(isCoreDerivedCacheStale(summary, envelope)).toBe(false)
     expect(canApplyCoreDerivedResult(summary, envelope)).toBe(true)
     expect(getCoreDerivedStaleReason(summary, {

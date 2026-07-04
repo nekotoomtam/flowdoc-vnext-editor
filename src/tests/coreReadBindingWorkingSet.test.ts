@@ -52,9 +52,10 @@ describe("core read binding working set", () => {
       stale: false,
     })
     expect(workingSet.renderProjection?.pageCount).toBeGreaterThan(0)
-    expect(workingSet.renderProjection?.nodeToBlockIds["qa-scroll"]).toEqual([
-      "preview-page-4:block:qa-scroll",
-    ])
+    expect(workingSet.renderProjection?.nodeToBlockIds["qa-scroll"]).toHaveLength(1)
+    expect(workingSet.renderProjection?.nodeToBlockIds["qa-scroll"][0]).toMatch(
+      /^preview-page-\d+:block:qa-scroll$/u,
+    )
   })
 
   it("blocks core-derived results that drift by base revision, source revision, or stale flags", () => {

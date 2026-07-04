@@ -53,7 +53,7 @@ export function EditorShell({
   const selectedNodeId = selection.selectedNodeId
   const inspectorFacts = getInspectorFacts(view, selectedNodeId)
   const outlineItems = getOutlineItems(view)
-  const canvasRenderView = useMemo(() => createEditorCanvasRenderView(view), [view])
+  const canvasRenderView = useMemo(() => createEditorCanvasRenderView(view, paper), [paper, view])
 
   return (
     <div className="editor-shell">

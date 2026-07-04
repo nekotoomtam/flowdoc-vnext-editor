@@ -9,6 +9,7 @@ export type RenderNodeKind =
 
 export interface RenderNodeSummary {
   childCount: number
+  estimatedHeightPx: number
   id: string
   label: string
   parentId: string | null
@@ -21,6 +22,8 @@ export interface RenderNodeSummary {
 }
 
 export interface RenderPageSummary {
+  estimatedContentHeightPx: number
+  flowCapacityPx: number
   id: string
   nodeIds: string[]
   nodes: RenderNodeSummary[]

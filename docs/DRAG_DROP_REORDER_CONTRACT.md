@@ -21,6 +21,10 @@ Scope: FlowDoc vNext editor structural reorder UX during pointer/keyboard implem
   placement from the target block midpoint.
 - Canvas components use pointer events for the first implementation slice rather
   than native HTML drag/drop events so preview/drop state remains editor-owned.
+- Preview page allocation now estimates render-surface height against the
+  active paper model's usable flow height instead of using a fixed block-weight
+  limit; canvas reorder should operate on the same page continuity the user can
+  see.
 - `src/editor/interaction/canvasReorderAutoScroll.ts` scrolls only the canvas
   scroll root while a pointer drag is near the root edge.
 - `src/editor/interaction/canvasReorderDragSession.ts` exposes `ready`,
@@ -166,6 +170,11 @@ surface semantics stay unchanged.
 
 2026-07-04:
 
+- PASS: preview pagination uses estimated pixel heights against paper flow
+  capacity, so small product fixtures do not split to a new page while visible
+  page space remains.
+- PASS: `core-product-report-minimal` projects `title`, `summary-columns`, and
+  `detail-table` onto one A4 preview page when estimated content fits.
 - PASS: blocked drag/drop placement returns `targetState: "blocked"` and the
   reason `Drag/drop reorder is limited to siblings in the same parent.` without
   producing a ready commit plan.

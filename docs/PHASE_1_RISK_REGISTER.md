@@ -28,7 +28,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | --- | --- | --- | --- | --- |
 | R1 | Browser automation became unstable during final visual QA. | Medium | Build/test/HTTP checks still pass. | Add a lighter manual QA checklist before trusting Phase 1 UX as complete. |
 | R2 | The core adapter is no longer a static placeholder, but the initial loader still keeps a frontend-placeholder fallback for tests, simulated failures, and fixtures that are not canonical package transport input yet. | Medium | `src/core/coreAdapter.ts` calls the public core runtime session path, and the fallback remains isolated behind `src/core/coreFixtureRead.ts` plus the working set factory loader. | Prefer the `core-product-report-minimal` transport-envelope path for new UI evidence; retire the frontend-placeholder fallback only after replacement fixtures are canonical package transport inputs. |
-| R3 | Paper preview uses frontend geometry and CSS transform for zoom; scroll/hit-test can drift later. | High | Paper model, scroll-root facts, hit-test boundary, and selected overlay now have focused tests plus browser QA evidence. | User-visible review should confirm scroll/zoom/selection behavior before downgrading. |
+| R3 | Paper preview uses frontend geometry and CSS transform for zoom; scroll/hit-test can drift later. | High | Paper model, scroll-root facts, hit-test boundary, selected overlay, and estimated paper-flow pagination now have focused tests plus browser QA evidence. | User-visible review should confirm scroll/zoom/selection/reorder page allocation behavior before downgrading. |
 | R4 | `EditorToolbar.tsx` and `PaperPage.tsx` are the first files likely to grow into mixed-responsibility components. | Medium | Paper block rendering is split into `PaperBlock`, `PaperPage`, and `PaperPageStack`; canvas render partitions are split through `CanvasStage` and overlay components. | Split toolbar controls before adding more toolbar commands. |
 | R5 | WYSIWYG pressure can start early because the shell now looks more real. | High | AGENTS and boundary tests block `contenteditable` and rich editor frameworks. | Require a written WYSIWYG gate decision before adding draft/input runtime. |
 | R6 | Design tokens are local Phase 1 tokens, not a validated design system. | Medium | Palette is restrained and app-specific. | Run a visual QA pass on desktop/mobile before treating tokens as stable. |
@@ -185,6 +185,19 @@ Record each manual QA pass with:
 - Decision: keep R1/R3 active until the node relationship presentation gap is
   triaged, but Phase 2-5 runtime behavior has enough recorded evidence for
   closeout review.
+
+2026-07-04 canvas preview flow allocation evidence:
+
+- PASS: preview pagination no longer uses a fixed block-weight limit; it now
+  estimates each render surface height in pixels and compares that total
+  against the active paper model's usable flow height.
+- PASS: `core-product-report-minimal` keeps `title`, `summary-columns`, and
+  `detail-table` on one A4 preview page because their estimated heights fit the
+  visible paper area.
+- PASS: focused tests still prove preview pages split when estimated content
+  exceeds the available flow capacity.
+- LIMIT: this is still an editor preview estimate, not exact core layout or
+  export pagination. Browser re-check is required before downgrading R3/R12.
 
 2026-07-04 canvas reorder hardening evidence:
 

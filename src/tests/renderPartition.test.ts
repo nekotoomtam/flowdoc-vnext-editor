@@ -27,7 +27,7 @@ describe("render partition boundaries", () => {
   it("derives canvas geometry and measurement keys from the paper model", () => {
     const state = createRuntimeState()
     const paper = setPaperZoom(createPaperModel("Letter"), 0.75)
-    const canvasRenderView = createEditorCanvasRenderView(state.view)
+    const canvasRenderView = createEditorCanvasRenderView(state.view, paper)
     const renderModel = createCanvasRenderModel({
       document: state.core.document,
       pages: canvasRenderView.pages,
@@ -70,7 +70,7 @@ describe("render partition boundaries", () => {
     const paperBlockSource = readSource("src", "components", "paper", "PaperBlock.tsx")
 
     expect(shellSource).toContain("createEditorCanvasRenderView")
-    expect(shellSource).toContain("useMemo(() => createEditorCanvasRenderView(view), [view])")
+    expect(shellSource).toContain("useMemo(() => createEditorCanvasRenderView(view, paper), [paper, view])")
     expect(shellSource).not.toContain("renderProjector")
     expect(shellSource).not.toContain("projectPreviewPages")
 
