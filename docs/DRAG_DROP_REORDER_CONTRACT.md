@@ -29,6 +29,8 @@ Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
 - `src/editor/runtime/runtimeBackendMutation.ts` preserves backend mutation
   issue codes for rejected/stale drag-drop recovery before command status is
   shown.
+- `docs/REORDER_FAILURE_PATH_QA.md` records the safe no-hook stale recipe,
+  the blocked-target browser gap, and the preferred fixture direction.
 
 ## Boundary Decision
 
@@ -90,9 +92,12 @@ should improve confidence and ergonomics rather than widen semantics:
 
 1. Add blocked-target browser visual evidence once a same-page blocked target
    is available in fixture data.
-2. Add rejected/stale recovery browser evidence once the app has a safe
-   failure-path fixture or developer test hook.
-3. Add richer keyboard placement only after the preview/drop path is stable.
+2. Add stale recovery browser evidence using the no-hook backend revision
+   recipe once browser interaction automation can reliably dispatch the reorder
+   intent.
+3. Add rejected browser evidence only after an explicit backend-owned QA hook is
+   approved; keep rejected recovery covered by contract tests until then.
+4. Add richer keyboard placement only after the preview/drop path is stable.
 
 Current canonical product fixture note: `core-product-report-minimal` renders
 only `title`, `summary-columns`, and `detail-table` as canvas surfaces, and
@@ -134,3 +139,18 @@ cross-parent target yet without widening fixture or product surface semantics.
   runtime state unchanged, keep selection stable, and create no history record.
 - PASS: backend stale canvas reorder results preserve `revision-stale`, keep
   runtime state unchanged, keep selection stable, and create no history record.
+
+## Failure-Path QA Design
+
+2026-07-04:
+
+- PASS: no-hook stale browser recipe is documented in
+  `docs/REORDER_FAILURE_PATH_QA.md`; it advances backend revision outside the
+  browser app, then triggers reorder intent from the stale editor state.
+- PASS: blocked-target browser gap is scoped to fixture coverage, not product
+  drag/drop semantics.
+- PASS: rejected browser gap is intentionally left to contract tests unless a
+  backend-owned, disabled-by-default QA hook is approved later.
+- LIMIT: in-app browser automation reached the stale setup but did not dispatch
+  a visible reorder mutation from the stale tab, so no browser stale PASS is
+  claimed yet.

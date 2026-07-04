@@ -49,7 +49,8 @@ drop target readiness and preview order, and
 affordance state should stay machine-readable through data attributes such as
 `data-reorder-target` and `data-reorder-reason`; do not expose raw graph
 reasons as primary visible product copy. Do not create a separate pointer-only
-index path.
+index path. Use `docs/REORDER_FAILURE_PATH_QA.md` before adding browser
+failure-path fixtures or hooks.
 
 ## Interim QA Checklist
 

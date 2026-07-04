@@ -224,6 +224,22 @@ Record each manual QA pass with:
 - LIMIT: browser blocked-target visual QA is still pending because the current
   canonical product fixture renders only sibling canvas surfaces.
 
+2026-07-04 reorder failure-path QA design:
+
+- Design doc: `docs/REORDER_FAILURE_PATH_QA.md`.
+- PASS: stale browser QA can be set up without a runtime hook by loading the
+  editor at backend revision `3`, advancing the backend to revision `4` through
+  an external valid mutation, then triggering reorder intent from the stale
+  browser state.
+- PASS: blocked-target browser QA is explicitly scoped to a future canonical QA
+  fixture with cross-parent visible canvas surfaces.
+- PASS: rejected browser QA is not forced through inconsistent editor/core
+  capabilities; rejected recovery remains contract-test evidence unless a
+  backend-owned QA hook is approved later.
+- LIMIT: in-app browser automation reached the stale setup but did not dispatch
+  a visible reorder mutation from the stale tab, so no browser stale PASS is
+  claimed from this attempt.
+
 ## Exit Criteria
 
 Phase 1 risk can be downgraded only when:
