@@ -152,9 +152,14 @@
   min-height: var(--paper-stack-height);
 }
 
+.paper-page-stack[data-reorder-active="true"] {
+  user-select: none;
+}
+
 .paper-page-stack[data-reorder-active="true"] .paper-block,
 .paper-block[data-reorder-draggable="true"] {
   cursor: grab;
+  touch-action: none;
 }
 
 .paper-page {
@@ -229,6 +234,22 @@
 
 .paper-block[data-reorder-blocked="true"] {
   border-color: var(--color-warning);
+}
+
+.paper-block[data-reorder-target="ready"] {
+  border-color: #9fc8bf;
+}
+
+.paper-block[data-reorder-target="noop"] {
+  background: #f8fafb;
+  border-color: var(--color-text-muted);
+  border-style: dashed;
+}
+
+.paper-block[data-reorder-target="blocked"] {
+  background: #fffaf0;
+  border-color: var(--color-warning);
+  cursor: not-allowed;
 }
 
 .paper-block[data-reorder-placement="before"]::before,

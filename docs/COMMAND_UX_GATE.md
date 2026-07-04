@@ -65,3 +65,5 @@ Run this while the Inspector harness remains visible:
    insertion preview appears before drop and no revision increments until drop.
 7. Drop the block on a ready target; confirm the backend accepts the mutation,
    revision increments, and selection remains on the moved node.
+8. Drag near the top and bottom of the canvas scroll root; confirm only the
+   canvas scrolls and the page body does not move.

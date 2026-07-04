@@ -1,6 +1,7 @@
-import { useCallback, useRef, type MouseEvent, type PointerEvent } from "react"
+import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from "react"
 import { PaperPage } from "./PaperPage"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
+import { scrollCanvasReorderRootAtPointer } from "../../editor/interaction/canvasReorderAutoScroll"
 import { hitTestCanvasReorderTarget } from "../../editor/interaction/canvasReorderHitTest"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
@@ -12,6 +13,12 @@ interface PointerDragSession {
   pointerId: number
   startX: number
   startY: number
+}
+
+interface AutoScrollSession {
+  frameId: number | null
+  pointerY: number
+  root: HTMLElement
 }
 
 const POINTER_DRAG_THRESHOLD_PX = 6
@@ -35,6 +42,45 @@ export function PaperPageStack({
 }: PaperPageStackProps) {
   const pointerDragSessionRef = useRef<PointerDragSession | null>(null)
   const suppressNextClickRef = useRef(false)
+  const autoScrollSessionRef = useRef<AutoScrollSession | null>(null)
+
+  const stopAutoScroll = useCallback(() => {
+    const session = autoScrollSessionRef.current
+    if (session?.frameId !== null && session?.frameId !== undefined) {
+      window.cancelAnimationFrame(session.frameId)
+    }
+    autoScrollSessionRef.current = null
+  }, [])
+
+  const runAutoScroll = useCallback(() => {
+    const session = autoScrollSessionRef.current
+    if (!session) return
+
+    scrollCanvasReorderRootAtPointer(session.root, session.pointerY)
+    session.frameId = window.requestAnimationFrame(runAutoScroll)
+  }, [])
+
+  const updateAutoScroll = useCallback((stackElement: HTMLElement, pointerY: number) => {
+    const root = stackElement.closest<HTMLElement>(".canvas-scroll-root")
+    if (!root) return
+
+    const currentSession = autoScrollSessionRef.current
+    if (currentSession) {
+      currentSession.pointerY = pointerY
+      currentSession.root = root
+      return
+    }
+
+    const session: AutoScrollSession = {
+      frameId: null,
+      pointerY,
+      root,
+    }
+    autoScrollSessionRef.current = session
+    session.frameId = window.requestAnimationFrame(runAutoScroll)
+  }, [runAutoScroll])
+
+  useEffect(() => stopAutoScroll, [stopAutoScroll])
 
   const handleCanvasClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
     if (suppressNextClickRef.current) {
@@ -89,6 +135,7 @@ export function PaperPageStack({
     if (!session.dragging && distance < POINTER_DRAG_THRESHOLD_PX) return
 
     session.dragging = true
+    updateAutoScroll(event.currentTarget, event.clientY)
     const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)
     const hit = hitTestCanvasReorderTarget(
       event.currentTarget,
@@ -110,6 +157,7 @@ export function PaperPageStack({
     if (!session || session.pointerId !== event.pointerId) return
 
     pointerDragSessionRef.current = null
+    stopAutoScroll()
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
@@ -143,6 +191,7 @@ export function PaperPageStack({
     if (session?.pointerId === event.pointerId) {
       pointerDragSessionRef.current = null
     }
+    stopAutoScroll()
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }

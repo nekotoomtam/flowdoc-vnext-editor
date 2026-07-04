@@ -20,7 +20,9 @@ export interface CanvasReorderBlockState {
   isBlockedTarget: boolean
   isDragging: boolean
   isDraggable: boolean
+  isNoopTarget: boolean
   placement: NodeReorderPlacement | null
+  targetState: "blocked" | "idle" | "noop" | "ready"
 }
 
 export interface CanvasReorderInteraction {
@@ -32,8 +34,23 @@ export interface CanvasReorderInteraction {
   onDrop: (targetNodeId: string, placement: NodeReorderPlacement, pointer: CanvasReorderDragPointer) => void
 }
 
+export interface CanvasReorderBlockStateInput {
+  dragState: CanvasReorderDragState
+  isDraggable: boolean
+  nodeId: string
+}
+
 export const IDLE_CANVAS_REORDER_DRAG_STATE: CanvasReorderDragState = {
   status: "idle",
+}
+
+export const IDLE_CANVAS_REORDER_BLOCK_STATE: CanvasReorderBlockState = {
+  isBlockedTarget: false,
+  isDragging: false,
+  isDraggable: false,
+  isNoopTarget: false,
+  placement: null,
+  targetState: "idle",
 }
 
 export function startCanvasReorderDragSession(
@@ -70,4 +87,32 @@ export function getReadyCanvasReorderPlan(
   state: CanvasReorderDragState,
 ): Extract<SiblingReorderPlacementPlan, { status: "ready" }> | null {
   return state.status === "dragging" && state.plan?.status === "ready" ? state.plan : null
+}
+
+export function getCanvasReorderBlockState({
+  dragState,
+  isDraggable,
+  nodeId,
+}: CanvasReorderBlockStateInput): CanvasReorderBlockState {
+  if (dragState.status !== "dragging") {
+    return isDraggable
+      ? {
+          ...IDLE_CANVAS_REORDER_BLOCK_STATE,
+          isDraggable,
+        }
+      : IDLE_CANVAS_REORDER_BLOCK_STATE
+  }
+
+  const plan = dragState.plan
+  const isTarget = plan?.targetNodeId === nodeId
+  const targetState = isTarget ? plan?.status ?? "idle" : "idle"
+
+  return {
+    isBlockedTarget: targetState === "blocked",
+    isDragging: dragState.nodeId === nodeId,
+    isDraggable,
+    isNoopTarget: targetState === "noop",
+    placement: targetState === "ready" ? plan?.placement ?? null : null,
+    targetState,
+  }
 }

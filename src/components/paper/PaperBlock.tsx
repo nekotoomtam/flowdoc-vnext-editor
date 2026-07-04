@@ -69,6 +69,7 @@ export const PaperBlock = memo(function PaperBlock({
       data-reorder-draggable={reorderState.isDraggable ? "true" : "false"}
       data-reorder-dragging={reorderState.isDragging ? "true" : "false"}
       data-reorder-placement={reorderState.placement ?? "none"}
+      data-reorder-target={reorderState.targetState}
       data-selected={isSelected ? "true" : "false"}
       type="button"
     >

@@ -37,7 +37,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
 | R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership; browser QA now records stable scroll and selection observations. | Add simple manual timing notes or dev diagnostics before treating long-document behavior as stable. |
-| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, `src/app/useCanvasReorderDrag.ts` owns transient drag state, and delete now requires confirmation while undo is unavailable. | Verify browser drag/drop preview, successful drop, blocked-target feedback, accessibility fallback, and stale/rejected recovery before declaring reorder UX passed. |
+| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, `src/app/useCanvasReorderDrag.ts` owns transient drag state, `src/editor/interaction/canvasReorderAutoScroll.ts` owns canvas-root auto-scroll, and delete now requires confirmation while undo is unavailable. | Verify browser drag/drop preview, successful drop, blocked-target feedback, accessibility fallback, and stale/rejected recovery before declaring reorder UX passed. |
 
 ## Priority Gates
 
@@ -107,10 +107,11 @@ Run this before declaring Phase 1 UX complete:
 10. Move a middle inspector node up/down; confirm order, selected node, and revision update.
 11. Delete a deletable inspector node; confirm the first click asks for confirmation, cancel leaves the node unchanged, confirm deletes the node, selection recovers to a valid node, and revision updates.
 12. Drag a same-parent canvas block to a new location; confirm preview appears, drop updates order through backend mutation, selected node stays valid, and revision updates only after drop.
-13. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
-14. Reload after switching zoom and paper preset; confirm the initial state is sane.
-15. Click the selected block again; confirm no unexpected toggle or visual drift.
-16. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
+13. While dragging near the canvas top/bottom edge, confirm only the canvas scrolls and page body stays fixed.
+14. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
+15. Reload after switching zoom and paper preset; confirm the initial state is sane.
+16. Click the selected block again; confirm no unexpected toggle or visual drift.
+17. Scroll while side panels are hidden below 980px; confirm canvas width and scroll remain usable.
 
 Record each manual QA pass with:
 
@@ -184,6 +185,25 @@ Record each manual QA pass with:
 - Decision: keep R1/R3 active until the node relationship presentation gap is
   triaged, but Phase 2-5 runtime behavior has enough recorded evidence for
   closeout review.
+
+2026-07-04 canvas reorder hardening evidence:
+
+- QA pass: in-app browser automation against `http://127.0.0.1:4001/`.
+- Viewport: 1280 x 720, device pixel ratio `1.25`.
+- Baseline: backend health returned ready, editor loaded `api r3`, order
+  `title`, `summary-columns`, `detail-table`, history `0`, body scroll `0`,
+  and canvas scroll-root `0`.
+- PASS: dragging `title` near the bottom edge of the canvas scroll root moved
+  only the canvas scroll root from `0` to about `8.8`; body scroll stayed `0`,
+  order stayed unchanged, and revision stayed `api r3`.
+- PASS: dragging `title` after `summary-columns` reordered the canvas to
+  `summary-columns`, `title`, `detail-table`; backend advanced to
+  `mutation-result r4`, history became `1`, and selection remained on `title`.
+- Cleanup: backend dev state was restarted and the editor reloaded back to
+  `api r3`, order `title`, `summary-columns`, `detail-table`, history `0`.
+- Decision: same-parent pointer drop and canvas-root auto-scroll have enough
+  evidence for this slice. Keep R12 active for blocked-target visual evidence,
+  rejected/stale recovery evidence, and richer keyboard placement.
 
 ## Exit Criteria
 

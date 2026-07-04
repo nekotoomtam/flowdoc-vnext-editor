@@ -21,6 +21,8 @@ Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
   placement from the target block midpoint.
 - Canvas components use pointer events for the first implementation slice rather
   than native HTML drag/drop events so preview/drop state remains editor-owned.
+- `src/editor/interaction/canvasReorderAutoScroll.ts` scrolls only the canvas
+  scroll root while a pointer drag is near the root edge.
 
 ## Boundary Decision
 
@@ -59,7 +61,6 @@ accepted mutation result.
 - Dropping into empty containers.
 - Table row/column drag/drop.
 - Multi-node drag/drop.
-- Auto-scroll while dragging.
 - Persisted drag sessions across document revision changes.
 
 These require explicit contracts before implementation. Do not infer them from
@@ -76,15 +77,15 @@ pointer behavior alone.
 5. Keep keyboard move up/down as the accessibility fallback until a richer
    keyboard placement mode is designed.
 
-The first same-parent canvas implementation slice is now present. The next
-slice should improve confidence and ergonomics rather than widen semantics:
+The first same-parent canvas implementation slice is now present. Pointer
+drag/drop and canvas-root auto-scroll have browser QA evidence. The next slice
+should improve confidence and ergonomics rather than widen semantics:
 
-1. Add browser QA evidence for actual pointer drag/drop preview and successful
-   drop.
-2. Add blocked-target visual evidence once a same-page blocked target is
+1. Add blocked-target visual evidence once a same-page blocked target is
    available in fixture data.
-3. Add auto-scroll and richer keyboard placement only after the preview/drop
-   path is stable.
+2. Add rejected/stale recovery browser evidence for drag/drop mutation failure
+   paths.
+3. Add richer keyboard placement only after the preview/drop path is stable.
 
 ## Browser QA Evidence
 
@@ -92,8 +93,12 @@ slice should improve confidence and ergonomics rather than widen semantics:
 
 - QA target: `http://127.0.0.1:4001/` with backend
   `http://127.0.0.1:4011/health`.
+- Browser: in-app browser, viewport `1280 x 720`, device pixel ratio `1.25`.
 - Baseline: document loaded at `api r3`, order `title`, `summary-columns`,
   `detail-table`, history `0`.
+- Action: pointer-dragged `title` near the canvas scroll-root bottom edge.
+- PASS: canvas scroll-root `scrollTop` increased from `0` to about `8.8`, body
+  scroll stayed `0`, order did not change, and revision stayed `api r3`.
 - Action: pointer-dragged `title` after `summary-columns`.
 - PASS: order changed to `summary-columns`, `title`, `detail-table`.
 - PASS: backend mutation result advanced to `r4`, history became `1`, and

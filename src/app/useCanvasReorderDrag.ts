@@ -6,13 +6,14 @@ import {
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import {
   finishCanvasReorderDragSession,
+  getCanvasReorderBlockState,
   getReadyCanvasReorderPlan,
   IDLE_CANVAS_REORDER_DRAG_STATE,
   startCanvasReorderDragSession,
   updateCanvasReorderDragSession,
+  type CanvasReorderBlockState,
   type CanvasReorderDragPointer,
   type CanvasReorderDragState,
-  type CanvasReorderBlockState,
   type CanvasReorderInteraction,
 } from "../editor/interaction/canvasReorderDragSession"
 
@@ -22,13 +23,6 @@ export interface UseCanvasReorderDragOptions {
 }
 
 export type UseCanvasReorderDragResult = CanvasReorderInteraction
-
-const IDLE_BLOCK_STATE: CanvasReorderBlockState = {
-  isBlockedTarget: false,
-  isDragging: false,
-  isDraggable: false,
-  placement: null,
-}
 
 export function useCanvasReorderDrag({
   editorState,
@@ -102,25 +96,11 @@ export function useCanvasReorderDrag({
   }, [dragState, editorState, onReorderNodeToIndex])
 
   const getBlockState = useCallback((nodeId: string): CanvasReorderBlockState => {
-    const isDraggable = draggableNodeIds.has(nodeId)
-    if (dragState.status !== "dragging") {
-      return isDraggable
-        ? {
-            ...IDLE_BLOCK_STATE,
-            isDraggable,
-          }
-        : IDLE_BLOCK_STATE
-    }
-
-    const plan = dragState.plan
-    const isTarget = plan?.targetNodeId === nodeId
-
-    return {
-      isBlockedTarget: Boolean(isTarget && plan?.status === "blocked"),
-      isDragging: dragState.nodeId === nodeId,
-      isDraggable,
-      placement: isTarget && plan?.status === "ready" ? plan.placement : null,
-    }
+    return getCanvasReorderBlockState({
+      dragState,
+      isDraggable: draggableNodeIds.has(nodeId),
+      nodeId,
+    })
   }, [dragState, draggableNodeIds])
 
   return {
