@@ -37,6 +37,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
 | R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership; browser QA now records stable scroll and selection observations. | Add simple manual timing notes or dev diagnostics before treating long-document behavior as stable. |
+| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, and delete now requires confirmation while undo is unavailable. | Design and verify drag/drop with visible target eligibility, preview, accessibility fallback, and stale/rejected recovery before declaring reorder UX passed. |
 
 ## Priority Gates
 
@@ -52,6 +53,7 @@ P1 before adding new product behavior:
 - R4 toolbar and paper component responsibility split.
 - R7 backend mutation recovery/queue limitations.
 - R8 adapter facade import boundary.
+- R12 interim structural controls and drag/drop readiness.
 
 P2 polish and evidence quality:
 
@@ -85,6 +87,8 @@ the test is explicitly proving fallback or failure behavior.
 7. Do not add new frontend-placeholder assumptions when a canonical package
    transport fixture can prove the same behavior.
 8. Do not add draft/input runtime until a written WYSIWYG gate exists.
+9. Treat Inspector structural controls as command plumbing evidence only until
+   `docs/COMMAND_UX_GATE.md` passes review.
 
 ## Manual QA Checklist
 
@@ -100,7 +104,7 @@ Run this before declaring Phase 1 UX complete:
 8. Resize below 980px; confirm side panels hide and canvas remains usable.
 9. With the backend running, duplicate a selected duplicable node from the inspector; confirm the selected copy appears and document revision increments.
 10. Move a middle inspector node up/down; confirm order, selected node, and revision update.
-11. Delete a deletable inspector node; confirm selection recovers to a valid node and revision updates.
+11. Delete a deletable inspector node; confirm the first click asks for confirmation, cancel leaves the node unchanged, confirm deletes the node, selection recovers to a valid node, and revision updates.
 12. Confirm disabled editing commands look disabled and do not imply WYSIWYG is ready.
 13. Reload after switching zoom and paper preset; confirm the initial state is sane.
 14. Click the selected block again; confirm no unexpected toggle or visual drift.

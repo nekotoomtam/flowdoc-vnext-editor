@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID, loadInitialEditorSeed } from "../core/coreAdapter"
 import { canExecuteCommand } from "../editor/commands/commandPolicy"
 import type { EditorCommand } from "../editor/commands/commandTypes"
+import { getDeleteConfirmationRequirement } from "../editor/commands/deleteSafety"
 import { executeEditorCommand } from "../editor/commands/commandExecutor"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import {
@@ -19,6 +20,31 @@ function createCoreFixtureState() {
 }
 
 describe("command foundation", () => {
+  it("requires delete confirmation while undo is unavailable", () => {
+    expect(getDeleteConfirmationRequirement({
+      childCount: 0,
+      id: "body-text",
+      label: "Body text",
+      operationSurface: "text-block",
+      type: "text-block",
+    })).toEqual({
+      message: "Delete Body text?",
+      required: true,
+      title: "Confirm delete",
+    })
+    expect(getDeleteConfirmationRequirement({
+      childCount: 2,
+      id: "summary-columns",
+      label: "Summary columns",
+      operationSurface: "columns",
+      type: "columns",
+    })).toEqual({
+      message: "Delete Summary columns and 2 nested items?",
+      required: true,
+      title: "Confirm delete",
+    })
+  })
+
   it("queues live layout requests without mutating document state", () => {
     const state = createInitialEditorState(loadInitialEditorSeed())
     const result = executeEditorCommand(state, {

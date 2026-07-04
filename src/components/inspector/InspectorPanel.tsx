@@ -1,4 +1,6 @@
-import { ArrowDown, ArrowUp, Copy, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ArrowDown, ArrowUp, Copy, Trash2, X } from "lucide-react"
+import { getDeleteConfirmationRequirement } from "../../editor/commands/deleteSafety"
 import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { EditorInspectorFacts } from "../../editor/runtime/editorView"
 import type { RuntimeNodeMutationStatus } from "../../editor/runtime/runtimeMutationStatus"
@@ -22,21 +24,35 @@ export function InspectorPanel({
   onDuplicateNode,
   onReorderNode,
 }: InspectorPanelProps) {
+  const [deleteConfirmationNodeId, setDeleteConfirmationNodeId] = useState<string | null>(null)
   const mutationPending = mutationStatus.status === "pending"
+  const deleteConfirmation = facts
+    ? getDeleteConfirmationRequirement(facts)
+    : null
+  const deleteConfirmationActive = Boolean(
+    facts
+    && deleteConfirmation?.required
+    && deleteConfirmationNodeId === facts.id,
+  )
   const deleteDisabled = !facts
     || facts.canBeDeleted !== true
     || mutationPending
   const duplicateDisabled = !facts
     || facts.canBeDuplicated !== true
     || mutationPending
+    || deleteConfirmationActive
   const moveDownDisabled = !facts
     || facts.canMoveDown !== true
     || mutationPending
+    || deleteConfirmationActive
   const moveUpDisabled = !facts
     || facts.canMoveUp !== true
     || mutationPending
+    || deleteConfirmationActive
   const mutationMessage = mutationStatus.message
-  const deleteTitle = facts?.canBeDeleted === true
+  const deleteTitle = deleteConfirmationActive && deleteConfirmation
+    ? deleteConfirmation.title
+    : facts?.canBeDeleted === true
     ? "Delete selected node"
     : "Selected node cannot be deleted"
   const duplicateTitle = facts?.canBeDuplicated === true
@@ -48,6 +64,30 @@ export function InspectorPanel({
   const moveUpTitle = facts?.canMoveUp === true
     ? "Move selected node up"
     : "Selected node cannot move up"
+
+  useEffect(() => {
+    setDeleteConfirmationNodeId(null)
+  }, [facts?.id])
+
+  useEffect(() => {
+    if (mutationPending) {
+      setDeleteConfirmationNodeId(null)
+    }
+  }, [mutationPending])
+
+  function handleDeleteNode() {
+    if (!facts || !deleteConfirmation) {
+      return
+    }
+
+    if (deleteConfirmation.required && !deleteConfirmationActive) {
+      setDeleteConfirmationNodeId(facts.id)
+      return
+    }
+
+    setDeleteConfirmationNodeId(null)
+    onDeleteNode(facts.id)
+  }
 
   return (
     <section className="inspector-panel" aria-label="Inspector">
@@ -68,13 +108,31 @@ export function InspectorPanel({
             <button
               className="tool-button inspector-action-button inspector-action-button--danger"
               disabled={deleteDisabled}
-              onClick={() => onDeleteNode(facts.id)}
+              onClick={handleDeleteNode}
               title={deleteTitle}
               type="button"
             >
               <Trash2 aria-hidden="true" size={16} />
-              <span>{mutationStatus.command === "node.delete" && mutationPending ? "Deleting" : "Delete"}</span>
+              <span>
+                {mutationStatus.command === "node.delete" && mutationPending
+                  ? "Deleting"
+                  : deleteConfirmationActive ? "Confirm" : "Delete"}
+              </span>
             </button>
+            {deleteConfirmationActive && deleteConfirmation ? (
+              <div className="inspector-delete-confirmation" role="status">
+                <p>{deleteConfirmation.message}</p>
+                <button
+                  aria-label="Cancel delete"
+                  className="icon-button"
+                  onClick={() => setDeleteConfirmationNodeId(null)}
+                  title="Cancel delete"
+                  type="button"
+                >
+                  <X aria-hidden="true" size={16} />
+                </button>
+              </div>
+            ) : null}
             <div className="inspector-action-row" aria-label="Node order actions">
               <button
                 aria-label="Move selected node up"
