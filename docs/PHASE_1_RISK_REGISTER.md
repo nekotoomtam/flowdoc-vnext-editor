@@ -251,8 +251,9 @@ Record each manual QA pass with:
   received `status: "stale"` with issue code `revision-stale`.
 - PASS: stale response had `core: null`, so the backend revision gate blocked
   before core mutation.
-- PASS: editor remained on `Core: api r3`; `History: 2` was from prior
-  exploratory local clicks, not from an accepted stale mutation.
+- PASS: editor remained on `Core: api r3`; the local history count was from
+  prior exploratory local clicks, not from an accepted stale mutation. The
+  status bar now separates local history from doc changes for future QA.
 
 2026-07-04 reorder blocked-target fixture evidence:
 

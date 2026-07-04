@@ -1,12 +1,31 @@
 import { describe, expect, it } from "vitest"
 import { loadInitialEditorSeed } from "../core/coreAdapter"
 import { executeEditorCommand } from "../editor/commands/commandExecutor"
+import { getHistoryStackSummary } from "../editor/history/historySelectors"
 import { createHistoryRecord } from "../editor/history/historyRecorder"
 import { createHistoryStackState, pushHistoryRecord } from "../editor/history/historyStack"
+import type { HistoryRecordDraft, HistoryRecordKind } from "../editor/history/historyTypes"
 import { createInitialEditorState } from "../editor/runtime/editorState"
 import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDispatch"
 
 describe("history foundation", () => {
+  function historyRecord(kind: HistoryRecordKind, undoable = false): HistoryRecordDraft {
+    return {
+      changed: [],
+      documentRevisionAfter: 3,
+      documentRevisionBefore: 3,
+      kind,
+      label: kind,
+      mergeKey: null,
+      payloadSummary: null,
+      source: "system",
+      sourceCommand: "selection.selectNode",
+      targetNodeIds: [],
+      timestamp: 100,
+      undoable,
+    }
+  }
+
   it("creates history records only for applied command results", () => {
     const state = createInitialEditorState(loadInitialEditorSeed())
     const applied = executeEditorCommand(state, {
@@ -66,6 +85,21 @@ describe("history foundation", () => {
     expect(nextStack.canRedo).toBe(false)
     expect(nextStack.undoDepth).toBe(0)
     expect(nextStack.redoDepth).toBe(0)
+  })
+
+  it("summarizes local history separately from document changes", () => {
+    const stack = createHistoryStackState([
+      historyRecord("selection"),
+      historyRecord("viewport"),
+      historyRecord("structuralCommand"),
+      historyRecord("documentMutation", true),
+    ])
+
+    expect(getHistoryStackSummary(stack)).toEqual({
+      documentChangeRecordCount: 2,
+      localRecordCount: 4,
+      undoableRecordCount: 1,
+    })
   })
 
   it("records applied runtime command dispatches and skips rejected or noop dispatches", () => {

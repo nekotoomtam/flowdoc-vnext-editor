@@ -148,8 +148,9 @@ surface semantics stay unchanged.
 - Action: user-visible reorder intent for `title` sent `baseRevision: 3`.
 - PASS: backend returned `status: "stale"` with issue code `revision-stale` and
   `core: null`.
-- PASS: editor stayed on `Core: api r3`; local `History: 2` was attributed to
-  prior exploratory local clicks, not an accepted stale mutation.
+- PASS: editor stayed on `Core: api r3`; the local history count was attributed
+  to prior exploratory clicks, not an accepted stale mutation, and stale
+  reorder must not add a doc change.
 
 ## Contract Test Evidence
 

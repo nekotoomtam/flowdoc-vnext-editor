@@ -98,6 +98,10 @@ describe("selection hit-test boundary", () => {
       type: "table",
     })
     expect(statusSource).toContain("Selected: {selection.selectedNodeId ?? \"none\"}")
+    expect(statusSource).toContain("Local history: {historySummary.localRecordCount}")
+    expect(statusSource).toContain("Doc changes: {historySummary.documentChangeRecordCount}")
+    expect(statusSource).toContain("Undoable: {historySummary.undoableRecordCount}")
+    expect(statusSource).not.toContain("History: {history.records.length}")
   })
 
   it("keeps canvas selection clicks behind the hit-test boundary and overlay pointer policy", () => {

@@ -48,8 +48,8 @@ runtime hook.
 1. Restart `flowdoc-vnext-backend` so
    `product-report-vnext-minimal` is at revision `3`.
 2. Load `http://127.0.0.1:4001/` and confirm the editor status bar shows
-   `Core: api r3`, order `title`, `summary-columns`, `detail-table`, and
-   `History: 0`.
+   `Core: api r3`, order `title`, `summary-columns`, `detail-table`,
+   `Local history: 0`, and `Doc changes: 0`.
 3. From outside the browser app, POST a valid mutation to advance the backend:
 
 ```json
@@ -107,8 +107,10 @@ runtime hook.
   message `baseRevision 3 does not match current revision 4`.
 - PASS: the stale response had `core: null`, confirming the backend revision
   gate blocked before core mutation.
-- PASS: the editor remained on `Core: api r3`; the observed `History: 2` came
-  from prior exploratory local clicks, not from an accepted stale mutation.
+- PASS: the editor remained on `Core: api r3`; the observed local history count
+  came from prior exploratory clicks, not from an accepted stale mutation. Under
+  the status bar split, those clicks are local history while stale reorder must
+  not add a doc change.
 
 ## Blocked Target Product Fixture Boundary
 

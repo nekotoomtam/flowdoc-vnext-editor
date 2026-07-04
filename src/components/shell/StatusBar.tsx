@@ -1,5 +1,6 @@
 import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
 import type { FrontendCoreWorkingSet } from "../../editor/coreBinding/workingSetTypes"
+import { getHistoryStackSummary } from "../../editor/history/historySelectors"
 import type { HistoryStackState } from "../../editor/history/historyTypes"
 import { getJobCounts } from "../../editor/jobs/jobSelectors"
 import type { EditorJobQueueState } from "../../editor/jobs/jobTypes"
@@ -29,6 +30,7 @@ export function StatusBar({
   view,
 }: StatusBarProps) {
   const jobCounts = getJobCounts(jobs)
+  const historySummary = getHistoryStackSummary(history)
   const renderKind = core.renderProjection?.kind ?? "none"
 
   return (
@@ -49,7 +51,9 @@ export function StatusBar({
       <span>
         Jobs: {jobCounts.active}/{jobCounts.total}
       </span>
-      <span>History: {history.records.length}</span>
+      <span>Local history: {historySummary.localRecordCount}</span>
+      <span>Doc changes: {historySummary.documentChangeRecordCount}</span>
+      <span>Undoable: {historySummary.undoableRecordCount}</span>
     </footer>
   )
 }
