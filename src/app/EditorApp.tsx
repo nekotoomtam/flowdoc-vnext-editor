@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
+import { useCanvasReorderDrag } from "./useCanvasReorderDrag"
 import { useBackendNodeMutation } from "./useBackendNodeMutation"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
@@ -40,10 +41,15 @@ export function EditorApp() {
     duplicateNode,
     mutationStatus,
     reorderNode,
+    reorderNodeToIndex,
   } = useBackendNodeMutation({
     backendClient,
     editorState,
     setEditorState,
+  })
+  const canvasReorderDrag = useCanvasReorderDrag({
+    editorState,
+    onReorderNodeToIndex: reorderNodeToIndex,
   })
 
   useEffect(() => {
@@ -108,6 +114,7 @@ export function EditorApp() {
 
   return (
     <EditorShell
+      canvasReorderDrag={canvasReorderDrag}
       editorState={editorState}
       mutationStatus={mutationStatus}
       onDeleteNode={deleteNode}

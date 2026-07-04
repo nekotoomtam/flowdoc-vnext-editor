@@ -2,15 +2,18 @@ import { useRef, type CSSProperties } from "react"
 import { CanvasOverlayLayer } from "./CanvasOverlayLayer"
 import { CanvasPageMeta } from "./CanvasPageMeta"
 import { PaperPageStack } from "../paper/PaperPageStack"
+import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import type { CanvasRenderModel } from "../../editor/render/canvasRenderModel"
 
 export interface CanvasStageProps {
+  canvasReorderDrag: CanvasReorderInteraction
   onSelectNode: (nodeId: string, source: "canvas") => void
   renderModel: CanvasRenderModel
   selectedNodeId: string | null
 }
 
 export function CanvasStage({
+  canvasReorderDrag,
   onSelectNode,
   renderModel,
   selectedNodeId,
@@ -26,6 +29,7 @@ export function CanvasStage({
     <div className="canvas-stage" ref={stageRef} style={canvasPaperStyle}>
       <CanvasPageMeta renderModel={renderModel} />
       <PaperPageStack
+        canvasReorderDrag={canvasReorderDrag}
         onSelectNode={onSelectNode}
         pages={renderModel.pages}
         pageCount={renderModel.pageCount}

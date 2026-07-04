@@ -44,8 +44,9 @@ Do not start drag/drop implementation until this gate is reviewed:
    selection recovery.
 
 Use `src/editor/commands/reorderPlacement.ts` as the command-layer gate for
-drop target readiness and preview order. Do not create a separate pointer-only
-index path.
+drop target readiness and preview order, and
+`src/app/useCanvasReorderDrag.ts` for transient canvas drag state. Do not create
+a separate pointer-only index path.
 
 ## Interim QA Checklist
 
@@ -60,3 +61,7 @@ Run this while the Inspector harness remains visible:
    clears.
 5. Move a middle node up and down; confirm revision increments, selected node
    stays valid, and this is recorded as plumbing evidence only.
+6. Drag a reorderable canvas block over a same-parent target; confirm the
+   insertion preview appears before drop and no revision increments until drop.
+7. Drop the block on a ready target; confirm the backend accepts the mutation,
+   revision increments, and selection remains on the moved node.

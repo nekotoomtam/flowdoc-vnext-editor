@@ -5,9 +5,11 @@ import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import { createCanvasRenderModel } from "../../editor/render/canvasRenderModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
+import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import type { ViewportScrollRootFacts } from "../../editor/viewport/viewportMeasurement"
 
 export interface CanvasSurfaceProps {
+  canvasReorderDrag: CanvasReorderInteraction
   document: CoreEditorDocumentSummary
   onSelectNode: (nodeId: string, source: "canvas") => void
   pages: RenderPageSummary[]
@@ -17,6 +19,7 @@ export interface CanvasSurfaceProps {
 }
 
 export function CanvasSurface({
+  canvasReorderDrag,
   document,
   onSelectNode,
   pages,
@@ -35,6 +38,7 @@ export function CanvasSurface({
       onViewportFactsChange={onViewportFactsChange}
     >
       <CanvasStage
+        canvasReorderDrag={canvasReorderDrag}
         onSelectNode={onSelectNode}
         renderModel={renderModel}
         selectedNodeId={selectedNodeId}

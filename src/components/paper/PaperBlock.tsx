@@ -1,9 +1,11 @@
 import { memo, type CSSProperties } from "react"
+import type { CanvasReorderBlockState } from "../../editor/interaction/canvasReorderDragSession"
 import type { RenderNodeSummary } from "../../editor/render/renderTypes"
 
 export interface PaperBlockProps {
   isSelected: boolean
   node: RenderNodeSummary
+  reorderState: CanvasReorderBlockState
 }
 
 function getBlockPreview(node: RenderNodeSummary): string {
@@ -57,11 +59,16 @@ function TablePreview({
 export const PaperBlock = memo(function PaperBlock({
   isSelected,
   node,
+  reorderState,
 }: PaperBlockProps) {
   return (
     <button
       className={`paper-block paper-block--${node.renderKind}`}
       data-node-id={node.id}
+      data-reorder-blocked={reorderState.isBlockedTarget ? "true" : "false"}
+      data-reorder-draggable={reorderState.isDraggable ? "true" : "false"}
+      data-reorder-dragging={reorderState.isDragging ? "true" : "false"}
+      data-reorder-placement={reorderState.placement ?? "none"}
       data-selected={isSelected ? "true" : "false"}
       type="button"
     >

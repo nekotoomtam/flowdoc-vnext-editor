@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react"
 import { PaperBlock } from "./PaperBlock"
+import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import { getPaperPageGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
 
 export interface PaperPageProps {
+  canvasReorderDrag: CanvasReorderInteraction
   page: RenderPageSummary
   pageCount: number
   paper: PaperModel
@@ -12,6 +14,7 @@ export interface PaperPageProps {
 }
 
 export function PaperPage({
+  canvasReorderDrag,
   page,
   pageCount,
   paper,
@@ -49,6 +52,7 @@ export function PaperPage({
               isSelected={node.id === selectedNodeId}
               key={node.id}
               node={node}
+              reorderState={canvasReorderDrag.getBlockState(node.id)}
             />
           ))}
         </div>

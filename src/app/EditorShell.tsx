@@ -12,9 +12,11 @@ import { createEditorCanvasRenderView } from "../editor/runtime/editorCanvasRend
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView"
 import type { RuntimeNodeMutationStatus } from "../editor/runtime/runtimeMutationStatus"
+import type { CanvasReorderInteraction } from "../editor/interaction/canvasReorderDragSession"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export interface EditorShellProps {
+  canvasReorderDrag: CanvasReorderInteraction
   editorState: EditorRuntimeState
   mutationStatus: RuntimeNodeMutationStatus
   onDeleteNode: (nodeId: string) => void
@@ -27,6 +29,7 @@ export interface EditorShellProps {
 }
 
 export function EditorShell({
+  canvasReorderDrag,
   editorState,
   mutationStatus,
   onDeleteNode,
@@ -56,6 +59,7 @@ export function EditorShell({
       <main className="editor-workspace" aria-label="FlowDoc editor workspace">
         <OutlinePanel items={outlineItems} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
         <CanvasSurface
+          canvasReorderDrag={canvasReorderDrag}
           document={document}
           pages={canvasRenderView.pages}
           paper={paper}

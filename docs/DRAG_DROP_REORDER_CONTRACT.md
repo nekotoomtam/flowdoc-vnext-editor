@@ -1,6 +1,6 @@
 # Drag/Drop Reorder Contract
 
-Status: active planning contract
+Status: active implementation contract
 Date: 2026-07-04
 Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
 
@@ -15,6 +15,12 @@ Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
 - `src/editor/backend/backendMutationRequests.ts` uses the same placement
   planner for existing up/down controls, so future drag/drop should not create
   a second reorder index path.
+- `src/app/useCanvasReorderDrag.ts` owns transient canvas drag state and commits
+  only a ready same-parent placement through backend mutation flow.
+- `src/editor/interaction/canvasReorderHitTest.ts` derives before/after drop
+  placement from the target block midpoint.
+- Canvas components use pointer events for the first implementation slice rather
+  than native HTML drag/drop events so preview/drop state remains editor-owned.
 
 ## Boundary Decision
 
@@ -69,3 +75,28 @@ pointer behavior alone.
    placement `toIndex`.
 5. Keep keyboard move up/down as the accessibility fallback until a richer
    keyboard placement mode is designed.
+
+The first same-parent canvas implementation slice is now present. The next
+slice should improve confidence and ergonomics rather than widen semantics:
+
+1. Add browser QA evidence for actual pointer drag/drop preview and successful
+   drop.
+2. Add blocked-target visual evidence once a same-page blocked target is
+   available in fixture data.
+3. Add auto-scroll and richer keyboard placement only after the preview/drop
+   path is stable.
+
+## Browser QA Evidence
+
+2026-07-04:
+
+- QA target: `http://127.0.0.1:4001/` with backend
+  `http://127.0.0.1:4011/health`.
+- Baseline: document loaded at `api r3`, order `title`, `summary-columns`,
+  `detail-table`, history `0`.
+- Action: pointer-dragged `title` after `summary-columns`.
+- PASS: order changed to `summary-columns`, `title`, `detail-table`.
+- PASS: backend mutation result advanced to `r4`, history became `1`, and
+  selection remained on `title`.
+- Cleanup: backend dev state was reset and the browser reloaded back to `api r3`
+  with history `0`.

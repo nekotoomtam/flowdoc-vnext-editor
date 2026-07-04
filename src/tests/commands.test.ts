@@ -312,6 +312,17 @@ describe("command foundation", () => {
         nodeId: "title",
       },
     } as unknown as EditorCommand
+    const invalidReorderIndex = {
+      kind: "node.reorder",
+      payload: {
+        toIndex: -1,
+      },
+      reason: "test",
+      source: "keyboard",
+      target: {
+        nodeId: "title",
+      },
+    } as unknown as EditorCommand
 
     expect(canExecuteCommand(tableTextDraft, state)).toMatchObject({
       allowed: false,
@@ -327,6 +338,10 @@ describe("command foundation", () => {
       reason: "Node does not resolve to an operation surface: root",
     })
     expect(executeEditorCommand(state, invalidReorderDirection).result).toMatchObject({
+      command: "node.reorder",
+      status: "rejected",
+    })
+    expect(executeEditorCommand(state, invalidReorderIndex).result).toMatchObject({
       command: "node.reorder",
       status: "rejected",
     })

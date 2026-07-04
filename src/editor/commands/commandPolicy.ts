@@ -34,6 +34,14 @@ function isReorderDirection(value: unknown): boolean {
   return value === "down" || value === "up"
 }
 
+function isReorderPayloadValid(command: Extract<EditorCommand, { kind: "node.reorder" }>): boolean {
+  if ("direction" in command.payload && command.payload.direction !== undefined) {
+    return isReorderDirection(command.payload.direction)
+  }
+
+  return Number.isInteger(command.payload.toIndex) && command.payload.toIndex >= 0
+}
+
 function resolveSurfacePolicyTarget(
   state: EditorRuntimeState,
   nodeId: string,
@@ -108,8 +116,8 @@ export function canExecuteCommand(command: EditorCommand, state: EditorRuntimeSt
     case "node.reorder": {
       const target = resolveSurfacePolicyTarget(state, command.target.nodeId)
       if (isCommandPolicyResult(target)) return target
-      if (!isReorderDirection(command.payload.direction)) {
-        return rejectCommand(`Unsupported reorder direction: ${String(command.payload.direction)}`)
+      if (!isReorderPayloadValid(command)) {
+        return rejectCommand("Reorder payload must include direction up/down or a non-negative toIndex")
       }
       if (!target.capabilities.reorderable) {
         return rejectCommand(`Operation surface cannot be reordered: ${target.nodeId}`)

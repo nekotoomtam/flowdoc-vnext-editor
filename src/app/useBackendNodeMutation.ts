@@ -30,6 +30,7 @@ export interface UseBackendNodeMutationResult {
   duplicateNode: (nodeId: string) => void
   mutationStatus: RuntimeNodeMutationStatus
   reorderNode: (nodeId: string, direction: NodeReorderDirection) => void
+  reorderNodeToIndex: (nodeId: string, toIndex: number) => void
 }
 
 function mutationFailureMessage(command: BackendMutationCommand, reason: string): string {
@@ -46,12 +47,14 @@ function mutationFailureMessage(command: BackendMutationCommand, reason: string)
 function pendingMessage(command: BackendMutationCommand): string {
   if (command.kind === "node.delete") return "Deleting selected node."
   if (command.kind === "node.duplicate") return "Duplicating selected node."
+  if ("toIndex" in command.payload) return "Moving selected node."
   return command.payload.direction === "up" ? "Moving selected node up." : "Moving selected node down."
 }
 
 function appliedMessage(command: BackendMutationCommand): string {
   if (command.kind === "node.delete") return "Node deleted."
   if (command.kind === "node.duplicate") return "Node duplicated."
+  if ("toIndex" in command.payload) return "Node moved."
   return command.payload.direction === "up" ? "Node moved up." : "Node moved down."
 }
 
@@ -165,10 +168,25 @@ export function useBackendNodeMutation({
     })
   }, [runMutationCommand])
 
+  const reorderNodeToIndex = useCallback((nodeId: string, toIndex: number) => {
+    runMutationCommand({
+      kind: "node.reorder",
+      payload: {
+        toIndex,
+      },
+      reason: "canvas-drop-reorder",
+      source: "canvas",
+      target: {
+        nodeId,
+      },
+    })
+  }, [runMutationCommand])
+
   return {
     deleteNode,
     duplicateNode,
     mutationStatus,
     reorderNode,
+    reorderNodeToIndex,
   }
 }

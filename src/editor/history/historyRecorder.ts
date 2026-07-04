@@ -68,7 +68,9 @@ function getPayloadSummary(command: EditorCommand): string | null {
     case "node.openTextDraft":
       return command.target.nodeId
     case "node.reorder":
-      return `${command.target.nodeId} ${command.payload.direction}`
+      return "direction" in command.payload && command.payload.direction !== undefined
+        ? `${command.target.nodeId} ${command.payload.direction}`
+        : `${command.target.nodeId} to ${command.payload.toIndex}`
     case "selection.selectNode":
       return command.target.nodeId
     case "viewport.setPaperPreset":

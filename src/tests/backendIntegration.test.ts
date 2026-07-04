@@ -246,6 +246,37 @@ describe("editor backend integration boundary", () => {
     })
   })
 
+  it("builds drag/drop reorder requests from direct toIndex placement plans", () => {
+    const state = createProductFixtureState()
+    const built = createBackendMutationRequestFromCommand(state, {
+      kind: "node.reorder",
+      payload: {
+        toIndex: 0,
+      },
+      reason: "canvas-drop-reorder",
+      source: "canvas",
+      target: {
+        nodeId: "detail-cell-b-text",
+      },
+    }, {
+      requestId: "request-drag-reorder",
+      timestamp: 160,
+    })
+
+    expect(built).toMatchObject({
+      request: {
+        operation: {
+          kind: "node.reorder",
+          nodeId: "detail-table",
+          toIndex: 0,
+        },
+        requestId: "request-drag-reorder",
+        source: "canvas",
+      },
+      status: "ready",
+    })
+  })
+
   it("exposes inspector move eligibility from sibling order", () => {
     const state = createProductFixtureState()
 

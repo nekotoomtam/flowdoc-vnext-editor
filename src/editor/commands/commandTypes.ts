@@ -12,6 +12,15 @@ export type EditorCommandKind =
 
 export type EditorCommandSource = "canvas" | "inspector" | "keyboard" | "outline" | "system" | "toolbar"
 export type NodeReorderDirection = "down" | "up"
+export type NodeReorderPayload =
+  | {
+      direction: NodeReorderDirection
+      toIndex?: never
+    }
+  | {
+      direction?: never
+      toIndex: number
+    }
 
 interface BaseEditorCommand {
   kind: EditorCommandKind
@@ -74,9 +83,7 @@ export interface DuplicateNodeCommand extends BaseEditorCommand {
 
 export interface ReorderNodeCommand extends BaseEditorCommand {
   kind: "node.reorder"
-  payload: {
-    direction: NodeReorderDirection
-  }
+  payload: NodeReorderPayload
   reason: string
   target: {
     nodeId: string

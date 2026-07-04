@@ -46,6 +46,20 @@ function resolveReorderToIndex(
   nodeId: string,
   command: ReorderNodeCommand,
 ): number | null {
+  if ("toIndex" in command.payload && command.payload.toIndex !== undefined) {
+    const parentId = state.view.parentById[nodeId]
+    if (!parentId) return null
+
+    const siblings = state.view.childrenById[parentId] ?? []
+    const currentIndex = siblings.indexOf(nodeId)
+    if (currentIndex < 0) return null
+    if (command.payload.toIndex === currentIndex) return null
+
+    return command.payload.toIndex >= 0 && command.payload.toIndex < siblings.length
+      ? command.payload.toIndex
+      : null
+  }
+
   const plan = createAdjacentSiblingReorderPlan(state, nodeId, command.payload.direction)
   return plan.status === "ready" ? plan.toIndex : null
 }
