@@ -5,6 +5,7 @@ import type {
   DuplicateNodeCommand,
   ReorderNodeCommand,
 } from "../commands/commandTypes"
+import { createAdjacentSiblingReorderPlan } from "../commands/reorderPlacement"
 import type { EditorRuntimeState } from "../runtime/editorState"
 import type {
   BackendMutationOperation,
@@ -45,15 +46,8 @@ function resolveReorderToIndex(
   nodeId: string,
   command: ReorderNodeCommand,
 ): number | null {
-  const parentId = state.view.parentById[nodeId]
-  if (!parentId) return null
-
-  const siblings = state.view.childrenById[parentId] ?? []
-  const currentIndex = siblings.indexOf(nodeId)
-  if (currentIndex < 0) return null
-
-  const toIndex = command.payload.direction === "up" ? currentIndex - 1 : currentIndex + 1
-  return toIndex >= 0 && toIndex < siblings.length ? toIndex : null
+  const plan = createAdjacentSiblingReorderPlan(state, nodeId, command.payload.direction)
+  return plan.status === "ready" ? plan.toIndex : null
 }
 
 function createOperation(

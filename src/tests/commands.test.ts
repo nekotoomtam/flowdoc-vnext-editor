@@ -4,6 +4,10 @@ import { canExecuteCommand } from "../editor/commands/commandPolicy"
 import type { EditorCommand } from "../editor/commands/commandTypes"
 import { getDeleteConfirmationRequirement } from "../editor/commands/deleteSafety"
 import { executeEditorCommand } from "../editor/commands/commandExecutor"
+import {
+  createAdjacentSiblingReorderPlan,
+  createSiblingReorderPlacementPlan,
+} from "../editor/commands/reorderPlacement"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import {
   createInitialEditorState,
@@ -42,6 +46,78 @@ describe("command foundation", () => {
       message: "Delete Summary columns and 2 nested items?",
       required: true,
       title: "Confirm delete",
+    })
+  })
+
+  it("plans drag/drop reorder placement through operation surfaces", () => {
+    const state = createCoreFixtureState()
+
+    expect(createSiblingReorderPlacementPlan(state, {
+      nodeId: "summary-left-text",
+      placement: "after",
+      targetNodeId: "detail-cell-b-text",
+    })).toMatchObject({
+      fromIndex: 1,
+      nodeId: "summary-columns",
+      parentId: "zone-cover-body",
+      placement: "after",
+      previewSiblingIds: ["title", "detail-table", "summary-columns"],
+      siblingIds: ["title", "summary-columns", "detail-table"],
+      status: "ready",
+      targetNodeId: "detail-table",
+      toIndex: 2,
+    })
+    expect(createAdjacentSiblingReorderPlan(state, "summary-left-text", "down")).toMatchObject({
+      nodeId: "summary-columns",
+      previewSiblingIds: ["title", "detail-table", "summary-columns"],
+      status: "ready",
+      targetNodeId: "detail-table",
+      toIndex: 2,
+    })
+  })
+
+  it("blocks or noops unsafe drag/drop reorder placement", () => {
+    const state = createCoreFixtureState()
+    const crossParentState = {
+      ...state,
+      view: {
+        ...state.view,
+        childrenById: {
+          ...state.view.childrenById,
+          "other-parent": ["detail-table"],
+          "zone-cover-body": ["title", "summary-columns"],
+        },
+        parentById: {
+          ...state.view.parentById,
+          "detail-table": "other-parent",
+        },
+      },
+    }
+
+    expect(createSiblingReorderPlacementPlan(state, {
+      nodeId: "summary-left-text",
+      placement: "after",
+      targetNodeId: "summary-right-text",
+    })).toMatchObject({
+      nodeId: "summary-columns",
+      reason: "Cannot drop a node onto itself.",
+      status: "noop",
+      targetNodeId: "summary-columns",
+    })
+    expect(createSiblingReorderPlacementPlan(crossParentState, {
+      nodeId: "summary-left-text",
+      placement: "after",
+      targetNodeId: "detail-cell-b-text",
+    })).toMatchObject({
+      nodeId: "summary-columns",
+      reason: "Drag/drop reorder is limited to siblings in the same parent.",
+      status: "blocked",
+      targetNodeId: "detail-table",
+    })
+    expect(createAdjacentSiblingReorderPlan(state, "title", "up")).toMatchObject({
+      nodeId: "title",
+      reason: "Dragged node is already first in its parent.",
+      status: "blocked",
     })
   })
 

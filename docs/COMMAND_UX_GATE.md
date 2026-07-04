@@ -11,6 +11,9 @@ command harness. They prove command policy, backend transport, revision gates,
 runtime apply, stale recovery, and history records. They are not the final UX
 for structural editing.
 
+`docs/DRAG_DROP_REORDER_CONTRACT.md` is the active reorder UX contract for the
+next implementation slice.
+
 ## Current Controls
 
 - Duplicate stays available only for operation surfaces that policy marks
@@ -39,6 +42,10 @@ Do not start drag/drop implementation until this gate is reviewed:
 7. Manual QA must cover duplicate, delete confirmation, cancel delete,
    successful delete, stale delete, reorder success, reorder rejection, and
    selection recovery.
+
+Use `src/editor/commands/reorderPlacement.ts` as the command-layer gate for
+drop target readiness and preview order. Do not create a separate pointer-only
+index path.
 
 ## Interim QA Checklist
 

@@ -37,7 +37,7 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
 | R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership; browser QA now records stable scroll and selection observations. | Add simple manual timing notes or dev diagnostics before treating long-document behavior as stable. |
-| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, and delete now requires confirmation while undo is unavailable. | Design and verify drag/drop with visible target eligibility, preview, accessibility fallback, and stale/rejected recovery before declaring reorder UX passed. |
+| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, and delete now requires confirmation while undo is unavailable. | Design and verify pointer hit-testing, visible target eligibility, preview rendering, accessibility fallback, and stale/rejected recovery before declaring reorder UX passed. |
 
 ## Priority Gates
 
@@ -88,7 +88,8 @@ the test is explicitly proving fallback or failure behavior.
    transport fixture can prove the same behavior.
 8. Do not add draft/input runtime until a written WYSIWYG gate exists.
 9. Treat Inspector structural controls as command plumbing evidence only until
-   `docs/COMMAND_UX_GATE.md` passes review.
+   `docs/COMMAND_UX_GATE.md` and `docs/DRAG_DROP_REORDER_CONTRACT.md` pass
+   review.
 
 ## Manual QA Checklist
 
