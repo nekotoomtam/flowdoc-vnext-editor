@@ -3,7 +3,7 @@ import { EditorShell } from "./EditorShell"
 import { useCanvasReorderDrag } from "./useCanvasReorderDrag"
 import { useBackendNodeMutation } from "./useBackendNodeMutation"
 import type { PaperPreset } from "../editor/paper/paperModel"
-import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
+import type { EditorCommand, EditorCommandSource, NodeReorderDirection } from "../editor/commands/commandTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
 import {
   resolveFlowDocBackendBaseUrl,
@@ -17,6 +17,7 @@ import {
   recordViewportScrollRootFacts,
 } from "../editor/runtime/editorState"
 import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDispatch"
+import { getCanvasKeyboardReorderFocusDecision } from "../editor/interaction/canvasKeyboardReorderFocus"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export function EditorApp() {
@@ -54,6 +55,8 @@ export function EditorApp() {
     editorState,
     setEditorState,
   })
+  const [pendingKeyboardReorderFocusNodeId, setPendingKeyboardReorderFocusNodeId] = useState<string | null>(null)
+  const [canvasFocusNodeId, setCanvasFocusNodeId] = useState<string | null>(null)
   const canvasReorderDrag = useCanvasReorderDrag({
     editorState,
     onReorderNodeToIndex: reorderNodeToIndex,
@@ -95,6 +98,32 @@ export function EditorApp() {
     })
   }, [dispatchEditorCommand])
 
+  const handleReorderNode = useCallback((
+    nodeId: string,
+    direction: NodeReorderDirection,
+    source: Extract<EditorCommandSource, "inspector" | "keyboard"> = "inspector",
+  ) => {
+    if (source === "keyboard") setPendingKeyboardReorderFocusNodeId(nodeId)
+    reorderNode(nodeId, direction, source)
+  }, [reorderNode])
+
+  useEffect(() => {
+    const decision = getCanvasKeyboardReorderFocusDecision(
+      pendingKeyboardReorderFocusNodeId,
+      mutationStatus,
+    )
+    if (decision.status === "idle") return
+
+    if (decision.status === "focus") setCanvasFocusNodeId(decision.nodeId)
+    setPendingKeyboardReorderFocusNodeId(null)
+  }, [mutationStatus, pendingKeyboardReorderFocusNodeId])
+
+  const handleCanvasFocusHandled = useCallback((nodeId: string) => {
+    setCanvasFocusNodeId((currentNodeId) => (
+      currentNodeId === nodeId ? null : currentNodeId
+    ))
+  }, [])
+
   const handleSelectPaperPreset = useCallback((preset: PaperPreset) => {
     dispatchEditorCommand({
       kind: "viewport.setPaperPreset",
@@ -121,12 +150,14 @@ export function EditorApp() {
 
   return (
     <EditorShell
+      canvasFocusNodeId={canvasFocusNodeId}
       canvasReorderDrag={canvasReorderDrag}
       editorState={editorState}
       mutationStatus={mutationStatus}
       onDeleteNode={deleteNode}
       onDuplicateNode={duplicateNode}
-      onReorderNode={reorderNode}
+      onCanvasFocusHandled={handleCanvasFocusHandled}
+      onReorderNode={handleReorderNode}
       onSelectNode={handleSelectNode}
       onSelectPaperPreset={handleSelectPaperPreset}
       onSelectPaperZoom={handleSelectPaperZoom}

@@ -80,4 +80,6 @@ Run this while the Inspector harness remains visible:
 10. Focus a reorderable canvas block and press `Control/Meta + ArrowUp` or
     `Control/Meta + ArrowDown`; confirm the backend accepts the adjacent
     reorder mutation, revision increments only after acceptance, and selection
-    remains on the moved node.
+    remains on the moved node. Repeat until the moved block crosses a preview
+    page boundary; confirm focus stays on the moved node and the next keyboard
+    reorder still fires.

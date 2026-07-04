@@ -10,8 +10,10 @@ import type { CanvasReorderInteraction } from "../../editor/interaction/canvasRe
 import type { ViewportScrollRootFacts } from "../../editor/viewport/viewportMeasurement"
 
 export interface CanvasSurfaceProps {
+  canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
   document: CoreEditorDocumentSummary
+  onCanvasFocusHandled: (nodeId: string) => void
   onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   onSelectNode: (nodeId: string, source: "canvas") => void
   pages: RenderPageSummary[]
@@ -21,8 +23,10 @@ export interface CanvasSurfaceProps {
 }
 
 export function CanvasSurface({
+  canvasFocusNodeId,
   canvasReorderDrag,
   document,
+  onCanvasFocusHandled,
   onKeyboardReorderNode,
   onSelectNode,
   pages,
@@ -41,7 +45,9 @@ export function CanvasSurface({
       onViewportFactsChange={onViewportFactsChange}
     >
       <CanvasStage
+        canvasFocusNodeId={canvasFocusNodeId}
         canvasReorderDrag={canvasReorderDrag}
+        onCanvasFocusHandled={onCanvasFocusHandled}
         onKeyboardReorderNode={onKeyboardReorderNode}
         onSelectNode={onSelectNode}
         renderModel={renderModel}

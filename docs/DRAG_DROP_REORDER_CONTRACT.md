@@ -29,6 +29,9 @@ Scope: FlowDoc vNext editor structural reorder UX during pointer/keyboard implem
 - Focused paper blocks expose `Control/Meta + ArrowUp/ArrowDown` as the
   current keyboard fallback for adjacent reorder through the same backend
   mutation path.
+- Keyboard reorder focus is restored to the moved canvas node after an applied
+  backend result so page-boundary remounts can continue receiving keyboard
+  input.
 - `src/editor/runtime/runtimeBackendMutation.ts` preserves backend mutation
   issue codes for rejected/stale drag-drop recovery before command status is
   shown.
@@ -182,9 +185,13 @@ surface semantics stay unchanged.
 - PASS: keyboard fallback dispatches through `EditorShell` into
   `reorderNode(..., "keyboard")`, preserving backend transport and revision
   gates rather than applying local document order.
-- LIMIT: browser keyboard fallback QA is not yet captured, and this fallback is
-  adjacent up/down only. It does not add cross-parent, empty-container,
-  table-row, or multi-node placement semantics.
+- PASS: keyboard reorder focus decisions wait for the matching applied backend
+  result, and canvas focus is restored by `data-node-id` after render.
+- LIMIT: manual browser QA confirmed adjacent keyboard reorder works in-page
+  but exposed focus loss when the moved node crossed a preview page boundary.
+  The focus-restore patch has regression tests, but browser re-check is still
+  required. This fallback remains adjacent up/down only and does not add
+  cross-parent, empty-container, table-row, or multi-node placement semantics.
 
 ## Failure-Path QA Design
 

@@ -16,11 +16,13 @@ import type { CanvasReorderInteraction } from "../editor/interaction/canvasReord
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export interface EditorShellProps {
+  canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
   editorState: EditorRuntimeState
   mutationStatus: RuntimeNodeMutationStatus
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
+  onCanvasFocusHandled: (nodeId: string) => void
   onReorderNode: (
     nodeId: string,
     direction: NodeReorderDirection,
@@ -33,11 +35,13 @@ export interface EditorShellProps {
 }
 
 export function EditorShell({
+  canvasFocusNodeId,
   canvasReorderDrag,
   editorState,
   mutationStatus,
   onDeleteNode,
   onDuplicateNode,
+  onCanvasFocusHandled,
   onReorderNode,
   onSelectNode,
   onSelectPaperPreset,
@@ -63,8 +67,10 @@ export function EditorShell({
       <main className="editor-workspace" aria-label="FlowDoc editor workspace">
         <OutlinePanel items={outlineItems} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
         <CanvasSurface
+          canvasFocusNodeId={canvasFocusNodeId}
           canvasReorderDrag={canvasReorderDrag}
           document={document}
+          onCanvasFocusHandled={onCanvasFocusHandled}
           onKeyboardReorderNode={(nodeId, direction) => onReorderNode(nodeId, direction, "keyboard")}
           pages={canvasRenderView.pages}
           paper={paper}

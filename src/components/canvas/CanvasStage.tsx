@@ -1,13 +1,16 @@
-import { useRef, type CSSProperties } from "react"
+import { useEffect, useRef, type CSSProperties } from "react"
 import { CanvasOverlayLayer } from "./CanvasOverlayLayer"
 import { CanvasPageMeta } from "./CanvasPageMeta"
 import { PaperPageStack } from "../paper/PaperPageStack"
 import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
+import { focusCanvasNodeButton } from "../../editor/interaction/canvasNodeFocus"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import type { CanvasRenderModel } from "../../editor/render/canvasRenderModel"
 
 export interface CanvasStageProps {
+  canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
+  onCanvasFocusHandled: (nodeId: string) => void
   onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
   onSelectNode: (nodeId: string, source: "canvas") => void
   renderModel: CanvasRenderModel
@@ -15,7 +18,9 @@ export interface CanvasStageProps {
 }
 
 export function CanvasStage({
+  canvasFocusNodeId,
   canvasReorderDrag,
+  onCanvasFocusHandled,
   onKeyboardReorderNode,
   onSelectNode,
   renderModel,
@@ -27,6 +32,13 @@ export function CanvasStage({
     "--paper-stack-gap": `${renderModel.stackGeometry.pageGapPx}px`,
     "--paper-stack-height": `${renderModel.stackGeometry.stackHeightPx}px`,
   } as CSSProperties
+
+  useEffect(() => {
+    if (!canvasFocusNodeId) return
+    if (!focusCanvasNodeButton(stageRef.current, canvasFocusNodeId)) return
+
+    onCanvasFocusHandled(canvasFocusNodeId)
+  }, [canvasFocusNodeId, onCanvasFocusHandled])
 
   return (
     <div className="canvas-stage" ref={stageRef} style={canvasPaperStyle}>
