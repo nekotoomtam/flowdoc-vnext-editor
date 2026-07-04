@@ -37,6 +37,8 @@ editor command intent
   the read path and blocked placement planner state.
 - Browser QA captured the blocked hover state from that QA document without a
   backend mutation.
+- Manual browser QA captured a stale reorder response from a user-visible tab
+  without adding a hook.
 
 ## No-Hook Stale Browser Recipe
 
@@ -89,6 +91,24 @@ runtime hook.
 - Result: no browser stale PASS is claimed from this attempt. The no-hook stale
   recipe remains valid for manual/user-visible QA, but automation needs a more
   reliable interaction path before it can be recorded as pass evidence.
+
+## 2026-07-04 Manual Stale Browser QA
+
+- QA target: `http://127.0.0.1:4001/` with backend
+  `http://127.0.0.1:4011/`.
+- Baseline: backend was reset to
+  `product-report-vnext-minimal` revision `3`, then the editor tab loaded
+  `Core: api r3`.
+- Setup: an external backend mutation advanced the same document to revision
+  `4` while the editor tab remained on `api r3`.
+- Action: from the stale editor tab, a reorder intent for `title` was sent with
+  `baseRevision: 3`.
+- PASS: backend returned `status: "stale"`, issue code `revision-stale`, and
+  message `baseRevision 3 does not match current revision 4`.
+- PASS: the stale response had `core: null`, confirming the backend revision
+  gate blocked before core mutation.
+- PASS: the editor remained on `Core: api r3`; the observed `History: 2` came
+  from prior exploratory local clicks, not from an accepted stale mutation.
 
 ## Blocked Target Product Fixture Boundary
 

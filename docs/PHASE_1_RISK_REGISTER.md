@@ -203,7 +203,7 @@ Record each manual QA pass with:
   `api r3`, order `title`, `summary-columns`, `detail-table`, history `0`.
 - Decision: same-parent pointer drop, canvas-root auto-scroll, and
   blocked-target hover have enough evidence for this slice. Keep R12 active for
-  rejected/stale browser recovery evidence and richer keyboard placement.
+  rejected browser recovery evidence and richer keyboard placement.
 
 2026-07-04 canvas reorder failure-path contract evidence:
 
@@ -241,6 +241,18 @@ Record each manual QA pass with:
 - LIMIT: in-app browser automation reached the stale setup but did not dispatch
   a visible reorder mutation from the stale tab, so no browser stale PASS is
   claimed from this attempt.
+
+2026-07-04 manual stale browser QA evidence:
+
+- PASS: backend was reset to `product-report-vnext-minimal` revision `3`, then
+  an external setup mutation advanced backend current revision to `4` while the
+  editor tab stayed on `Core: api r3`.
+- PASS: a user-visible reorder intent for `title` sent `baseRevision: 3` and
+  received `status: "stale"` with issue code `revision-stale`.
+- PASS: stale response had `core: null`, so the backend revision gate blocked
+  before core mutation.
+- PASS: editor remained on `Core: api r3`; `History: 2` was from prior
+  exploratory local clicks, not from an accepted stale mutation.
 
 2026-07-04 reorder blocked-target fixture evidence:
 

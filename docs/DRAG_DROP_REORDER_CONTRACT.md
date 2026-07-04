@@ -137,6 +137,20 @@ surface semantics stay unchanged.
 - PASS: after release, order stayed unchanged, revision stayed `api r3`,
   history stayed `0`, and no `mutation-result` status appeared.
 
+2026-07-04 manual stale browser QA:
+
+- QA target: `http://127.0.0.1:4001/` with backend
+  `http://127.0.0.1:4011/`.
+- Baseline: backend reset to revision `3`, editor tab loaded
+  `product-report-vnext-minimal` at `Core: api r3`.
+- Setup: an external mutation advanced backend current revision to `4` while
+  the editor tab stayed on `api r3`.
+- Action: user-visible reorder intent for `title` sent `baseRevision: 3`.
+- PASS: backend returned `status: "stale"` with issue code `revision-stale` and
+  `core: null`.
+- PASS: editor stayed on `Core: api r3`; local `History: 2` was attributed to
+  prior exploratory local clicks, not an accepted stale mutation.
+
 ## Contract Test Evidence
 
 2026-07-04:
@@ -168,6 +182,8 @@ surface semantics stay unchanged.
 - LIMIT: in-app browser automation reached the stale setup but did not dispatch
   a visible reorder mutation from the stale tab, so no browser stale PASS is
   claimed yet.
+- PASS: manual stale browser QA captured a real backend `revision-stale`
+  response from the stale tab without a runtime hook.
 - PASS: blocked-target browser visual evidence is captured through the
   `reorder-blocked-target-qa` document without changing product fixture
   semantics.
