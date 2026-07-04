@@ -12,9 +12,9 @@ Scope: FlowDoc vNext editor structural reorder UX during pointer/keyboard implem
 - Editor Inspector move controls still accept only `up` and `down`, but
   `src/editor/commands/reorderPlacement.ts` now plans sibling placements as a
   pure command-layer contract.
-- `src/editor/backend/backendMutationRequests.ts` uses the same placement
-  planner for existing up/down controls, so future drag/drop should not create
-  a second reorder index path.
+- `src/editor/backend/backendMutationRequests.ts` uses the placement planner to
+  convert up/down controls into `toIndex`, so drag/drop and keyboard fallback do
+  not create separate reorder index paths.
 - `src/app/useCanvasReorderDrag.ts` owns transient canvas drag state and commits
   only a ready same-parent placement through backend mutation flow.
 - `src/editor/interaction/canvasReorderHitTest.ts` derives before/after drop
@@ -29,6 +29,9 @@ Scope: FlowDoc vNext editor structural reorder UX during pointer/keyboard implem
 - Focused paper blocks expose `Control/Meta + ArrowUp/ArrowDown` as the
   current keyboard fallback for adjacent reorder through the same backend
   mutation path.
+- Keyboard reorder resolves adjacency from the current canvas surface order
+  before building the backend `toIndex`; Inspector move controls remain
+  structural sibling controls.
 - Keyboard reorder focus is restored to the moved canvas node after an applied
   backend result so page-boundary remounts can continue receiving keyboard
   input.
@@ -185,13 +188,17 @@ surface semantics stay unchanged.
 - PASS: keyboard fallback dispatches through `EditorShell` into
   `reorderNode(..., "keyboard")`, preserving backend transport and revision
   gates rather than applying local document order.
+- PASS: keyboard reorder requests resolve adjacent targets from
+  `presentation.canvasSurfaceNodeIds`, then build the same backend `toIndex`
+  operation as drag/drop.
 - PASS: keyboard reorder focus decisions wait for the matching applied backend
   result, and canvas focus is restored by `data-node-id` after render.
 - LIMIT: manual browser QA confirmed adjacent keyboard reorder works in-page
-  but exposed focus loss when the moved node crossed a preview page boundary.
-  The focus-restore patch has regression tests, but browser re-check is still
-  required. This fallback remains adjacent up/down only and does not add
-  cross-parent, empty-container, table-row, or multi-node placement semantics.
+  but exposed a page-boundary continuity gap. The fallback now has regression
+  coverage for canvas-order adjacency and post-apply focus restore, but browser
+  re-check is still required. This fallback remains adjacent up/down only and
+  does not add cross-parent, empty-container, table-row, or multi-node placement
+  semantics.
 
 ## Failure-Path QA Design
 

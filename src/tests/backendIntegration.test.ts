@@ -423,6 +423,73 @@ describe("editor backend integration boundary", () => {
     })
   })
 
+  it("builds keyboard reorder requests from canvas surface order", () => {
+    const state = createProductFixtureState()
+    const canvasOrderState = {
+      ...state,
+      view: {
+        ...state.view,
+        presentation: {
+          ...state.view.presentation,
+          canvasSurfaceNodeIds: ["title", "detail-table", "summary-columns"],
+        },
+      },
+    }
+    const inspectorBuilt = createBackendMutationRequestFromCommand(canvasOrderState, {
+      kind: "node.reorder",
+      payload: {
+        direction: "down",
+      },
+      reason: "inspector-move-down",
+      source: "inspector",
+      target: {
+        nodeId: "title",
+      },
+    }, {
+      requestId: "request-inspector-reorder",
+      timestamp: 155,
+    })
+    const keyboardBuilt = createBackendMutationRequestFromCommand(canvasOrderState, {
+      kind: "node.reorder",
+      payload: {
+        direction: "down",
+      },
+      reason: "keyboard-move-down",
+      source: "keyboard",
+      target: {
+        nodeId: "title",
+      },
+    }, {
+      requestId: "request-keyboard-reorder",
+      timestamp: 156,
+    })
+
+    expect(inspectorBuilt).toMatchObject({
+      request: {
+        operation: {
+          kind: "node.reorder",
+          nodeId: "title",
+          toIndex: 1,
+        },
+        requestId: "request-inspector-reorder",
+        source: "inspector",
+      },
+      status: "ready",
+    })
+    expect(keyboardBuilt).toMatchObject({
+      request: {
+        operation: {
+          kind: "node.reorder",
+          nodeId: "title",
+          toIndex: 2,
+        },
+        requestId: "request-keyboard-reorder",
+        source: "keyboard",
+      },
+      status: "ready",
+    })
+  })
+
   it("builds drag/drop reorder requests from direct toIndex placement plans", () => {
     const state = createProductFixtureState()
     const built = createBackendMutationRequestFromCommand(state, {

@@ -6,6 +6,7 @@ import { getDeleteConfirmationRequirement } from "../editor/commands/deleteSafet
 import { executeEditorCommand } from "../editor/commands/commandExecutor"
 import {
   createAdjacentSiblingReorderPlan,
+  createCanvasAdjacentSiblingReorderPlan,
   createSiblingReorderPlacementPlan,
 } from "../editor/commands/reorderPlacement"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
@@ -70,6 +71,32 @@ describe("command foundation", () => {
     expect(createAdjacentSiblingReorderPlan(state, "summary-left-text", "down")).toMatchObject({
       nodeId: "summary-columns",
       previewSiblingIds: ["title", "detail-table", "summary-columns"],
+      status: "ready",
+      targetNodeId: "detail-table",
+      toIndex: 2,
+    })
+  })
+
+  it("plans keyboard canvas reorder from visible canvas surface order", () => {
+    const state = createCoreFixtureState()
+    const canvasOrderState = {
+      ...state,
+      view: {
+        ...state.view,
+        presentation: {
+          ...state.view.presentation,
+          canvasSurfaceNodeIds: ["title", "detail-table", "summary-columns"],
+        },
+      },
+    }
+
+    expect(createAdjacentSiblingReorderPlan(canvasOrderState, "title", "down")).toMatchObject({
+      status: "ready",
+      targetNodeId: "summary-columns",
+      toIndex: 1,
+    })
+    expect(createCanvasAdjacentSiblingReorderPlan(canvasOrderState, "title", "down")).toMatchObject({
+      previewSiblingIds: ["summary-columns", "detail-table", "title"],
       status: "ready",
       targetNodeId: "detail-table",
       toIndex: 2,

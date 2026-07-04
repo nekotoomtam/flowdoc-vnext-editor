@@ -207,3 +207,43 @@ export function createAdjacentSiblingReorderPlan(
     targetNodeId,
   })
 }
+
+export function createCanvasAdjacentSiblingReorderPlan(
+  state: EditorRuntimeState,
+  nodeId: string,
+  direction: NodeReorderDirection,
+): SiblingReorderPlacementPlan {
+  const source = resolveSurfaceNode(state, nodeId, "dragged")
+  const placement = direction === "up" ? "before" : "after"
+  const input: SiblingReorderPlacementInput = {
+    nodeId,
+    placement,
+    targetNodeId: nodeId,
+  }
+
+  if (typeof source === "string") return blockedPlan(input, source)
+
+  const canvasSurfaceNodeIds = state.view.presentation.canvasSurfaceNodeIds
+  const fromCanvasIndex = canvasSurfaceNodeIds.indexOf(source.nodeId)
+  if (fromCanvasIndex < 0) {
+    return blockedPlan(input, "Canvas order does not contain dragged node.", source.nodeId)
+  }
+
+  const targetCanvasIndex = direction === "up" ? fromCanvasIndex - 1 : fromCanvasIndex + 1
+  const targetNodeId = canvasSurfaceNodeIds[targetCanvasIndex]
+  if (!targetNodeId) {
+    return blockedPlan(
+      input,
+      direction === "up"
+        ? "Dragged node is already first in the canvas order."
+        : "Dragged node is already last in the canvas order.",
+      source.nodeId,
+    )
+  }
+
+  return createSiblingReorderPlacementPlan(state, {
+    nodeId: source.nodeId,
+    placement,
+    targetNodeId,
+  })
+}

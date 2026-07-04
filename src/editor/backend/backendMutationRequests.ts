@@ -5,7 +5,10 @@ import type {
   DuplicateNodeCommand,
   ReorderNodeCommand,
 } from "../commands/commandTypes"
-import { createAdjacentSiblingReorderPlan } from "../commands/reorderPlacement"
+import {
+  createAdjacentSiblingReorderPlan,
+  createCanvasAdjacentSiblingReorderPlan,
+} from "../commands/reorderPlacement"
 import type { EditorRuntimeState } from "../runtime/editorState"
 import type {
   BackendMutationOperation,
@@ -60,7 +63,9 @@ function resolveReorderToIndex(
       : null
   }
 
-  const plan = createAdjacentSiblingReorderPlan(state, nodeId, command.payload.direction)
+  const plan = command.source === "keyboard"
+    ? createCanvasAdjacentSiblingReorderPlan(state, nodeId, command.payload.direction)
+    : createAdjacentSiblingReorderPlan(state, nodeId, command.payload.direction)
   return plan.status === "ready" ? plan.toIndex : null
 }
 

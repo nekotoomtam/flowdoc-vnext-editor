@@ -22,7 +22,9 @@ next implementation slice.
 - Move up and move down stay available only as scaffold controls for reorder
   plumbing and recovery tests.
 - Focused canvas blocks support `Control/Meta + ArrowUp/ArrowDown` as the
-  adjacent keyboard fallback through backend reorder mutation.
+  adjacent keyboard fallback through backend reorder mutation. The keyboard
+  fallback resolves adjacency from canvas surface order, not Inspector sibling
+  button order.
 - Reorder buttons must not be treated as UX pass evidence for the final editor.
 
 ## Drag/Drop Gate
@@ -50,9 +52,11 @@ drop target readiness and preview order, and
 `src/app/useCanvasReorderDrag.ts` for transient canvas drag state. Target
 affordance state should stay machine-readable through data attributes such as
 `data-reorder-target` and `data-reorder-reason`; do not expose raw graph
-reasons as primary visible product copy. Do not create a separate pointer-only
-index path. Use `docs/REORDER_FAILURE_PATH_QA.md` before adding browser
-failure-path fixtures or hooks.
+reasons as primary visible product copy. Keyboard fallback must derive adjacent
+movement from canvas surface order before building backend `toIndex`; Inspector
+scaffold buttons may remain structural sibling controls. Do not create a
+separate pointer-only index path. Use `docs/REORDER_FAILURE_PATH_QA.md` before
+adding browser failure-path fixtures or hooks.
 
 ## Interim QA Checklist
 
