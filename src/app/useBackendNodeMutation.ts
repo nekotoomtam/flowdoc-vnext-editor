@@ -38,7 +38,7 @@ function mutationFailureMessage(command: BackendMutationCommand, reason: string)
     return "Command blocked by a newer document revision."
   }
   if (reason === "document-mismatch") return "Command blocked by document mismatch."
-  if (reason === "stale") return "Command blocked by stale revision."
+  if (reason === "revision-stale" || reason === "stale") return "Command blocked by stale revision."
   if (command.kind === "node.delete") return "Delete failed."
   if (command.kind === "node.duplicate") return "Duplicate failed."
   return "Move failed."

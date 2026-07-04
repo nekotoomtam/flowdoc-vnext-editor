@@ -31,6 +31,10 @@ function staleReason(state: EditorRuntimeState, result: BackendMutationResultEnv
   return null
 }
 
+function nonAppliedMutationReason(result: BackendMutationResultEnvelope): string {
+  return result.issues[0]?.code ?? result.status
+}
+
 function resolveSelectableTarget(
   nextView: EditorRuntimeState["view"],
   nodeId: string,
@@ -99,7 +103,7 @@ export function applyRuntimeBackendMutationResult(
     return {
       failures: [],
       issues: result.issues,
-      reason: result.status,
+      reason: nonAppliedMutationReason(result),
       state,
       status: result.status,
     }

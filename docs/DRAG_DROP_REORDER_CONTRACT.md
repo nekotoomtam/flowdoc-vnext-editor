@@ -23,6 +23,12 @@ Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
   than native HTML drag/drop events so preview/drop state remains editor-owned.
 - `src/editor/interaction/canvasReorderAutoScroll.ts` scrolls only the canvas
   scroll root while a pointer drag is near the root edge.
+- `src/editor/interaction/canvasReorderDragSession.ts` exposes `ready`,
+  `noop`, and `blocked` target states plus a non-rendered reason for testable
+  UI affordances.
+- `src/editor/runtime/runtimeBackendMutation.ts` preserves backend mutation
+  issue codes for rejected/stale drag-drop recovery before command status is
+  shown.
 
 ## Boundary Decision
 
@@ -78,14 +84,20 @@ pointer behavior alone.
    keyboard placement mode is designed.
 
 The first same-parent canvas implementation slice is now present. Pointer
-drag/drop and canvas-root auto-scroll have browser QA evidence. The next slice
+drag/drop and canvas-root auto-scroll have browser QA evidence. Blocked target
+and rejected/stale recovery now have unit/contract evidence. The next slice
 should improve confidence and ergonomics rather than widen semantics:
 
-1. Add blocked-target visual evidence once a same-page blocked target is
-   available in fixture data.
-2. Add rejected/stale recovery browser evidence for drag/drop mutation failure
-   paths.
+1. Add blocked-target browser visual evidence once a same-page blocked target
+   is available in fixture data.
+2. Add rejected/stale recovery browser evidence once the app has a safe
+   failure-path fixture or developer test hook.
 3. Add richer keyboard placement only after the preview/drop path is stable.
+
+Current canonical product fixture note: `core-product-report-minimal` renders
+only `title`, `summary-columns`, and `detail-table` as canvas surfaces, and
+those surfaces are siblings. Browser QA cannot truthfully show a blocked
+cross-parent target yet without widening fixture or product surface semantics.
 
 ## Browser QA Evidence
 
@@ -105,3 +117,20 @@ should improve confidence and ergonomics rather than widen semantics:
   selection remained on `title`.
 - Cleanup: backend dev state was reset and the browser reloaded back to `api r3`
   with history `0`.
+
+## Contract Test Evidence
+
+2026-07-04:
+
+- PASS: blocked drag/drop placement returns `targetState: "blocked"` and the
+  reason `Drag/drop reorder is limited to siblings in the same parent.` without
+  producing a ready commit plan.
+- PASS: noop self-surface placement returns `targetState: "noop"` and the
+  reason `Cannot drop a node onto itself.`.
+- PASS: canvas blocks expose `data-reorder-target`, `data-reorder-placement`,
+  and `data-reorder-reason` so blocked/noop/ready affordances are testable
+  without rendering raw graph details as visible copy.
+- PASS: backend rejected canvas reorder results preserve the issue code, keep
+  runtime state unchanged, keep selection stable, and create no history record.
+- PASS: backend stale canvas reorder results preserve `revision-stale`, keep
+  runtime state unchanged, keep selection stable, and create no history record.

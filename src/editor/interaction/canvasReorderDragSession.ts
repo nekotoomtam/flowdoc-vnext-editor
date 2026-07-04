@@ -22,6 +22,7 @@ export interface CanvasReorderBlockState {
   isDraggable: boolean
   isNoopTarget: boolean
   placement: NodeReorderPlacement | null
+  reason: string | null
   targetState: "blocked" | "idle" | "noop" | "ready"
 }
 
@@ -50,6 +51,7 @@ export const IDLE_CANVAS_REORDER_BLOCK_STATE: CanvasReorderBlockState = {
   isDraggable: false,
   isNoopTarget: false,
   placement: null,
+  reason: null,
   targetState: "idle",
 }
 
@@ -106,6 +108,7 @@ export function getCanvasReorderBlockState({
   const plan = dragState.plan
   const isTarget = plan?.targetNodeId === nodeId
   const targetState = isTarget ? plan?.status ?? "idle" : "idle"
+  const reason = isTarget && plan?.status !== "ready" ? plan?.reason ?? null : null
 
   return {
     isBlockedTarget: targetState === "blocked",
@@ -113,6 +116,7 @@ export function getCanvasReorderBlockState({
     isDraggable,
     isNoopTarget: targetState === "noop",
     placement: targetState === "ready" ? plan?.placement ?? null : null,
+    reason,
     targetState,
   }
 }

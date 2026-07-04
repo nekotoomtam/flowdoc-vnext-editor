@@ -489,6 +489,121 @@ describe("editor backend integration boundary", () => {
     expect(applied.state).toBe(state)
   })
 
+  it("keeps canvas reorder state stable when the backend rejects the mutation", () => {
+    const state = createProductFixtureState()
+    const result: BackendMutationResultEnvelope = {
+      baseRevision: 3,
+      core: null,
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      issues: [
+        {
+          code: "cannot-reorder",
+          message: "target cannot be reordered",
+          nodeId: "summary-columns",
+          path: "operation.nodeId",
+          severity: "error",
+        },
+      ],
+      operationKind: "node.reorder",
+      receivedAt: 180,
+      requestId: "mutation-rejected-reorder",
+      requestedAt: 170,
+      revision: 3,
+      status: "rejected",
+      targetNodeIds: ["summary-columns"],
+    }
+
+    const applied = applyRuntimeBackendMutationCommandResult(
+      state,
+      {
+        kind: "node.reorder",
+        payload: {
+          toIndex: 2,
+        },
+        reason: "canvas-drop-reorder",
+        source: "canvas",
+        target: {
+          nodeId: "summary-columns",
+        },
+      },
+      result,
+      {
+        timestamp: 190,
+      },
+    )
+
+    expect(applied.commandResult.result).toMatchObject({
+      command: "node.reorder",
+      reason: "cannot-reorder",
+      stateChanged: false,
+      status: "rejected",
+    })
+    expect(applied.mutationApply).toMatchObject({
+      reason: "cannot-reorder",
+      status: "rejected",
+    })
+    expect(applied.state).toBe(state)
+    expect(applied.state.selection.selectedNodeId).toBe(state.selection.selectedNodeId)
+    expect(applied.state.history.records).toHaveLength(0)
+  })
+
+  it("keeps canvas reorder state stable when the backend reports a stale revision", () => {
+    const state = createProductFixtureState()
+    const result: BackendMutationResultEnvelope = {
+      baseRevision: 3,
+      core: null,
+      documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      issues: [
+        {
+          code: "revision-stale",
+          message: "baseRevision 3 does not match current revision 4",
+          path: "baseRevision",
+          severity: "error",
+        },
+      ],
+      operationKind: "node.reorder",
+      receivedAt: 180,
+      requestId: "mutation-stale-reorder",
+      requestedAt: 170,
+      revision: 4,
+      status: "stale",
+      targetNodeIds: ["summary-columns"],
+    }
+
+    const applied = applyRuntimeBackendMutationCommandResult(
+      state,
+      {
+        kind: "node.reorder",
+        payload: {
+          toIndex: 2,
+        },
+        reason: "canvas-drop-reorder",
+        source: "canvas",
+        target: {
+          nodeId: "summary-columns",
+        },
+      },
+      result,
+      {
+        timestamp: 190,
+      },
+    )
+
+    expect(applied.commandResult.result).toMatchObject({
+      command: "node.reorder",
+      reason: "revision-stale",
+      stateChanged: false,
+      status: "rejected",
+    })
+    expect(applied.mutationApply).toMatchObject({
+      reason: "revision-stale",
+      status: "stale",
+    })
+    expect(applied.state).toBe(state)
+    expect(applied.state.selection.selectedNodeId).toBe(state.selection.selectedNodeId)
+    expect(applied.state.history.records).toHaveLength(0)
+  })
+
   it("fetches backend reads through the client without exposing transport in components", async () => {
     const client = createFlowDocBackendClient({
       baseUrl: "http://backend.test/",

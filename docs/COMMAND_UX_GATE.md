@@ -45,8 +45,11 @@ Do not start drag/drop implementation until this gate is reviewed:
 
 Use `src/editor/commands/reorderPlacement.ts` as the command-layer gate for
 drop target readiness and preview order, and
-`src/app/useCanvasReorderDrag.ts` for transient canvas drag state. Do not create
-a separate pointer-only index path.
+`src/app/useCanvasReorderDrag.ts` for transient canvas drag state. Target
+affordance state should stay machine-readable through data attributes such as
+`data-reorder-target` and `data-reorder-reason`; do not expose raw graph
+reasons as primary visible product copy. Do not create a separate pointer-only
+index path.
 
 ## Interim QA Checklist
 
@@ -67,3 +70,6 @@ Run this while the Inspector harness remains visible:
    revision increments, and selection remains on the moved node.
 8. Drag near the top and bottom of the canvas scroll root; confirm only the
    canvas scrolls and the page body does not move.
+9. When a blocked-target fixture is available, drag over that target; confirm
+   blocked affordance appears, no mutation is sent, and no raw graph details
+   become the primary visible model.

@@ -32,12 +32,12 @@ Scope: FlowDoc vNext Editor Phase 1 UX foundation
 | R4 | `EditorToolbar.tsx` and `PaperPage.tsx` are the first files likely to grow into mixed-responsibility components. | Medium | Paper block rendering is split into `PaperBlock`, `PaperPage`, and `PaperPageStack`; canvas render partitions are split through `CanvasStage` and overlay components. | Split toolbar controls before adding more toolbar commands. |
 | R5 | WYSIWYG pressure can start early because the shell now looks more real. | High | AGENTS and boundary tests block `contenteditable` and rich editor frameworks. | Require a written WYSIWYG gate decision before adding draft/input runtime. |
 | R6 | Design tokens are local Phase 1 tokens, not a validated design system. | Medium | Palette is restrained and app-specific. | Run a visual QA pass on desktop/mobile before treating tokens as stable. |
-| R7 | Backend/API transport and inspector structural mutation controls now exist, but rejection recovery and a real mutation queue are still narrow. | Medium | Core imports remain isolated to `src/core`; backend integration tests cover read envelopes, mutation request building, surface normalization, stale result guards, runtime apply, and history recording. | Keep additional mutations behind command policy, backend revision gates, and explicit recovery tests before exposing more commands. |
+| R7 | Backend/API transport and inspector structural mutation controls now exist, but rejection recovery and a real mutation queue are still narrow. | Medium | Core imports remain isolated to `src/core`; backend integration tests cover read envelopes, mutation request building, surface normalization, stale result guards, runtime apply, history recording, and canvas reorder rejected/stale recovery. | Keep additional mutations behind command policy, backend revision gates, and explicit recovery tests before exposing more commands. |
 | R8 | Direct internal core submodule imports could bypass the `coreAdapter` facade as CRB files grow. | High | `src/tests/boundary.test.ts` scans source imports for direct core package access and internal read submodule access outside `src/core`. | Keep this scan current whenever new adapter submodules are added. |
 | R9 | Partial core read results may look healthy in the UI if status surfaces do not distinguish `fresh`, `partial`, and `blocked`. | Medium | Working set envelopes preserve status and controlled failures. | Status/diagnostics UI must show read status clearly before API-backed reads or async result UX. |
 | R10 | Manual QA can become anecdotal if user-visible browser checks are not recorded with a repeatable result format. | Medium | Checklist exists; Phase 2-5 closeout records browser QA evidence in `docs/PHASE_2_TO_5_CLOSEOUT.md`. | Continue recording date, browser, viewport size, pass/fail, notes, and blocking issue for each manual QA pass. |
 | R11 | Phase 1 UX can regress without lightweight performance markers for scroll and selection responsiveness. | Low | Runtime tests cover ownership; browser QA now records stable scroll and selection observations. | Add simple manual timing notes or dev diagnostics before treating long-document behavior as stable. |
-| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, `src/app/useCanvasReorderDrag.ts` owns transient drag state, `src/editor/interaction/canvasReorderAutoScroll.ts` owns canvas-root auto-scroll, and delete now requires confirmation while undo is unavailable. | Verify browser drag/drop preview, successful drop, blocked-target feedback, accessibility fallback, and stale/rejected recovery before declaring reorder UX passed. |
+| R12 | Inspector structural controls can be mistaken for final reorder UX. | High | `docs/COMMAND_UX_GATE.md` marks them as interim command harness controls, `docs/DRAG_DROP_REORDER_CONTRACT.md` owns the drag/drop contract, `src/editor/commands/reorderPlacement.ts` gates same-parent placement planning, `src/app/useCanvasReorderDrag.ts` owns transient drag state, `src/editor/interaction/canvasReorderAutoScroll.ts` owns canvas-root auto-scroll, blocked/noop/ready target states are data-addressable with reasons, rejected/stale canvas reorder recovery keeps state/history stable, and delete now requires confirmation while undo is unavailable. | Verify blocked-target browser feedback, accessibility fallback, and rejected/stale browser recovery before declaring reorder UX passed. |
 
 ## Priority Gates
 
@@ -204,6 +204,25 @@ Record each manual QA pass with:
 - Decision: same-parent pointer drop and canvas-root auto-scroll have enough
   evidence for this slice. Keep R12 active for blocked-target visual evidence,
   rejected/stale recovery evidence, and richer keyboard placement.
+
+2026-07-04 canvas reorder failure-path contract evidence:
+
+- QA scope: focused Vitest coverage for drag/drop planner state and backend
+  mutation apply recovery.
+- PASS: blocked target state is derived from a cross-parent placement fixture
+  as `targetState: "blocked"` with a machine-readable reason; noop self-surface
+  target state is likewise derived with a reason.
+- PASS: `PaperBlock` exposes `data-reorder-target`, `data-reorder-placement`,
+  and `data-reorder-reason` for ready/noop/blocked affordance testing without
+  showing raw hierarchy details as primary product text.
+- PASS: backend rejected canvas reorder results preserve issue code, leave
+  editor runtime state unchanged, keep selection stable, and do not create
+  history records.
+- PASS: backend stale canvas reorder results preserve `revision-stale`, leave
+  editor runtime state unchanged, keep selection stable, and do not create
+  history records.
+- LIMIT: browser blocked-target visual QA is still pending because the current
+  canonical product fixture renders only sibling canvas surfaces.
 
 ## Exit Criteria
 

@@ -100,6 +100,26 @@ describe("canvas reorder drag boundary", () => {
       placement: "after",
       targetNodeId: "summary-right-text",
     })
+    const blockedStateFixture = {
+      ...state,
+      view: {
+        ...state.view,
+        childrenById: {
+          ...state.view.childrenById,
+          "other-parent": ["detail-table"],
+          "zone-cover-body": ["title", "summary-columns"],
+        },
+        parentById: {
+          ...state.view.parentById,
+          "detail-table": "other-parent",
+        },
+      },
+    }
+    const blockedPlan = createSiblingReorderPlacementPlan(blockedStateFixture, {
+      nodeId: "summary-left-text",
+      placement: "after",
+      targetNodeId: "detail-cell-b-text",
+    })
     const readyState = updateCanvasReorderDragSession(
       startCanvasReorderDragSession("summary-columns", { x: 20, y: 40 }),
       readyPlan,
@@ -110,6 +130,11 @@ describe("canvas reorder drag boundary", () => {
       noopPlan,
       { x: 22, y: 42 },
     )
+    const blockedState = updateCanvasReorderDragSession(
+      startCanvasReorderDragSession("summary-columns", { x: 20, y: 40 }),
+      blockedPlan,
+      { x: 40, y: 220 },
+    )
 
     expect(getCanvasReorderBlockState({
       dragState: readyState,
@@ -119,6 +144,7 @@ describe("canvas reorder drag boundary", () => {
       isBlockedTarget: false,
       isNoopTarget: false,
       placement: "after",
+      reason: null,
       targetState: "ready",
     })
     expect(getCanvasReorderBlockState({
@@ -128,7 +154,18 @@ describe("canvas reorder drag boundary", () => {
     })).toMatchObject({
       isNoopTarget: true,
       placement: null,
+      reason: "Cannot drop a node onto itself.",
       targetState: "noop",
+    })
+    expect(getCanvasReorderBlockState({
+      dragState: blockedState,
+      isDraggable: true,
+      nodeId: "detail-table",
+    })).toMatchObject({
+      isBlockedTarget: true,
+      placement: null,
+      reason: "Drag/drop reorder is limited to siblings in the same parent.",
+      targetState: "blocked",
     })
     expect(getCanvasReorderBlockState({
       dragState: finishCanvasReorderDragSession(),
@@ -155,6 +192,7 @@ describe("canvas reorder drag boundary", () => {
     expect(pageStackSource).toContain("onPointerUp={handlePointerUp}")
     expect(blockSource).toContain("data-reorder-draggable={reorderState.isDraggable ? \"true\" : \"false\"}")
     expect(blockSource).toContain("data-reorder-placement={reorderState.placement ?? \"none\"}")
+    expect(blockSource).toContain("data-reorder-reason={reorderState.reason ?? \"\"}")
     expect(blockSource).toContain("data-reorder-target={reorderState.targetState}")
     expect(pageStackSource).not.toContain("commitMutation")
     expect(blockSource).not.toContain("commitMutation")
