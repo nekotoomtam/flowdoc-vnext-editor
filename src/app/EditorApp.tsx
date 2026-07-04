@@ -5,7 +5,10 @@ import { useBackendNodeMutation } from "./useBackendNodeMutation"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource } from "../editor/commands/commandTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
-import { resolveFlowDocBackendBaseUrl } from "../editor/backend/backendConfig"
+import {
+  resolveFlowDocBackendBaseUrl,
+  resolveFlowDocDocumentId,
+} from "../editor/backend/backendConfig"
 import { createFlowDocBackendClient } from "../editor/backend/backendTransport"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { loadFrontendCoreWorkingSetFromTransportEnvelope } from "../editor/coreBinding/workingSetFactory"
@@ -19,6 +22,10 @@ import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasure
 export function EditorApp() {
   const backendBaseUrl = useMemo(
     () => resolveFlowDocBackendBaseUrl(import.meta.env.VITE_FLOWDOC_BACKEND_URL as string | undefined),
+    [],
+  )
+  const documentId = useMemo(
+    () => resolveFlowDocDocumentId(import.meta.env.VITE_FLOWDOC_DOCUMENT_ID as string | undefined),
     [],
   )
   const backendClient = useMemo(
@@ -55,7 +62,7 @@ export function EditorApp() {
   useEffect(() => {
     let cancelled = false
 
-    void backendClient.readDocument(CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID)
+    void backendClient.readDocument(documentId)
       .then((result) => {
         if (cancelled || result.status !== "found") return
 
@@ -71,7 +78,7 @@ export function EditorApp() {
     return () => {
       cancelled = true
     }
-  }, [backendClient])
+  }, [backendClient, documentId])
 
   const dispatchEditorCommand = useCallback((command: EditorCommand) => {
     setEditorState((currentState) => dispatchEditorRuntimeCommand(currentState, command).state)

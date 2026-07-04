@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
-import { resolveFlowDocBackendBaseUrl } from "../editor/backend/backendConfig"
+import {
+  resolveFlowDocBackendBaseUrl,
+  resolveFlowDocDocumentId,
+} from "../editor/backend/backendConfig"
 import { createBackendMutationRequestFromCommand } from "../editor/backend/backendMutationRequests"
 import { runBackendMutationCommand } from "../editor/backend/backendMutationRunner"
+import { createSiblingReorderPlacementPlan } from "../editor/commands/reorderPlacement"
 import {
   createBackendDocumentReadResult,
   createBackendMutationReadEnvelope,
@@ -97,6 +101,134 @@ function canonicalPackageFixture(documentId = "backend-document", includeCopy = 
   }
 }
 
+function reorderBlockedTargetQaPackageFixture(): unknown {
+  return {
+    packageVersion: 2,
+    kind: "document",
+    id: "reorder-blocked-target-qa",
+    meta: {
+      title: "Reorder Blocked Target QA",
+    },
+    fields: {
+      version: 1,
+      fields: {},
+    },
+    data: {
+      version: 1,
+      values: {},
+    },
+    document: {
+      version: 3,
+      document: {
+        id: "reorder-blocked-target-qa",
+        meta: {
+          title: "Reorder Blocked Target QA",
+        },
+        sections: [
+          {
+            id: "section-alpha",
+            type: "section",
+            page: {
+              size: "A4",
+              orientation: "portrait",
+              margin: {
+                top: { value: 72, unit: "pt" },
+                right: { value: 72, unit: "pt" },
+                bottom: { value: 72, unit: "pt" },
+                left: { value: 72, unit: "pt" },
+              },
+            },
+            zoneIds: ["zone-alpha-body"],
+            nodes: {
+              "zone-alpha-body": {
+                id: "zone-alpha-body",
+                type: "zone",
+                role: "body",
+                childIds: ["alpha-heading", "alpha-note"],
+              },
+              "alpha-heading": {
+                id: "alpha-heading",
+                type: "text-block",
+                role: { role: "heading", level: 1 },
+                props: {},
+                children: [
+                  {
+                    id: "alpha-heading-text",
+                    type: "text",
+                    text: "Alpha section",
+                  },
+                ],
+              },
+              "alpha-note": {
+                id: "alpha-note",
+                type: "text-block",
+                role: { role: "paragraph" },
+                props: {},
+                children: [
+                  {
+                    id: "alpha-note-text",
+                    type: "text",
+                    text: "Same-parent target.",
+                  },
+                ],
+              },
+            },
+          },
+          {
+            id: "section-beta",
+            type: "section",
+            page: {
+              size: "A4",
+              orientation: "portrait",
+              margin: {
+                top: { value: 72, unit: "pt" },
+                right: { value: 72, unit: "pt" },
+                bottom: { value: 72, unit: "pt" },
+                left: { value: 72, unit: "pt" },
+              },
+            },
+            zoneIds: ["zone-beta-body"],
+            nodes: {
+              "zone-beta-body": {
+                id: "zone-beta-body",
+                type: "zone",
+                role: "body",
+                childIds: ["beta-heading", "beta-note"],
+              },
+              "beta-heading": {
+                id: "beta-heading",
+                type: "text-block",
+                role: { role: "heading", level: 1 },
+                props: {},
+                children: [
+                  {
+                    id: "beta-heading-text",
+                    type: "text",
+                    text: "Beta section",
+                  },
+                ],
+              },
+              "beta-note": {
+                id: "beta-note",
+                type: "text-block",
+                role: { role: "paragraph" },
+                props: {},
+                children: [
+                  {
+                    id: "beta-note-text",
+                    type: "text",
+                    text: "Cross-parent target.",
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+  }
+}
+
 function createStateAtBackendRevision(revision: number, includeCopy = false) {
   const read = createBackendDocumentReadResult({
     documentId: "backend-document",
@@ -128,6 +260,8 @@ describe("editor backend integration boundary", () => {
   it("uses the local backend URL when no environment override is configured", () => {
     expect(resolveFlowDocBackendBaseUrl(undefined)).toBe("http://127.0.0.1:4011")
     expect(resolveFlowDocBackendBaseUrl(" http://backend.test ")).toBe("http://backend.test")
+    expect(resolveFlowDocDocumentId(undefined)).toBe(CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID)
+    expect(resolveFlowDocDocumentId(" reorder-blocked-target-qa ")).toBe("reorder-blocked-target-qa")
   })
 
   it("turns backend read responses into source-revisioned core transport envelopes", () => {
@@ -162,6 +296,49 @@ describe("editor backend integration boundary", () => {
       sourceKind: "api",
     })
     expect(workingSet.readModel.sourceRevision).toBe(7)
+  })
+
+  it("loads the reorder blocked-target QA document through the backend read boundary", () => {
+    const result = createBackendDocumentReadResult({
+      documentId: "reorder-blocked-target-qa",
+      packageValue: reorderBlockedTargetQaPackageFixture(),
+      revision: 3,
+      status: "found",
+      updatedAt: "2026-07-04T00:00:00.000Z",
+    }, {
+      receivedAt: 120,
+      requestedAt: 100,
+    })
+
+    if (result.status !== "found") throw new Error("expected found backend read")
+    const workingSet = loadFrontendCoreWorkingSetFromTransportEnvelope(result.envelope)
+    const state = createInitialEditorStateFromWorkingSet(workingSet)
+
+    expect(state.view.presentation.canvasSurfaceNodeIds).toEqual([
+      "alpha-heading",
+      "alpha-note",
+      "beta-heading",
+      "beta-note",
+    ])
+    expect(createSiblingReorderPlacementPlan(state, {
+      nodeId: "alpha-heading",
+      placement: "after",
+      targetNodeId: "alpha-note",
+    })).toMatchObject({
+      status: "ready",
+      targetNodeId: "alpha-note",
+      toIndex: 1,
+    })
+    expect(createSiblingReorderPlacementPlan(state, {
+      nodeId: "alpha-heading",
+      placement: "after",
+      targetNodeId: "beta-heading",
+    })).toMatchObject({
+      nodeId: "alpha-heading",
+      reason: "Drag/drop reorder is limited to siblings in the same parent.",
+      status: "blocked",
+      targetNodeId: "beta-heading",
+    })
   })
 
   it("builds backend mutation requests from editor commands and active revision", () => {

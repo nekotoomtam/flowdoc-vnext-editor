@@ -71,6 +71,7 @@ Run this while the Inspector harness remains visible:
    revision increments, and selection remains on the moved node.
 8. Drag near the top and bottom of the canvas scroll root; confirm only the
    canvas scrolls and the page body does not move.
-9. When a blocked-target fixture is available, drag over that target; confirm
-   blocked affordance appears, no mutation is sent, and no raw graph details
-   become the primary visible model.
+9. Load `reorder-blocked-target-qa` with
+   `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa`, drag over the
+   cross-parent target, and confirm blocked affordance appears, no mutation is
+   sent, and no raw graph details become the primary visible model.

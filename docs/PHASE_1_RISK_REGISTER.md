@@ -201,9 +201,9 @@ Record each manual QA pass with:
   `mutation-result r4`, history became `1`, and selection remained on `title`.
 - Cleanup: backend dev state was restarted and the editor reloaded back to
   `api r3`, order `title`, `summary-columns`, `detail-table`, history `0`.
-- Decision: same-parent pointer drop and canvas-root auto-scroll have enough
-  evidence for this slice. Keep R12 active for blocked-target visual evidence,
-  rejected/stale recovery evidence, and richer keyboard placement.
+- Decision: same-parent pointer drop, canvas-root auto-scroll, and
+  blocked-target hover have enough evidence for this slice. Keep R12 active for
+  rejected/stale browser recovery evidence and richer keyboard placement.
 
 2026-07-04 canvas reorder failure-path contract evidence:
 
@@ -221,8 +221,9 @@ Record each manual QA pass with:
 - PASS: backend stale canvas reorder results preserve `revision-stale`, leave
   editor runtime state unchanged, keep selection stable, and do not create
   history records.
-- LIMIT: browser blocked-target visual QA is still pending because the current
-  canonical product fixture renders only sibling canvas surfaces.
+- PASS: browser blocked-target visual QA is covered by the separate
+  `reorder-blocked-target-qa` document and captured data attributes during
+  active drag.
 
 2026-07-04 reorder failure-path QA design:
 
@@ -231,14 +232,30 @@ Record each manual QA pass with:
   editor at backend revision `3`, advancing the backend to revision `4` through
   an external valid mutation, then triggering reorder intent from the stale
   browser state.
-- PASS: blocked-target browser QA is explicitly scoped to a future canonical QA
-  fixture with cross-parent visible canvas surfaces.
+- PASS: blocked-target browser QA is explicitly scoped to the canonical
+  `reorder-blocked-target-qa` fixture with cross-parent visible canvas
+  surfaces.
 - PASS: rejected browser QA is not forced through inconsistent editor/core
   capabilities; rejected recovery remains contract-test evidence unless a
   backend-owned QA hook is approved later.
 - LIMIT: in-app browser automation reached the stale setup but did not dispatch
   a visible reorder mutation from the stale tab, so no browser stale PASS is
   claimed from this attempt.
+
+2026-07-04 reorder blocked-target fixture evidence:
+
+- PASS: core owns
+  `fixtures/reorder-blocked-target-qa.flowdoc.json` as canonical fixture data
+  with two visible canvas surfaces under different parents.
+- PASS: backend seeds `reorder-blocked-target-qa` as a separate document at
+  revision `3`.
+- PASS: editor backend config accepts
+  `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa`, and integration tests
+  prove the QA read path plus cross-parent blocked planner state.
+- PASS: browser QA loaded that document at `api r3`, dragged `alpha-heading`
+  over `beta-heading`, captured `data-reorder-target="blocked"` with the
+  same-parent reason, and confirmed revision/history/order stayed unchanged
+  after release.
 
 ## Exit Criteria
 

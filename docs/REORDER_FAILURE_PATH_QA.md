@@ -28,6 +28,15 @@ editor command intent
   `src/tests/backendIntegration.test.ts`.
 - Backend service tests cover stale and rejected mutation envelopes in
   `flowdoc-vnext-backend/src/tests/mutationService.test.ts`.
+- Core now includes `fixtures/reorder-blocked-target-qa.flowdoc.json`, a
+  canonical two-section fixture with visible cross-parent canvas surfaces.
+- Backend seeds `reorder-blocked-target-qa` as a separate QA document at
+  revision `3`.
+- Editor backend config can load that QA document with
+  `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa`; integration tests prove
+  the read path and blocked placement planner state.
+- Browser QA captured the blocked hover state from that QA document without a
+  backend mutation.
 
 ## No-Hook Stale Browser Recipe
 
@@ -81,37 +90,51 @@ runtime hook.
   recipe remains valid for manual/user-visible QA, but automation needs a more
   reliable interaction path before it can be recorded as pass evidence.
 
-## Blocked Target Browser Gap
+## Blocked Target Product Fixture Boundary
 
-The current canonical product fixture renders only these canvas operation
-surfaces:
+The default product fixture still renders only these canvas operation surfaces:
 
 - `title`
 - `summary-columns`
 - `detail-table`
 
-Those surfaces are siblings under the same zone, so a true cross-parent blocked
-target cannot be shown in browser QA without changing fixture coverage or
-adding a controlled QA document. Do not fake this by allowing cross-parent
-drop, mutating presentation ownership, or making internal table/column nodes
-primary canvas targets.
+Those surfaces are siblings under the same zone. A true cross-parent blocked
+target must use the separate QA document
+`reorder-blocked-target-qa`, not product fixture changes or widened drop
+semantics. The browser evidence below covers that QA path while keeping product
+fixture behavior unchanged.
 
-## Preferred Fixture Direction
+## Canonical QA Fixture Status
 
-Add a canonical QA fixture only when cross-repo scope is approved:
+The approved cross-repo fixture direction is implemented:
 
-1. In core, add a small canonical vNext package fixture with two visible canvas
-   surfaces under different operation parents, such as two zones or sections.
-2. In backend, seed that package as a separate QA document through repository
-   setup, not by changing product mutation semantics.
-3. In editor, load that QA document through configuration or an explicit QA
-   harness, not through default product startup.
-4. Browser QA then drags a reorderable surface over a surface in the other
+1. Core fixture:
+   `flowdoc-vnext-core/fixtures/reorder-blocked-target-qa.flowdoc.json`.
+2. Backend seed document: `reorder-blocked-target-qa` at revision `3`.
+3. Editor configuration:
+   `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa`.
+4. Browser QA drags a reorderable surface over a surface in the other
    parent and expects:
    - `data-reorder-target="blocked"`;
    - a machine-readable `data-reorder-reason`;
    - no backend mutation request;
    - no visible raw graph details as primary product copy.
+
+## 2026-07-04 Blocked Target Browser QA
+
+- QA target: `http://127.0.0.1:4002/` with
+  `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa` and backend
+  `http://127.0.0.1:4011/`.
+- Baseline: document loaded from backend as `reorder-blocked-target-qa` at
+  `api r3`, history `0`, and paper order `alpha-heading`, `alpha-note`,
+  `beta-heading`, `beta-note`.
+- Action: pointer-dragged `alpha-heading` over the cross-parent
+  `beta-heading` paper block.
+- PASS: during active drag, `beta-heading` exposed
+  `data-reorder-target="blocked"` and
+  `data-reorder-reason="Drag/drop reorder is limited to siblings in the same parent."`.
+- PASS: after release, paper order stayed unchanged, status stayed `api r3`,
+  history stayed `0`, and no `mutation-result` status appeared.
 
 ## Rejected Browser Gap
 

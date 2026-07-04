@@ -30,7 +30,8 @@ Scope: FlowDoc vNext editor structural reorder UX before pointer implementation
   issue codes for rejected/stale drag-drop recovery before command status is
   shown.
 - `docs/REORDER_FAILURE_PATH_QA.md` records the safe no-hook stale recipe,
-  the blocked-target browser gap, and the preferred fixture direction.
+  `reorder-blocked-target-qa` browser evidence, and the remaining stale/rejected
+  browser evidence boundaries.
 
 ## Boundary Decision
 
@@ -86,23 +87,22 @@ pointer behavior alone.
    keyboard placement mode is designed.
 
 The first same-parent canvas implementation slice is now present. Pointer
-drag/drop and canvas-root auto-scroll have browser QA evidence. Blocked target
-and rejected/stale recovery now have unit/contract evidence. The next slice
+drag/drop, canvas-root auto-scroll, and blocked target affordance have browser
+QA evidence. Rejected/stale recovery has unit/contract evidence. The next slice
 should improve confidence and ergonomics rather than widen semantics:
 
-1. Add blocked-target browser visual evidence once a same-page blocked target
-   is available in fixture data.
-2. Add stale recovery browser evidence using the no-hook backend revision
+1. Add stale recovery browser evidence using the no-hook backend revision
    recipe once browser interaction automation can reliably dispatch the reorder
    intent.
-3. Add rejected browser evidence only after an explicit backend-owned QA hook is
+2. Add rejected browser evidence only after an explicit backend-owned QA hook is
    approved; keep rejected recovery covered by contract tests until then.
-4. Add richer keyboard placement only after the preview/drop path is stable.
+3. Add richer keyboard placement only after the preview/drop path is stable.
 
 Current canonical product fixture note: `core-product-report-minimal` renders
 only `title`, `summary-columns`, and `detail-table` as canvas surfaces, and
-those surfaces are siblings. Browser QA cannot truthfully show a blocked
-cross-parent target yet without widening fixture or product surface semantics.
+those surfaces are siblings. Use the separate
+`reorder-blocked-target-qa` document for blocked-target browser QA so product
+surface semantics stay unchanged.
 
 ## Browser QA Evidence
 
@@ -122,6 +122,20 @@ cross-parent target yet without widening fixture or product surface semantics.
   selection remained on `title`.
 - Cleanup: backend dev state was reset and the browser reloaded back to `api r3`
   with history `0`.
+
+2026-07-04 blocked-target QA document:
+
+- QA target: `http://127.0.0.1:4002/` with
+  `VITE_FLOWDOC_DOCUMENT_ID=reorder-blocked-target-qa` and backend
+  `http://127.0.0.1:4011/`.
+- Baseline: document loaded at `api r3`, order `alpha-heading`, `alpha-note`,
+  `beta-heading`, `beta-note`, history `0`.
+- Action: pointer-dragged `alpha-heading` over cross-parent `beta-heading`.
+- PASS: during active drag, `beta-heading` exposed
+  `data-reorder-target="blocked"` and the reason
+  `Drag/drop reorder is limited to siblings in the same parent.`.
+- PASS: after release, order stayed unchanged, revision stayed `api r3`,
+  history stayed `0`, and no `mutation-result` status appeared.
 
 ## Contract Test Evidence
 
@@ -147,10 +161,13 @@ cross-parent target yet without widening fixture or product surface semantics.
 - PASS: no-hook stale browser recipe is documented in
   `docs/REORDER_FAILURE_PATH_QA.md`; it advances backend revision outside the
   browser app, then triggers reorder intent from the stale editor state.
-- PASS: blocked-target browser gap is scoped to fixture coverage, not product
-  drag/drop semantics.
+- PASS: blocked-target browser gap is scoped to the separate
+  `reorder-blocked-target-qa` fixture path, not product drag/drop semantics.
 - PASS: rejected browser gap is intentionally left to contract tests unless a
   backend-owned, disabled-by-default QA hook is approved later.
 - LIMIT: in-app browser automation reached the stale setup but did not dispatch
   a visible reorder mutation from the stale tab, so no browser stale PASS is
   claimed yet.
+- PASS: blocked-target browser visual evidence is captured through the
+  `reorder-blocked-target-qa` document without changing product fixture
+  semantics.
