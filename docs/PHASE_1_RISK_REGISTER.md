@@ -2,7 +2,7 @@
 
 Status: active
 Date opened: 2026-07-01
-Date updated: 2026-07-04
+Date updated: 2026-07-09
 Scope: FlowDoc vNext Editor Phase 1 UX foundation
 
 ## Current Validation Baseline
@@ -304,6 +304,26 @@ Record each manual QA pass with:
   over `beta-heading`, captured `data-reorder-target="blocked"` with the
   same-parent reason, and confirmed revision/history/order stayed unchanged
   after release.
+
+2026-07-09 layout QA config browser evidence:
+
+- QA pass: in-app browser automation against `http://127.0.0.1:4003/`.
+- Setup: backend served canonical `product-report-vnext` from the core package
+  fixture at revision `3`; editor started with
+  `VITE_FLOWDOC_LAYOUT_QA=true`,
+  `VITE_FLOWDOC_BACKEND_URL=http://127.0.0.1:4011`, and
+  `VITE_FLOWDOC_DOCUMENT_ID=product-report-vnext`.
+- PASS: status bar loaded `Document: product-report-vnext`,
+  `Core: api r3`, `Pages: 4`, `Nodes: 56`, `Text blocks: 28`, and
+  `Tables: 1`.
+- PASS: layout QA status rendered only under the feature flag and reported
+  `Layout QA: 4/4 fit`, `Overflow: 0/0`, and `Max fill: 100%`.
+- PASS: DOM flow metrics exposed four `.paper-content-flow` entries, each with
+  `data-overflow-status="fits"`; estimated heights were `856`, `656`, `907`,
+  and `208` against an active flow capacity of `907`.
+- RISK: page 3 is exactly at the current estimated flow capacity. This is a
+  useful regression marker, but it is still preview-estimate evidence rather
+  than exact export pagination.
 
 ## Exit Criteria
 
