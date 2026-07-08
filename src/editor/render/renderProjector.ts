@@ -23,7 +23,10 @@ export function getPreviewPageFlowCapacityPx(options: PreviewPaginationOptions =
   return getPaperPreviewFlowCapacityPx(options)
 }
 
-export function getEstimatedRenderNodeHeightPx(node: RenderNodeSummary): number {
+export function getEstimatedRenderNodeHeightPx(
+  node: RenderNodeSummary,
+  options: PreviewPaginationOptions = {},
+): number {
   if (node.renderKind === "columns") {
     const labelRows = Math.max(1, Math.ceil(node.previewLabels.length / Math.max(1, node.previewColumnCount ?? 1)))
     return 132 + labelRows * 20
@@ -34,7 +37,7 @@ export function getEstimatedRenderNodeHeightPx(node: RenderNodeSummary): number 
   }
   if (node.renderKind === "heading") return 68
   if (node.renderKind === "toc") return 92
-  if (node.renderKind === "page-break") return getPreviewPageFlowCapacityPx()
+  if (node.renderKind === "page-break") return getPreviewPageFlowCapacityPx(options)
   return 58
 }
 
@@ -71,7 +74,11 @@ function getPreviewColumnCount(view: EditorView, node: CoreEditorNodeSummary): n
   return null
 }
 
-function toRenderNodeSummary(view: EditorView, node: CoreEditorNodeSummary): RenderNodeSummary {
+function toRenderNodeSummary(
+  view: EditorView,
+  node: CoreEditorNodeSummary,
+  options: PreviewPaginationOptions,
+): RenderNodeSummary {
   const summaryWithoutEstimate = {
     childCount: view.childrenById[node.id]?.length ?? 0,
     estimatedHeightPx: 0,
@@ -88,15 +95,18 @@ function toRenderNodeSummary(view: EditorView, node: CoreEditorNodeSummary): Ren
 
   return {
     ...summaryWithoutEstimate,
-    estimatedHeightPx: getEstimatedRenderNodeHeightPx(summaryWithoutEstimate),
+    estimatedHeightPx: getEstimatedRenderNodeHeightPx(summaryWithoutEstimate, options),
   }
 }
 
-export function projectRenderNodes(view: EditorView): RenderNodeSummary[] {
+export function projectRenderNodes(
+  view: EditorView,
+  options: PreviewPaginationOptions = {},
+): RenderNodeSummary[] {
   return view.presentation.canvasSurfaceNodeIds
     .map((nodeId) => view.nodeById[nodeId])
     .filter((node): node is CoreEditorNodeSummary => Boolean(node))
-    .map((node) => toRenderNodeSummary(view, node))
+    .map((node) => toRenderNodeSummary(view, node, options))
 }
 
 function createRenderPageSummary(
@@ -124,7 +134,7 @@ export function projectPreviewPages(view: EditorView, options: PreviewPagination
   const flowMetrics = getPaperPreviewFlowMetrics(options)
   const { blockGapPx, flowCapacityPx } = flowMetrics
 
-  for (const node of projectRenderNodes(view)) {
+  for (const node of projectRenderNodes(view, options)) {
     const nextHeightPx = currentHeightPx
       + node.estimatedHeightPx
       + (currentNodes.length === 0 ? 0 : blockGapPx)

@@ -1,9 +1,45 @@
 import { describe, expect, it } from "vitest"
+import type { CoreEditorNodeSummary, CoreEditorSeed } from "../core/coreTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID, loadInitialEditorSeed } from "../core/coreAdapter"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { createPaperModel } from "../editor/paper/paperModel"
 import { projectPreviewPages, projectRenderDocument, projectRenderNodes } from "../editor/render/renderProjector"
 import { createEditorView } from "../editor/runtime/editorView"
+
+function insertManualPageBreak(seed: CoreEditorSeed): CoreEditorSeed {
+  const manualBreak: CoreEditorNodeSummary = {
+    capabilities: {
+      canBeDeleted: true,
+      canBeDuplicated: false,
+      canBeReordered: true,
+      canContainText: false,
+      canSplitAcrossPages: false,
+    },
+    childIds: [],
+    id: "manual-page-break",
+    label: "Manual page break",
+    operationSurface: "utility",
+    parentId: "zone-main",
+    sectionId: "section-1",
+    type: "page-break",
+    zoneId: "zone-main",
+  }
+
+  return {
+    ...seed,
+    nodes: [
+      ...seed.nodes.map((node) => (
+        node.id === "zone-main"
+          ? {
+              ...node,
+              childIds: [...node.childIds, manualBreak.id],
+            }
+          : node
+      )),
+      manualBreak,
+    ],
+  }
+}
 
 describe("render projector", () => {
   it("projects render nodes from product-facing presentation surfaces", () => {
@@ -63,5 +99,29 @@ describe("render projector", () => {
       ["summary-columns"],
       ["detail-table"],
     ])
+  })
+
+  it("estimates manual page breaks from the active preview flow capacity", () => {
+    const view = createEditorView(insertManualPageBreak(loadInitialEditorSeed()))
+    const smallCapacityNodes = projectRenderNodes(view, {
+      flowCapacityPx: 333,
+    })
+    const letterProjection = projectRenderDocument(view, {
+      paper: createPaperModel("Letter"),
+    })
+    const smallCapacityBreak = smallCapacityNodes.find((node) => node.id === "manual-page-break")
+    const letterBreak = letterProjection.pages
+      .flatMap((page) => page.nodes)
+      .find((node) => node.id === "manual-page-break")
+
+    expect(smallCapacityBreak).toMatchObject({
+      estimatedHeightPx: 333,
+      renderKind: "page-break",
+    })
+    expect(letterBreak).toMatchObject({
+      estimatedHeightPx: 840,
+      renderKind: "page-break",
+    })
+    expect(letterProjection.pages.every((page) => page.flowCapacityPx === 840)).toBe(true)
   })
 })
