@@ -123,4 +123,16 @@ describe("selection overlay geometry", () => {
     expect(editorCss).toContain(".canvas-selection-outline")
     expect(editorCss).toContain("pointer-events: none")
   })
+
+  it("suppresses stale selection overlay while reorder preview reflows blocks", () => {
+    const overlaySource = readSource("src", "components", "canvas", "CanvasOverlayLayer.tsx")
+    const stageSource = readSource("src", "components", "canvas", "CanvasStage.tsx")
+
+    expect(stageSource).toContain(
+      'isSelectionOverlaySuppressed={canvasReorderDrag.dragState.status !== "idle"}',
+    )
+    expect(overlaySource).toContain("isSelectionOverlaySuppressed")
+    expect(overlaySource).toContain("stageElement && !isSelectionOverlaySuppressed")
+    expect(overlaySource).toContain("setSelectionRect")
+  })
 })

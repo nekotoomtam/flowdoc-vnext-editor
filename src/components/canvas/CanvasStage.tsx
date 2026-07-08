@@ -53,6 +53,7 @@ export function CanvasStage({
         selectedNodeId={selectedNodeId}
       />
       <CanvasOverlayLayer
+        isSelectionOverlaySuppressed={canvasReorderDrag.dragState.status !== "idle"}
         renderModel={renderModel}
         selectedNodeId={selectedNodeId}
         stageRef={stageRef}

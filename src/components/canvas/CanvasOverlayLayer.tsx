@@ -7,6 +7,7 @@ import {
 } from "../../editor/selection/selectionOverlay"
 
 export interface CanvasOverlayLayerProps {
+  isSelectionOverlaySuppressed: boolean
   renderModel: CanvasRenderModel
   selectedNodeId: string | null
   stageRef: RefObject<HTMLElement | null>
@@ -32,6 +33,7 @@ function getSelectionOverlayStyle(rect: SelectionOverlayRect): CSSProperties {
 }
 
 export const CanvasOverlayLayer = memo(function CanvasOverlayLayer({
+  isSelectionOverlaySuppressed,
   renderModel,
   selectedNodeId,
   stageRef,
@@ -40,7 +42,7 @@ export const CanvasOverlayLayer = memo(function CanvasOverlayLayer({
 
   const syncSelectionRect = useCallback(() => {
     const stageElement = stageRef.current
-    const selectedElement = stageElement
+    const selectedElement = stageElement && !isSelectionOverlaySuppressed
       ? findSelectedCanvasNode(stageElement, selectedNodeId)
       : null
     const nextRect = stageElement && selectedElement
@@ -54,11 +56,16 @@ export const CanvasOverlayLayer = memo(function CanvasOverlayLayer({
     setSelectionRect((currentRect) => (
       areSelectionOverlayRectsEqual(currentRect, nextRect) ? currentRect : nextRect
     ))
-  }, [selectedNodeId, stageRef])
+  }, [isSelectionOverlaySuppressed, selectedNodeId, stageRef])
 
   useLayoutEffect(() => {
     syncSelectionRect()
-  }, [renderModel.viewportMeasurementKey, selectedNodeId, syncSelectionRect])
+  }, [
+    isSelectionOverlaySuppressed,
+    renderModel.viewportMeasurementKey,
+    selectedNodeId,
+    syncSelectionRect,
+  ])
 
   useLayoutEffect(() => {
     window.addEventListener("resize", syncSelectionRect)
