@@ -283,6 +283,16 @@ describe("canvas reorder drag boundary", () => {
     })
   })
 
+  it("styles the dragged canvas block as an empty placeholder", () => {
+    const editorCss = readSource("src", "styles", "editor.css")
+
+    expect(editorCss).toContain(".paper-block[data-reorder-dragging=\"true\"]")
+    expect(editorCss).toContain("pointer-events: none")
+    expect(editorCss).toContain(".paper-block[data-reorder-dragging=\"true\"] > *")
+    expect(editorCss).toContain("opacity: 0")
+    expect(editorCss).toContain("visibility: hidden")
+  })
+
   it("keeps pointer drag wiring in canvas components and commit behavior in app/runtime modules", () => {
     const appSource = readSource("src", "app", "EditorApp.tsx")
     const shellSource = readSource("src", "app", "EditorShell.tsx")
