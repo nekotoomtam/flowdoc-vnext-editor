@@ -201,6 +201,39 @@
   padding: var(--space-4);
 }
 
+.paper-flow-item {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.paper-reorder-slot {
+  align-items: center;
+  cursor: grabbing;
+  display: flex;
+  min-height: 28px;
+  position: relative;
+}
+
+.paper-reorder-slot::before {
+  background: rgb(30 111 103 / 10%);
+  border: 1px dashed rgb(30 111 103 / 56%);
+  border-radius: var(--radius-control);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.paper-reorder-slot span {
+  background: var(--color-focus);
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgb(30 111 103 / 18%);
+  display: block;
+  height: 3px;
+  position: relative;
+  width: 100%;
+}
+
 .paper-block {
   background: transparent;
   border: 1px solid transparent;
@@ -228,8 +261,17 @@
 }
 
 .paper-block[data-reorder-dragging="true"] {
+  background: linear-gradient(135deg, rgb(30 111 103 / 7%) 0 25%, transparent 25% 50%, rgb(30 111 103 / 7%) 50% 75%, transparent 75% 100%);
+  background-size: 18px 18px;
+  border-color: rgb(30 111 103 / 38%);
+  border-style: dashed;
+  box-shadow: none;
   cursor: grabbing;
-  opacity: 0.62;
+  opacity: 1;
+}
+
+.paper-block[data-reorder-dragging="true"] > * {
+  opacity: 0.32;
 }
 
 .paper-block[data-reorder-blocked="true"] {
@@ -237,7 +279,7 @@
 }
 
 .paper-block[data-reorder-target="ready"] {
-  border-color: #9fc8bf;
+  border-color: var(--color-border-soft);
 }
 
 .paper-block[data-reorder-target="noop"] {
@@ -250,26 +292,6 @@
   background: #fffaf0;
   border-color: var(--color-warning);
   cursor: not-allowed;
-}
-
-.paper-block[data-reorder-placement="before"]::before,
-.paper-block[data-reorder-placement="after"]::after {
-  background: var(--color-focus);
-  border-radius: 999px;
-  box-shadow: 0 0 0 3px rgb(30 111 103 / 18%);
-  content: "";
-  height: 3px;
-  left: 0;
-  position: absolute;
-  right: 0;
-}
-
-.paper-block[data-reorder-placement="before"]::before {
-  top: -8px;
-}
-
-.paper-block[data-reorder-placement="after"]::after {
-  bottom: -8px;
 }
 
 .paper-block--columns,

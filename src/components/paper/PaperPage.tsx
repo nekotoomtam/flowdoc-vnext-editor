@@ -5,6 +5,25 @@ import type { CanvasReorderInteraction } from "../../editor/interaction/canvasRe
 import { getPaperPageGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderPageSummary } from "../../editor/render/renderTypes"
+import type { NodeReorderPlacement } from "../../editor/commands/reorderPlacement"
+
+interface PaperReorderSlotProps {
+  placement: NodeReorderPlacement
+  targetNodeId: string
+}
+
+function PaperReorderSlot({ placement, targetNodeId }: PaperReorderSlotProps) {
+  return (
+    <div
+      aria-hidden="true"
+      className="paper-reorder-slot"
+      data-reorder-slot-placement={placement}
+      data-reorder-slot-target-id={targetNodeId}
+    >
+      <span />
+    </div>
+  )
+}
 
 export interface PaperPageProps {
   canvasReorderDrag: CanvasReorderInteraction
@@ -50,15 +69,26 @@ export function PaperPage({
           <span>{paper.label}</span>
         </header>
         <div className="paper-content-flow">
-          {page.nodes.map((node) => (
-            <PaperBlock
-              isSelected={node.id === selectedNodeId}
-              key={node.id}
-              node={node}
-              onKeyboardReorderNode={onKeyboardReorderNode}
-              reorderState={canvasReorderDrag.getBlockState(node.id)}
-            />
-          ))}
+          {page.nodes.map((node) => {
+            const reorderState = canvasReorderDrag.getBlockState(node.id)
+
+            return (
+              <div className="paper-flow-item" data-node-flow-item-id={node.id} key={node.id}>
+                {reorderState.placement === "before" ? (
+                  <PaperReorderSlot placement="before" targetNodeId={node.id} />
+                ) : null}
+                <PaperBlock
+                  isSelected={node.id === selectedNodeId}
+                  node={node}
+                  onKeyboardReorderNode={onKeyboardReorderNode}
+                  reorderState={reorderState}
+                />
+                {reorderState.placement === "after" ? (
+                  <PaperReorderSlot placement="after" targetNodeId={node.id} />
+                ) : null}
+              </div>
+            )
+          })}
         </div>
       </article>
     </div>

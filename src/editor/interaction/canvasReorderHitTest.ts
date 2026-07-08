@@ -13,6 +13,7 @@ export interface CanvasReorderHitTestResult {
 }
 
 const CANVAS_NODE_HIT_SELECTOR = "[data-node-id]"
+const CANVAS_REORDER_SLOT_SELECTOR = "[data-reorder-slot-target-id][data-reorder-slot-placement]"
 
 export function getCanvasReorderPlacementFromBounds(
   bounds: CanvasReorderHitBounds,
@@ -34,6 +35,10 @@ function isElement(value: EventTarget | null): value is Element {
   return typeof Element !== "undefined" && value instanceof Element
 }
 
+export function normalizeCanvasReorderPlacement(value: string | undefined): NodeReorderPlacement | null {
+  return value === "before" || value === "after" ? value : null
+}
+
 export function hitTestCanvasReorderTarget(
   root: Element,
   target: EventTarget | null,
@@ -41,6 +46,21 @@ export function hitTestCanvasReorderTarget(
   y: number,
 ): CanvasReorderHitTestResult {
   if (!isElement(target) || !root.contains(target)) return emptyHit(x, y)
+
+  const slotElement = target.closest<HTMLElement>(CANVAS_REORDER_SLOT_SELECTOR)
+  if (slotElement && root.contains(slotElement)) {
+    const nodeId = slotElement.dataset.reorderSlotTargetId?.trim() ?? ""
+    const placement = normalizeCanvasReorderPlacement(slotElement.dataset.reorderSlotPlacement)
+
+    if (nodeId && placement) {
+      return {
+        nodeId,
+        placement,
+        x,
+        y,
+      }
+    }
+  }
 
   const nodeElement = target.closest<HTMLElement>(CANVAS_NODE_HIT_SELECTOR)
   if (!nodeElement || !root.contains(nodeElement)) return emptyHit(x, y)

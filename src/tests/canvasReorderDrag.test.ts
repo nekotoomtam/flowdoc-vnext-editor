@@ -13,7 +13,10 @@ import {
   startCanvasReorderDragSession,
   updateCanvasReorderDragSession,
 } from "../editor/interaction/canvasReorderDragSession"
-import { getCanvasReorderPlacementFromBounds } from "../editor/interaction/canvasReorderHitTest"
+import {
+  getCanvasReorderPlacementFromBounds,
+  normalizeCanvasReorderPlacement,
+} from "../editor/interaction/canvasReorderHitTest"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
 
@@ -42,6 +45,13 @@ describe("canvas reorder drag boundary", () => {
 
     expect(getCanvasReorderPlacementFromBounds(bounds, 120)).toBe("before")
     expect(getCanvasReorderPlacementFromBounds(bounds, 180)).toBe("after")
+  })
+
+  it("accepts only explicit reorder slot placements for slot hit testing", () => {
+    expect(normalizeCanvasReorderPlacement("before")).toBe("before")
+    expect(normalizeCanvasReorderPlacement("after")).toBe("after")
+    expect(normalizeCanvasReorderPlacement("inside")).toBeNull()
+    expect(normalizeCanvasReorderPlacement(undefined)).toBeNull()
   })
 
   it("computes canvas auto-scroll pressure near scroll-root edges", () => {
@@ -219,7 +229,9 @@ describe("canvas reorder drag boundary", () => {
     const stageSource = readSource("src", "components", "canvas", "CanvasStage.tsx")
     const hookSource = readSource("src", "app", "useCanvasReorderDrag.ts")
     const pageStackSource = readSource("src", "components", "paper", "PaperPageStack.tsx")
+    const pageSource = readSource("src", "components", "paper", "PaperPage.tsx")
     const blockSource = readSource("src", "components", "paper", "PaperBlock.tsx")
+    const hitTestSource = readSource("src", "editor", "interaction", "canvasReorderHitTest.ts")
 
     expect(appSource).toContain("useCanvasReorderDrag")
     expect(appSource).toContain("getCanvasKeyboardReorderFocusDecision")
@@ -236,6 +248,13 @@ describe("canvas reorder drag boundary", () => {
     expect(pageStackSource).toContain("onPointerDown={handlePointerDown}")
     expect(pageStackSource).toContain("onPointerUp={handlePointerUp}")
     expect(pageStackSource).toContain("onKeyboardReorderNode={onKeyboardReorderNode}")
+    expect(pageSource).toContain("PaperReorderSlot")
+    expect(pageSource).toContain("data-reorder-slot-target-id={targetNodeId}")
+    expect(pageSource).toContain("reorderState.placement === \"before\"")
+    expect(pageSource).toContain("reorderState.placement === \"after\"")
+    expect(hitTestSource).toContain("CANVAS_REORDER_SLOT_SELECTOR")
+    expect(hitTestSource).toContain("dataset.reorderSlotTargetId")
+    expect(hitTestSource).toContain("normalizeCanvasReorderPlacement")
     expect(blockSource).toContain("getCanvasKeyboardReorderAction")
     expect(blockSource).toContain("aria-keyshortcuts={reorderState.isDraggable")
     expect(blockSource).toContain("onKeyDown={handleKeyDown}")
