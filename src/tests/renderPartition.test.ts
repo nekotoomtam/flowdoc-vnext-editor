@@ -92,10 +92,18 @@ describe("render partition boundaries", () => {
 
   it("keeps paper surface previews content-sized instead of stretching cards across the page", () => {
     const editorCss = readSource("src", "styles", "editor.css")
+    const paperPageSource = readSource("src", "components", "paper", "PaperPage.tsx")
+    const renderProjectorSource = readSource("src", "editor", "render", "renderProjector.ts")
 
     expect(editorCss).toContain("align-content: start")
     expect(editorCss).toContain("grid-auto-rows: max-content")
+    expect(editorCss).toContain("gap: var(--paper-flow-block-gap")
+    expect(editorCss).toContain("padding-block: var(--paper-flow-padding-block")
     expect(editorCss).toContain(".paper-columns-preview")
     expect(editorCss).toContain(".paper-table-preview")
+    expect(paperPageSource).toContain("getPaperPreviewFlowMetrics")
+    expect(paperPageSource).toContain("data-flow-capacity-px")
+    expect(paperPageSource).toContain("data-estimated-content-height-px")
+    expect(renderProjectorSource).toContain("getPaperPreviewFlowMetrics")
   })
 })

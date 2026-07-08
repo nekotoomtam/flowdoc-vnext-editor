@@ -1,19 +1,13 @@
 import type { CoreEditorNodeSummary } from "../../core/coreTypes"
-import { getPaperContentBounds } from "../paper/paperGeometry"
-import { createDefaultPaperModel, type PaperModel } from "../paper/paperModel"
+import {
+  getPaperPreviewFlowCapacityPx,
+  getPaperPreviewFlowMetrics,
+  type PaperPreviewFlowMetricsOptions,
+} from "../paper/paperFlowMetrics"
 import type { EditorView } from "../runtime/editorView"
 import type { RenderDocumentProjection, RenderNodeKind, RenderNodeSummary, RenderPageSummary } from "./renderTypes"
 
-const PAPER_PAGE_HEADER_HEIGHT_ESTIMATE_PX = 24
-const PAPER_PAGE_GRID_GAP_PX = 16
-const PAPER_CONTENT_FLOW_VERTICAL_PADDING_PX = 32
-const PREVIEW_BLOCK_GAP_PX = 12
-const MIN_PREVIEW_FLOW_CAPACITY_PX = 160
-
-export interface PreviewPaginationOptions {
-  flowCapacityPx?: number
-  paper?: PaperModel
-}
+export type PreviewPaginationOptions = PaperPreviewFlowMetricsOptions
 
 function getRenderKind(node: CoreEditorNodeSummary): RenderNodeKind {
   if (node.type === "columns") return "columns"
@@ -26,19 +20,7 @@ function getRenderKind(node: CoreEditorNodeSummary): RenderNodeKind {
 }
 
 export function getPreviewPageFlowCapacityPx(options: PreviewPaginationOptions = {}): number {
-  if (options.flowCapacityPx !== undefined) {
-    return Math.max(MIN_PREVIEW_FLOW_CAPACITY_PX, options.flowCapacityPx)
-  }
-
-  const contentBounds = getPaperContentBounds(options.paper ?? createDefaultPaperModel())
-
-  return Math.max(
-    MIN_PREVIEW_FLOW_CAPACITY_PX,
-    contentBounds.height
-      - PAPER_PAGE_HEADER_HEIGHT_ESTIMATE_PX
-      - PAPER_PAGE_GRID_GAP_PX
-      - PAPER_CONTENT_FLOW_VERTICAL_PADDING_PX,
-  )
+  return getPaperPreviewFlowCapacityPx(options)
 }
 
 export function getEstimatedRenderNodeHeightPx(node: RenderNodeSummary): number {
@@ -121,10 +103,11 @@ function createRenderPageSummary(
   nodes: RenderNodeSummary[],
   pageNumber: number,
   flowCapacityPx: number,
+  blockGapPx: number,
 ): RenderPageSummary {
   return {
     estimatedContentHeightPx: nodes.reduce((height, node, index) => (
-      height + node.estimatedHeightPx + (index === 0 ? 0 : PREVIEW_BLOCK_GAP_PX)
+      height + node.estimatedHeightPx + (index === 0 ? 0 : blockGapPx)
     ), 0),
     flowCapacityPx,
     id: `preview-page-${pageNumber}`,
@@ -138,25 +121,26 @@ export function projectPreviewPages(view: EditorView, options: PreviewPagination
   const pages: RenderPageSummary[] = []
   let currentNodes: RenderNodeSummary[] = []
   let currentHeightPx = 0
-  const flowCapacityPx = getPreviewPageFlowCapacityPx(options)
+  const flowMetrics = getPaperPreviewFlowMetrics(options)
+  const { blockGapPx, flowCapacityPx } = flowMetrics
 
   for (const node of projectRenderNodes(view)) {
     const nextHeightPx = currentHeightPx
       + node.estimatedHeightPx
-      + (currentNodes.length === 0 ? 0 : PREVIEW_BLOCK_GAP_PX)
+      + (currentNodes.length === 0 ? 0 : blockGapPx)
 
     if (currentNodes.length > 0 && nextHeightPx > flowCapacityPx) {
-      pages.push(createRenderPageSummary(currentNodes, pages.length + 1, flowCapacityPx))
+      pages.push(createRenderPageSummary(currentNodes, pages.length + 1, flowCapacityPx, blockGapPx))
       currentNodes = []
       currentHeightPx = 0
     }
 
     currentNodes.push(node)
-    currentHeightPx += node.estimatedHeightPx + (currentNodes.length === 1 ? 0 : PREVIEW_BLOCK_GAP_PX)
+    currentHeightPx += node.estimatedHeightPx + (currentNodes.length === 1 ? 0 : blockGapPx)
   }
 
   if (currentNodes.length > 0) {
-    pages.push(createRenderPageSummary(currentNodes, pages.length + 1, flowCapacityPx))
+    pages.push(createRenderPageSummary(currentNodes, pages.length + 1, flowCapacityPx, blockGapPx))
   }
 
   return pages

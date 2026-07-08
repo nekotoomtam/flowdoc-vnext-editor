@@ -7,6 +7,11 @@ import {
   getScaledPaperGap,
 } from "../editor/paper/paperGeometry"
 import {
+  getPaperPreviewFlowCapacityPx,
+  getPaperPreviewFlowMetrics,
+  MIN_PREVIEW_FLOW_CAPACITY_PX,
+} from "../editor/paper/paperFlowMetrics"
+import {
   createDefaultPaperModel,
   createPaperModel,
   DEFAULT_PAPER_GAP_PX,
@@ -87,6 +92,24 @@ describe("paper model and geometry", () => {
       stackHeightPx: 1123 * 0.85 * 3 + scaledGap * 2,
       stackWidthPx: 794 * 0.85,
     })
+  })
+
+  it("derives preview flow capacity from shared paper metrics", () => {
+    const a4 = createPaperModel("A4", 0.85)
+    const metrics = getPaperPreviewFlowMetrics({ paper: a4 })
+
+    expect(metrics).toEqual({
+      blockGapPx: 12,
+      flowCapacityPx: 907,
+      flowPaddingBlockPx: 16,
+      headerHeightEstimatePx: 24,
+      minFlowCapacityPx: MIN_PREVIEW_FLOW_CAPACITY_PX,
+      pageGridGapPx: 16,
+    })
+    expect(getPaperPreviewFlowCapacityPx({ paper: a4 })).toBe(metrics.flowCapacityPx)
+    expect(getPaperPreviewFlowCapacityPx({ flowCapacityPx: 90, paper: a4 })).toBe(
+      MIN_PREVIEW_FLOW_CAPACITY_PX,
+    )
   })
 
   it("keeps stack geometry deterministic across preset and zoom changes", () => {

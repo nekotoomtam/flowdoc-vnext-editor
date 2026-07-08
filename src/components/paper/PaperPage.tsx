@@ -2,6 +2,7 @@ import type { CSSProperties } from "react"
 import { PaperBlock } from "./PaperBlock"
 import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
+import { getPaperPreviewFlowMetrics } from "../../editor/paper/paperFlowMetrics"
 import { getPaperPageGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderNodeSummary, RenderPageSummary } from "../../editor/render/renderTypes"
@@ -89,6 +90,16 @@ export function PaperPage({
     "--paper-width": `${geometry.pageBounds.width}px`,
     "--paper-zoom": paper.zoom,
   } as CSSProperties
+  const flowMetrics = getPaperPreviewFlowMetrics({
+    flowCapacityPx: page.flowCapacityPx,
+    paper,
+  })
+  const flowStyle = {
+    "--paper-flow-block-gap": `${flowMetrics.blockGapPx}px`,
+    "--paper-flow-capacity": `${flowMetrics.flowCapacityPx}px`,
+    "--paper-flow-estimated-content-height": `${page.estimatedContentHeightPx}px`,
+    "--paper-flow-padding-block": `${flowMetrics.flowPaddingBlockPx}px`,
+  } as CSSProperties
   const activeSlot = canvasReorderDrag.getActiveInsertionSlot()
   const activePreviewSiblingIds = canvasReorderDrag.getActivePreviewSiblingIds()
   const previewNodes = getPreviewOrderedNodes(page.nodes, activePreviewSiblingIds)
@@ -108,7 +119,12 @@ export function PaperPage({
           </span>
           <span>{paper.label}</span>
         </header>
-        <div className="paper-content-flow">
+        <div
+          className="paper-content-flow"
+          data-estimated-content-height-px={page.estimatedContentHeightPx}
+          data-flow-capacity-px={flowMetrics.flowCapacityPx}
+          style={flowStyle}
+        >
           {previewNodes.map((node) => {
             const reorderState = canvasReorderDrag.getBlockState(node.id)
             const slotPlacement = getActiveSlotPlacementForNode(activeSlot, node.id)
