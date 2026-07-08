@@ -77,6 +77,83 @@ describe("command foundation", () => {
     })
   })
 
+  it("keeps drag/drop insertions stable across top, middle, bottom, and noop placements", () => {
+    const state = createCoreFixtureState()
+    const summaryBeforeTitle = createSiblingReorderPlacementPlan(state, {
+      nodeId: "summary-left-text",
+      placement: "before",
+      targetNodeId: "title",
+    })
+    const detailAfterTitle = createSiblingReorderPlacementPlan(state, {
+      nodeId: "detail-cell-b-text",
+      placement: "after",
+      targetNodeId: "title",
+    })
+    const detailBeforeSummary = createSiblingReorderPlacementPlan(state, {
+      nodeId: "detail-cell-b-text",
+      placement: "before",
+      targetNodeId: "summary-left-text",
+    })
+    const titleAfterDetail = createSiblingReorderPlacementPlan(state, {
+      nodeId: "title",
+      placement: "after",
+      targetNodeId: "detail-cell-b-text",
+    })
+    const summaryAfterTitle = createSiblingReorderPlacementPlan(state, {
+      nodeId: "summary-left-text",
+      placement: "after",
+      targetNodeId: "title",
+    })
+
+    expect(summaryBeforeTitle).toMatchObject({
+      nodeId: "summary-columns",
+      previewSiblingIds: ["summary-columns", "title", "detail-table"],
+      slot: {
+        afterNodeId: null,
+        beforeNodeId: "title",
+        insertIndex: 0,
+      },
+      status: "ready",
+      toIndex: 0,
+    })
+    expect(detailAfterTitle).toMatchObject({
+      nodeId: "detail-table",
+      previewSiblingIds: ["title", "detail-table", "summary-columns"],
+      slot: {
+        afterNodeId: "title",
+        beforeNodeId: "summary-columns",
+        insertIndex: 1,
+      },
+      status: "ready",
+      toIndex: 1,
+    })
+    expect(detailBeforeSummary).toMatchObject({
+      status: "ready",
+      toIndex: 1,
+    })
+    if (detailAfterTitle.status === "ready" && detailBeforeSummary.status === "ready") {
+      expect(detailBeforeSummary.slot).toEqual(detailAfterTitle.slot)
+      expect(detailBeforeSummary.previewSiblingIds).toEqual(detailAfterTitle.previewSiblingIds)
+    }
+    expect(titleAfterDetail).toMatchObject({
+      nodeId: "title",
+      previewSiblingIds: ["summary-columns", "detail-table", "title"],
+      slot: {
+        afterNodeId: "detail-table",
+        beforeNodeId: null,
+        insertIndex: 2,
+      },
+      status: "ready",
+      toIndex: 2,
+    })
+    expect(summaryAfterTitle).toMatchObject({
+      nodeId: "summary-columns",
+      reason: "Drop placement is already current sibling order.",
+      status: "noop",
+      targetNodeId: "title",
+    })
+  })
+
   it("plans keyboard canvas reorder from visible canvas surface order", () => {
     const state = createCoreFixtureState()
     const canvasOrderState = {
