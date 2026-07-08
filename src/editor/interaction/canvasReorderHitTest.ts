@@ -5,6 +5,15 @@ export interface CanvasReorderHitBounds {
   top: number
 }
 
+export interface CanvasReorderFlowNodeBounds extends CanvasReorderHitBounds {
+  nodeId: string
+}
+
+export interface CanvasReorderFlowPlacementTarget {
+  nodeId: string
+  placement: NodeReorderPlacement
+}
+
 export interface CanvasReorderHitTestResult {
   nodeId: string | null
   placement: NodeReorderPlacement | null
@@ -31,6 +40,49 @@ export function getCanvasReorderEdgePlacementFromBounds(
   if (!firstNodeBounds || !lastNodeBounds) return null
   if (y < firstNodeBounds.top) return "before"
   if (y > lastNodeBounds.bottom) return "after"
+  return null
+}
+
+export function getCanvasReorderFlowPlacementFromBounds(
+  nodeBounds: readonly CanvasReorderFlowNodeBounds[],
+  y: number,
+): CanvasReorderFlowPlacementTarget | null {
+  const firstNodeBounds = nodeBounds[0]
+  const lastNodeBounds = nodeBounds[nodeBounds.length - 1]
+  if (!firstNodeBounds || !lastNodeBounds) return null
+
+  if (y < firstNodeBounds.top) {
+    return {
+      nodeId: firstNodeBounds.nodeId,
+      placement: "before",
+    }
+  }
+
+  for (let index = 0; index < nodeBounds.length - 1; index += 1) {
+    const currentBounds = nodeBounds[index]
+    const nextBounds = nodeBounds[index + 1]
+    if (!currentBounds || !nextBounds || nextBounds.top < currentBounds.bottom) continue
+    if (y < currentBounds.bottom || y > nextBounds.top) continue
+
+    const gapMidpoint = currentBounds.bottom + (nextBounds.top - currentBounds.bottom) / 2
+    return y < gapMidpoint
+      ? {
+          nodeId: currentBounds.nodeId,
+          placement: "after",
+        }
+      : {
+          nodeId: nextBounds.nodeId,
+          placement: "before",
+        }
+  }
+
+  if (y > lastNodeBounds.bottom) {
+    return {
+      nodeId: lastNodeBounds.nodeId,
+      placement: "after",
+    }
+  }
+
   return null
 }
 
@@ -79,25 +131,24 @@ export function hitTestCanvasReorderTarget(
     const flowElement = target.closest<HTMLElement>(CANVAS_CONTENT_FLOW_SELECTOR)
     if (!flowElement || !root.contains(flowElement)) return emptyHit(x, y)
 
-    const nodeElements = Array.from(flowElement.querySelectorAll<HTMLElement>(CANVAS_NODE_HIT_SELECTOR))
-    const firstNodeElement = nodeElements[0]
-    const lastNodeElement = nodeElements[nodeElements.length - 1]
-    if (!firstNodeElement || !lastNodeElement) return emptyHit(x, y)
-
-    const placement = getCanvasReorderEdgePlacementFromBounds(
-      firstNodeElement.getBoundingClientRect(),
-      lastNodeElement.getBoundingClientRect(),
+    const flowPlacement = getCanvasReorderFlowPlacementFromBounds(
+      Array.from(flowElement.querySelectorAll<HTMLElement>(CANVAS_NODE_HIT_SELECTOR))
+        .map((element) => {
+          const rect = element.getBoundingClientRect()
+          return {
+            bottom: rect.bottom,
+            nodeId: element.dataset.nodeId?.trim() ?? "",
+            top: rect.top,
+          }
+        })
+        .filter((bounds) => bounds.nodeId),
       y,
     )
-    if (!placement) return emptyHit(x, y)
-
-    const targetNodeElement = placement === "before" ? firstNodeElement : lastNodeElement
-    const nodeId = targetNodeElement.dataset.nodeId?.trim()
-    if (!nodeId) return emptyHit(x, y)
+    if (!flowPlacement) return emptyHit(x, y)
 
     return {
-      nodeId,
-      placement,
+      nodeId: flowPlacement.nodeId,
+      placement: flowPlacement.placement,
       x,
       y,
     }

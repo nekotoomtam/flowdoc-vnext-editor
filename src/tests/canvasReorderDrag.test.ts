@@ -18,6 +18,7 @@ import {
 } from "../editor/interaction/canvasReorderDragSession"
 import {
   getCanvasReorderEdgePlacementFromBounds,
+  getCanvasReorderFlowPlacementFromBounds,
   getCanvasReorderPlacementFromBounds,
   normalizeCanvasReorderPlacement,
 } from "../editor/interaction/canvasReorderHitTest"
@@ -65,6 +66,44 @@ describe("canvas reorder drag boundary", () => {
     expect(getCanvasReorderEdgePlacementFromBounds(firstBounds, lastBounds, 460)).toBe("after")
     expect(getCanvasReorderEdgePlacementFromBounds(firstBounds, lastBounds, 220)).toBeNull()
     expect(getCanvasReorderEdgePlacementFromBounds(null, lastBounds, 460)).toBeNull()
+  })
+
+  it("derives insertion placements from open flow gaps between blocks", () => {
+    const nodeBounds = [
+      {
+        bottom: 160,
+        nodeId: "title",
+        top: 100,
+      },
+      {
+        bottom: 280,
+        nodeId: "detail-table",
+        top: 200,
+      },
+      {
+        bottom: 460,
+        nodeId: "summary-columns",
+        top: 320,
+      },
+    ]
+
+    expect(getCanvasReorderFlowPlacementFromBounds(nodeBounds, 80)).toEqual({
+      nodeId: "title",
+      placement: "before",
+    })
+    expect(getCanvasReorderFlowPlacementFromBounds(nodeBounds, 170)).toEqual({
+      nodeId: "title",
+      placement: "after",
+    })
+    expect(getCanvasReorderFlowPlacementFromBounds(nodeBounds, 190)).toEqual({
+      nodeId: "detail-table",
+      placement: "before",
+    })
+    expect(getCanvasReorderFlowPlacementFromBounds(nodeBounds, 500)).toEqual({
+      nodeId: "summary-columns",
+      placement: "after",
+    })
+    expect(getCanvasReorderFlowPlacementFromBounds(nodeBounds, 240)).toBeNull()
   })
 
   it("accepts only explicit reorder slot placements for slot hit testing", () => {
@@ -377,6 +416,7 @@ describe("canvas reorder drag boundary", () => {
     expect(hitTestSource).toContain("CANVAS_REORDER_SLOT_SELECTOR")
     expect(hitTestSource).toContain("CANVAS_CONTENT_FLOW_SELECTOR")
     expect(hitTestSource).toContain("getCanvasReorderEdgePlacementFromBounds")
+    expect(hitTestSource).toContain("getCanvasReorderFlowPlacementFromBounds")
     expect(hitTestSource).toContain("dataset.reorderSlotTargetId")
     expect(hitTestSource).toContain("normalizeCanvasReorderPlacement")
     expect(blockSource).toContain("getCanvasKeyboardReorderAction")
