@@ -9,6 +9,7 @@ import {
   resolveFlowDocBackendBaseUrl,
   resolveFlowDocDocumentId,
 } from "../editor/backend/backendConfig"
+import { resolveFlowDocLayoutQaEnabled } from "../editor/config/editorFeatureConfig"
 import { createFlowDocBackendClient } from "../editor/backend/backendTransport"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { loadFrontendCoreWorkingSetFromTransportEnvelope } from "../editor/coreBinding/workingSetFactory"
@@ -27,6 +28,10 @@ export function EditorApp() {
   )
   const documentId = useMemo(
     () => resolveFlowDocDocumentId(import.meta.env.VITE_FLOWDOC_DOCUMENT_ID as string | undefined),
+    [],
+  )
+  const layoutQaEnabled = useMemo(
+    () => resolveFlowDocLayoutQaEnabled(import.meta.env.VITE_FLOWDOC_LAYOUT_QA as string | undefined),
     [],
   )
   const backendClient = useMemo(
@@ -154,6 +159,7 @@ export function EditorApp() {
       canvasFocusNodeId={canvasFocusNodeId}
       canvasReorderDrag={canvasReorderDrag}
       editorState={editorState}
+      layoutQaEnabled={layoutQaEnabled}
       mutationStatus={mutationStatus}
       onDeleteNode={deleteNode}
       onDuplicateNode={duplicateNode}

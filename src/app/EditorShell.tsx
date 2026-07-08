@@ -13,12 +13,14 @@ import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import { getInspectorFacts, getOutlineItems } from "../editor/runtime/editorView"
 import type { RuntimeNodeMutationStatus } from "../editor/runtime/runtimeMutationStatus"
 import type { CanvasReorderInteraction } from "../editor/interaction/canvasReorderDragSession"
+import { createRenderProjectionLayoutQaSummary } from "../editor/render/renderProjectionLayoutQa"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
 export interface EditorShellProps {
   canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
   editorState: EditorRuntimeState
+  layoutQaEnabled: boolean
   mutationStatus: RuntimeNodeMutationStatus
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
@@ -38,6 +40,7 @@ export function EditorShell({
   canvasFocusNodeId,
   canvasReorderDrag,
   editorState,
+  layoutQaEnabled,
   mutationStatus,
   onDeleteNode,
   onDuplicateNode,
@@ -54,6 +57,11 @@ export function EditorShell({
   const inspectorFacts = getInspectorFacts(view, selectedNodeId)
   const outlineItems = getOutlineItems(view)
   const canvasRenderView = useMemo(() => createEditorCanvasRenderView(view, paper), [paper, view])
+  const layoutQaSummary = useMemo(() => (
+    layoutQaEnabled
+      ? createRenderProjectionLayoutQaSummary(canvasRenderView.pages)
+      : null
+  ), [canvasRenderView.pages, layoutQaEnabled])
 
   return (
     <div className="editor-shell">
@@ -98,6 +106,7 @@ export function EditorShell({
         document={document}
         history={editorState.history}
         jobs={jobs}
+        layoutQaSummary={layoutQaSummary}
         paper={paper}
         previewPageCount={canvasRenderView.pages.length}
         selection={selection}

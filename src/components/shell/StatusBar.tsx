@@ -5,6 +5,7 @@ import type { HistoryStackState } from "../../editor/history/historyTypes"
 import { getJobCounts } from "../../editor/jobs/jobSelectors"
 import type { EditorJobQueueState } from "../../editor/jobs/jobTypes"
 import type { PaperModel } from "../../editor/paper/paperModel"
+import type { RenderProjectionLayoutQaSummary } from "../../editor/render/renderProjectionLayoutQa"
 import type { EditorView } from "../../editor/runtime/editorView"
 import type { SelectionState } from "../../editor/selection/selectionState"
 
@@ -13,6 +14,7 @@ export interface StatusBarProps {
   document: CoreEditorDocumentSummary
   history: HistoryStackState
   jobs: EditorJobQueueState
+  layoutQaSummary: RenderProjectionLayoutQaSummary | null
   paper: PaperModel
   previewPageCount: number
   selection: SelectionState
@@ -24,6 +26,7 @@ export function StatusBar({
   document,
   history,
   jobs,
+  layoutQaSummary,
   paper,
   previewPageCount,
   selection,
@@ -54,6 +57,17 @@ export function StatusBar({
       <span>Local history: {historySummary.localRecordCount}</span>
       <span>Doc changes: {historySummary.documentChangeRecordCount}</span>
       <span>Undoable: {historySummary.undoableRecordCount}</span>
+      {layoutQaSummary ? (
+        <>
+          <span>
+            Layout QA: {layoutQaSummary.fitPageCount}/{layoutQaSummary.pageCount} fit
+          </span>
+          <span>
+            Overflow: {layoutQaSummary.singleNodeOverflowPageCount}/{layoutQaSummary.multiNodeOverflowPageCount}
+          </span>
+          <span>Max fill: {layoutQaSummary.maxEstimatedFillPercent}%</span>
+        </>
+      ) : null}
     </footer>
   )
 }
