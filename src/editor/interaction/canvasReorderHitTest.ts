@@ -13,6 +13,7 @@ export interface CanvasReorderHitTestResult {
 }
 
 const CANVAS_NODE_HIT_SELECTOR = "[data-node-id]"
+const CANVAS_CONTENT_FLOW_SELECTOR = ".paper-content-flow"
 const CANVAS_REORDER_SLOT_SELECTOR = "[data-reorder-slot-target-id][data-reorder-slot-placement]"
 
 export function getCanvasReorderPlacementFromBounds(
@@ -20,6 +21,17 @@ export function getCanvasReorderPlacementFromBounds(
   y: number,
 ): NodeReorderPlacement {
   return y < bounds.top + (bounds.bottom - bounds.top) / 2 ? "before" : "after"
+}
+
+export function getCanvasReorderEdgePlacementFromBounds(
+  firstNodeBounds: CanvasReorderHitBounds | null,
+  lastNodeBounds: CanvasReorderHitBounds | null,
+  y: number,
+): NodeReorderPlacement | null {
+  if (!firstNodeBounds || !lastNodeBounds) return null
+  if (y < firstNodeBounds.top) return "before"
+  if (y > lastNodeBounds.bottom) return "after"
+  return null
 }
 
 function emptyHit(x: number, y: number): CanvasReorderHitTestResult {
@@ -63,7 +75,33 @@ export function hitTestCanvasReorderTarget(
   }
 
   const nodeElement = target.closest<HTMLElement>(CANVAS_NODE_HIT_SELECTOR)
-  if (!nodeElement || !root.contains(nodeElement)) return emptyHit(x, y)
+  if (!nodeElement || !root.contains(nodeElement)) {
+    const flowElement = target.closest<HTMLElement>(CANVAS_CONTENT_FLOW_SELECTOR)
+    if (!flowElement || !root.contains(flowElement)) return emptyHit(x, y)
+
+    const nodeElements = Array.from(flowElement.querySelectorAll<HTMLElement>(CANVAS_NODE_HIT_SELECTOR))
+    const firstNodeElement = nodeElements[0]
+    const lastNodeElement = nodeElements[nodeElements.length - 1]
+    if (!firstNodeElement || !lastNodeElement) return emptyHit(x, y)
+
+    const placement = getCanvasReorderEdgePlacementFromBounds(
+      firstNodeElement.getBoundingClientRect(),
+      lastNodeElement.getBoundingClientRect(),
+      y,
+    )
+    if (!placement) return emptyHit(x, y)
+
+    const targetNodeElement = placement === "before" ? firstNodeElement : lastNodeElement
+    const nodeId = targetNodeElement.dataset.nodeId?.trim()
+    if (!nodeId) return emptyHit(x, y)
+
+    return {
+      nodeId,
+      placement,
+      x,
+      y,
+    }
+  }
 
   const nodeId = nodeElement.dataset.nodeId?.trim()
   if (!nodeId) return emptyHit(x, y)
