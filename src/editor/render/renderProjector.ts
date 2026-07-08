@@ -115,14 +115,22 @@ function createRenderPageSummary(
   flowCapacityPx: number,
   blockGapPx: number,
 ): RenderPageSummary {
+  const estimatedContentHeightPx = nodes.reduce((height, node, index) => (
+    height + node.estimatedHeightPx + (index === 0 ? 0 : blockGapPx)
+  ), 0)
+  const overflowStatus = estimatedContentHeightPx <= flowCapacityPx
+    ? "fits"
+    : nodes.length === 1
+      ? "single-node-overflow"
+      : "multi-node-overflow"
+
   return {
-    estimatedContentHeightPx: nodes.reduce((height, node, index) => (
-      height + node.estimatedHeightPx + (index === 0 ? 0 : blockGapPx)
-    ), 0),
+    estimatedContentHeightPx,
     flowCapacityPx,
     id: `preview-page-${pageNumber}`,
     nodeIds: nodes.map((node) => node.id),
     nodes,
+    overflowStatus,
     pageNumber,
   }
 }

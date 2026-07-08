@@ -123,6 +123,7 @@ export function PaperPage({
           className="paper-content-flow"
           data-estimated-content-height-px={page.estimatedContentHeightPx}
           data-flow-capacity-px={flowMetrics.flowCapacityPx}
+          data-overflow-status={page.overflowStatus}
           style={flowStyle}
         >
           {previewNodes.map((node) => {

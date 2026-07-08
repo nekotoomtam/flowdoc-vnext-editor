@@ -27,6 +27,7 @@ export interface RenderPageSummary {
   id: string
   nodeIds: string[]
   nodes: RenderNodeSummary[]
+  overflowStatus: "fits" | "multi-node-overflow" | "single-node-overflow"
   pageNumber: number
 }
 

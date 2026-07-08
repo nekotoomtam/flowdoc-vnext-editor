@@ -41,6 +41,77 @@ function insertManualPageBreak(seed: CoreEditorSeed): CoreEditorSeed {
   }
 }
 
+function insertOversizedColumns(seed: CoreEditorSeed): CoreEditorSeed {
+  const columnTextNodes: CoreEditorNodeSummary[] = Array.from({ length: 9 }, (_, index) => ({
+    capabilities: {
+      canBeDeleted: true,
+      canBeDuplicated: true,
+      canBeReordered: true,
+      canContainText: true,
+      canSplitAcrossPages: true,
+    },
+    childIds: [],
+    id: `oversized-column-text-${index + 1}`,
+    label: `Oversized column text ${index + 1}`,
+    operationSurface: "text-block",
+    parentId: "oversized-column",
+    sectionId: "section-1",
+    textRole: "paragraph",
+    type: "text-block",
+    zoneId: "zone-main",
+  }))
+  const columnNode: CoreEditorNodeSummary = {
+    capabilities: {
+      canBeDeleted: true,
+      canBeDuplicated: true,
+      canBeReordered: false,
+      canContainText: false,
+      canSplitAcrossPages: false,
+    },
+    childIds: columnTextNodes.map((node) => node.id),
+    id: "oversized-column",
+    label: "Oversized column",
+    parentId: "oversized-columns",
+    sectionId: "section-1",
+    type: "column",
+    zoneId: "zone-main",
+  }
+  const columnsNode: CoreEditorNodeSummary = {
+    capabilities: {
+      canBeDeleted: true,
+      canBeDuplicated: true,
+      canBeReordered: true,
+      canContainText: false,
+      canSplitAcrossPages: false,
+    },
+    childIds: [columnNode.id],
+    id: "oversized-columns",
+    label: "Oversized columns",
+    operationSurface: "columns",
+    parentId: "zone-main",
+    sectionId: "section-1",
+    type: "columns",
+    zoneId: "zone-main",
+  }
+
+  return {
+    ...seed,
+    nodes: [
+      ...seed.nodes.map((node) => (
+        node.id === "zone-main"
+          ? {
+              ...node,
+              childIds: [...node.childIds, columnsNode.id],
+            }
+          : node
+      )),
+      columnsNode,
+      columnNode,
+      ...columnTextNodes,
+    ],
+  }
+}
+
 describe("render projector", () => {
   it("projects render nodes from product-facing presentation surfaces", () => {
     const view = createEditorView(loadInitialEditorSeed())
@@ -99,6 +170,8 @@ describe("render projector", () => {
       ["summary-columns"],
       ["detail-table"],
     ])
+    expect(projection.pages.every((page) => page.overflowStatus === "fits")).toBe(true)
+    expect(projection.pages.every((page) => page.estimatedContentHeightPx <= page.flowCapacityPx)).toBe(true)
   })
 
   it("estimates manual page breaks from the active preview flow capacity", () => {
@@ -123,5 +196,23 @@ describe("render projector", () => {
       renderKind: "page-break",
     })
     expect(letterProjection.pages.every((page) => page.flowCapacityPx === 840)).toBe(true)
+  })
+
+  it("marks only single oversized render nodes as preview overflow", () => {
+    const view = createEditorView(insertOversizedColumns(loadInitialEditorSeed()))
+    const projection = projectRenderDocument(view, {
+      flowCapacityPx: 220,
+    })
+    const overflowPage = projection.pages.find((page) => (
+      page.nodeIds.includes("oversized-columns")
+    ))
+
+    expect(projection.pages.some((page) => page.overflowStatus === "multi-node-overflow")).toBe(false)
+    expect(overflowPage).toMatchObject({
+      flowCapacityPx: 220,
+      nodeIds: ["oversized-columns"],
+      overflowStatus: "single-node-overflow",
+    })
+    expect(overflowPage?.estimatedContentHeightPx).toBeGreaterThan(220)
   })
 })

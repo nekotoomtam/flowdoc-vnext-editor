@@ -104,6 +104,7 @@ describe("render partition boundaries", () => {
     expect(paperPageSource).toContain("getPaperPreviewFlowMetrics")
     expect(paperPageSource).toContain("data-flow-capacity-px")
     expect(paperPageSource).toContain("data-estimated-content-height-px")
+    expect(paperPageSource).toContain("data-overflow-status")
     expect(renderProjectorSource).toContain("getPaperPreviewFlowMetrics")
   })
 })
