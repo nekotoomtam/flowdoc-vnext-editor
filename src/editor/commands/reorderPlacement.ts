@@ -10,6 +10,14 @@ export interface SiblingReorderPlacementInput {
   targetNodeId: string
 }
 
+export interface SiblingReorderInsertionSlot {
+  afterNodeId: string | null
+  beforeNodeId: string | null
+  containerId: string
+  insertIndex: number
+  scope: "body-flow"
+}
+
 export interface SiblingReorderPlacementReadyPlan {
   fromIndex: number
   nodeId: string
@@ -17,6 +25,7 @@ export interface SiblingReorderPlacementReadyPlan {
   placement: NodeReorderPlacement
   previewSiblingIds: string[]
   siblingIds: string[]
+  slot: SiblingReorderInsertionSlot
   status: "ready"
   targetNodeId: string
   toIndex: number
@@ -93,6 +102,20 @@ function previewSiblingOrder(siblingIds: string[], nodeId: string, toIndex: numb
   return nextSiblingIds
 }
 
+function createSiblingInsertionSlot(
+  parentId: string,
+  siblingIdsWithoutSource: readonly string[],
+  insertIndex: number,
+): SiblingReorderInsertionSlot {
+  return {
+    afterNodeId: siblingIdsWithoutSource[insertIndex - 1] ?? null,
+    beforeNodeId: siblingIdsWithoutSource[insertIndex] ?? null,
+    containerId: parentId,
+    insertIndex,
+    scope: "body-flow",
+  }
+}
+
 export function createSiblingReorderPlacementPlan(
   state: EditorRuntimeState,
   input: SiblingReorderPlacementInput,
@@ -161,6 +184,7 @@ export function createSiblingReorderPlacementPlan(
     placement: input.placement,
     previewSiblingIds: previewSiblingOrder(siblingIds, source.nodeId, toIndex),
     siblingIds: [...siblingIds],
+    slot: createSiblingInsertionSlot(sourceParentId, siblingIdsWithoutSource, toIndex),
     status: "ready",
     targetNodeId: target.nodeId,
     toIndex,

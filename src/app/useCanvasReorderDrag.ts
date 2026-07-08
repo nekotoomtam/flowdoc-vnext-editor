@@ -6,6 +6,7 @@ import {
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import {
   finishCanvasReorderDragSession,
+  getActiveCanvasReorderInsertionSlot,
   getCanvasReorderBlockState,
   getReadyCanvasReorderPlan,
   IDLE_CANVAS_REORDER_DRAG_STATE,
@@ -103,8 +104,13 @@ export function useCanvasReorderDrag({
     })
   }, [dragState, draggableNodeIds])
 
+  const getActiveInsertionSlot = useCallback(() => (
+    getActiveCanvasReorderInsertionSlot(dragState)
+  ), [dragState])
+
   return {
     dragState,
+    getActiveInsertionSlot,
     getBlockState,
     onDragEnd,
     onDragOver,

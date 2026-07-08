@@ -1,4 +1,8 @@
-import type { NodeReorderPlacement, SiblingReorderPlacementPlan } from "../commands/reorderPlacement"
+import type {
+  NodeReorderPlacement,
+  SiblingReorderInsertionSlot,
+  SiblingReorderPlacementPlan,
+} from "../commands/reorderPlacement"
 
 export interface CanvasReorderDragPointer {
   x: number
@@ -28,6 +32,7 @@ export interface CanvasReorderBlockState {
 
 export interface CanvasReorderInteraction {
   dragState: CanvasReorderDragState
+  getActiveInsertionSlot: () => SiblingReorderInsertionSlot | null
   getBlockState: (nodeId: string) => CanvasReorderBlockState
   onDragEnd: () => void
   onDragOver: (targetNodeId: string, placement: NodeReorderPlacement, pointer: CanvasReorderDragPointer) => void
@@ -91,6 +96,12 @@ export function getReadyCanvasReorderPlan(
   return state.status === "dragging" && state.plan?.status === "ready" ? state.plan : null
 }
 
+export function getActiveCanvasReorderInsertionSlot(
+  state: CanvasReorderDragState,
+): SiblingReorderInsertionSlot | null {
+  return getReadyCanvasReorderPlan(state)?.slot ?? null
+}
+
 export function getCanvasReorderBlockState({
   dragState,
   isDraggable,
@@ -107,7 +118,7 @@ export function getCanvasReorderBlockState({
 
   const plan = dragState.plan
   const isTarget = plan?.targetNodeId === nodeId
-  const targetState = isTarget ? plan?.status ?? "idle" : "idle"
+  const targetState = isTarget && plan?.status !== "ready" ? plan?.status ?? "idle" : "idle"
   const reason = isTarget && plan?.status !== "ready" ? plan?.reason ?? null : null
 
   return {
@@ -115,7 +126,7 @@ export function getCanvasReorderBlockState({
     isDragging: dragState.nodeId === nodeId,
     isDraggable,
     isNoopTarget: targetState === "noop",
-    placement: targetState === "ready" ? plan?.placement ?? null : null,
+    placement: null,
     reason,
     targetState,
   }

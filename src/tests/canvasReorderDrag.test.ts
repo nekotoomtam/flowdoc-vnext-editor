@@ -8,6 +8,7 @@ import { getCanvasReorderAutoScrollDelta } from "../editor/interaction/canvasReo
 import { getCanvasKeyboardReorderAction } from "../editor/interaction/canvasReorderKeyboard"
 import {
   finishCanvasReorderDragSession,
+  getActiveCanvasReorderInsertionSlot,
   getCanvasReorderBlockState,
   getReadyCanvasReorderPlan,
   startCanvasReorderDragSession,
@@ -125,13 +126,55 @@ describe("canvas reorder drag boundary", () => {
 
     expect(getReadyCanvasReorderPlan(updated)).toMatchObject({
       nodeId: "summary-columns",
+      slot: {
+        afterNodeId: "detail-table",
+        beforeNodeId: null,
+        containerId: "zone-cover-body",
+        insertIndex: 2,
+        scope: "body-flow",
+      },
       status: "ready",
       targetNodeId: "detail-table",
       toIndex: 2,
     })
+    expect(getActiveCanvasReorderInsertionSlot(updated)).toEqual({
+      afterNodeId: "detail-table",
+      beforeNodeId: null,
+      containerId: "zone-cover-body",
+      insertIndex: 2,
+      scope: "body-flow",
+    })
     expect(finishCanvasReorderDragSession()).toEqual({
       status: "idle",
     })
+  })
+
+  it("collapses adjacent before and after target hits into the same insertion slot", () => {
+    const state = createCoreFixtureState()
+    const afterTitlePlan = createSiblingReorderPlacementPlan(state, {
+      nodeId: "detail-table",
+      placement: "after",
+      targetNodeId: "title",
+    })
+    const beforeColumnsPlan = createSiblingReorderPlacementPlan(state, {
+      nodeId: "detail-table",
+      placement: "before",
+      targetNodeId: "summary-columns",
+    })
+
+    expect(afterTitlePlan.status).toBe("ready")
+    expect(beforeColumnsPlan.status).toBe("ready")
+    if (afterTitlePlan.status !== "ready" || beforeColumnsPlan.status !== "ready") return
+
+    expect(afterTitlePlan.slot).toEqual({
+      afterNodeId: "title",
+      beforeNodeId: "summary-columns",
+      containerId: "zone-cover-body",
+      insertIndex: 1,
+      scope: "body-flow",
+    })
+    expect(beforeColumnsPlan.slot).toEqual(afterTitlePlan.slot)
+    expect(beforeColumnsPlan.toIndex).toBe(afterTitlePlan.toIndex)
   })
 
   it("derives ready, noop, and idle block affordance states from drag plans", () => {
@@ -189,9 +232,9 @@ describe("canvas reorder drag boundary", () => {
     })).toMatchObject({
       isBlockedTarget: false,
       isNoopTarget: false,
-      placement: "after",
+      placement: null,
       reason: null,
-      targetState: "ready",
+      targetState: "idle",
     })
     expect(getCanvasReorderBlockState({
       dragState: noopState,
@@ -238,6 +281,8 @@ describe("canvas reorder drag boundary", () => {
     expect(appSource).toContain("pendingKeyboardReorderFocusNodeId")
     expect(appSource).toContain("onCanvasFocusHandled={handleCanvasFocusHandled}")
     expect(hookSource).toContain("createSiblingReorderPlacementPlan")
+    expect(hookSource).toContain("getActiveCanvasReorderInsertionSlot")
+    expect(hookSource).toContain("getActiveInsertionSlot")
     expect(hookSource).toContain("onReorderNodeToIndex")
     expect(shellSource).toContain("canvasFocusNodeId={canvasFocusNodeId}")
     expect(shellSource).toContain("onReorderNode(nodeId, direction, \"keyboard\")")
@@ -249,9 +294,11 @@ describe("canvas reorder drag boundary", () => {
     expect(pageStackSource).toContain("onPointerUp={handlePointerUp}")
     expect(pageStackSource).toContain("onKeyboardReorderNode={onKeyboardReorderNode}")
     expect(pageSource).toContain("PaperReorderSlot")
+    expect(pageSource).toContain("getActiveSlotPlacementForNode")
+    expect(pageSource).toContain("data-reorder-slot-index={slot.insertIndex}")
     expect(pageSource).toContain("data-reorder-slot-target-id={targetNodeId}")
-    expect(pageSource).toContain("reorderState.placement === \"before\"")
-    expect(pageSource).toContain("reorderState.placement === \"after\"")
+    expect(pageSource).toContain("slot.beforeNodeId === nodeId")
+    expect(pageSource).toContain("slot.beforeNodeId === null && slot.afterNodeId === nodeId")
     expect(hitTestSource).toContain("CANVAS_REORDER_SLOT_SELECTOR")
     expect(hitTestSource).toContain("dataset.reorderSlotTargetId")
     expect(hitTestSource).toContain("normalizeCanvasReorderPlacement")
