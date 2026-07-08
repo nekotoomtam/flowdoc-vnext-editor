@@ -59,6 +59,7 @@ export function EditorApp() {
   const [canvasFocusNodeId, setCanvasFocusNodeId] = useState<string | null>(null)
   const canvasReorderDrag = useCanvasReorderDrag({
     editorState,
+    mutationStatus,
     onReorderNodeToIndex: reorderNodeToIndex,
   })
 

@@ -4,7 +4,7 @@ import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import { getPaperPageGeometry } from "../../editor/paper/paperGeometry"
 import type { PaperModel } from "../../editor/paper/paperModel"
-import type { RenderPageSummary } from "../../editor/render/renderTypes"
+import type { RenderNodeSummary, RenderPageSummary } from "../../editor/render/renderTypes"
 import type { NodeReorderPlacement, SiblingReorderInsertionSlot } from "../../editor/commands/reorderPlacement"
 
 interface PaperReorderSlotProps {
@@ -41,6 +41,26 @@ function getActiveSlotPlacementForNode(
   return null
 }
 
+function getPreviewOrderedNodes(
+  nodes: readonly RenderNodeSummary[],
+  previewSiblingIds: readonly string[] | null,
+): readonly RenderNodeSummary[] {
+  if (!previewSiblingIds) return nodes
+
+  const previewIndexById = new Map(previewSiblingIds.map((nodeId, index) => [nodeId, index]))
+  if (!nodes.some((node) => previewIndexById.has(node.id))) return nodes
+
+  return [...nodes].sort((left, right) => {
+    const leftIndex = previewIndexById.get(left.id)
+    const rightIndex = previewIndexById.get(right.id)
+
+    if (leftIndex !== undefined && rightIndex !== undefined) return leftIndex - rightIndex
+    if (leftIndex !== undefined) return -1
+    if (rightIndex !== undefined) return 1
+    return 0
+  })
+}
+
 export interface PaperPageProps {
   canvasReorderDrag: CanvasReorderInteraction
   onKeyboardReorderNode: (nodeId: string, direction: NodeReorderDirection) => void
@@ -70,6 +90,9 @@ export function PaperPage({
     "--paper-zoom": paper.zoom,
   } as CSSProperties
   const activeSlot = canvasReorderDrag.getActiveInsertionSlot()
+  const activePreviewSiblingIds = canvasReorderDrag.getActivePreviewSiblingIds()
+  const previewNodes = getPreviewOrderedNodes(page.nodes, activePreviewSiblingIds)
+  const shouldRenderInsertionSlot = !activePreviewSiblingIds
 
   return (
     <div className="paper-page-shell" data-page-id={page.id} style={shellStyle}>
@@ -86,13 +109,13 @@ export function PaperPage({
           <span>{paper.label}</span>
         </header>
         <div className="paper-content-flow">
-          {page.nodes.map((node) => {
+          {previewNodes.map((node) => {
             const reorderState = canvasReorderDrag.getBlockState(node.id)
             const slotPlacement = getActiveSlotPlacementForNode(activeSlot, node.id)
 
             return (
               <div className="paper-flow-item" data-node-flow-item-id={node.id} key={node.id}>
-                {slotPlacement === "before" && activeSlot ? (
+                {slotPlacement === "before" && activeSlot && shouldRenderInsertionSlot ? (
                   <PaperReorderSlot placement="before" slot={activeSlot} targetNodeId={node.id} />
                 ) : null}
                 <PaperBlock
@@ -101,7 +124,7 @@ export function PaperPage({
                   onKeyboardReorderNode={onKeyboardReorderNode}
                   reorderState={reorderState}
                 />
-                {slotPlacement === "after" && activeSlot ? (
+                {slotPlacement === "after" && activeSlot && shouldRenderInsertionSlot ? (
                   <PaperReorderSlot placement="after" slot={activeSlot} targetNodeId={node.id} />
                 ) : null}
               </div>

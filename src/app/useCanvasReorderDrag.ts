@@ -1,12 +1,14 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   createSiblingReorderPlacementPlan,
   type NodeReorderPlacement,
 } from "../editor/commands/reorderPlacement"
 import type { EditorRuntimeState } from "../editor/runtime/editorState"
 import {
+  commitCanvasReorderDragSession,
   finishCanvasReorderDragSession,
   getActiveCanvasReorderInsertionSlot,
+  getActiveCanvasReorderPreviewSiblingIds,
   getCanvasReorderBlockState,
   getReadyCanvasReorderPlan,
   IDLE_CANVAS_REORDER_DRAG_STATE,
@@ -17,9 +19,11 @@ import {
   type CanvasReorderDragState,
   type CanvasReorderInteraction,
 } from "../editor/interaction/canvasReorderDragSession"
+import type { RuntimeNodeMutationStatus } from "../editor/runtime/runtimeMutationStatus"
 
 export interface UseCanvasReorderDragOptions {
   editorState: EditorRuntimeState
+  mutationStatus: RuntimeNodeMutationStatus
   onReorderNodeToIndex: (nodeId: string, toIndex: number) => void
 }
 
@@ -27,6 +31,7 @@ export type UseCanvasReorderDragResult = CanvasReorderInteraction
 
 export function useCanvasReorderDrag({
   editorState,
+  mutationStatus,
   onReorderNodeToIndex,
 }: UseCanvasReorderDragOptions): UseCanvasReorderDragResult {
   const [dragState, setDragState] = useState<CanvasReorderDragState>(IDLE_CANVAS_REORDER_DRAG_STATE)
@@ -54,6 +59,9 @@ export function useCanvasReorderDrag({
   ) => {
     setDragState((currentState) => {
       if (currentState.status !== "dragging") return currentState
+      if (targetNodeId === currentState.nodeId) {
+        return updateCanvasReorderDragSession(currentState, currentState.plan, pointer)
+      }
 
       return updateCanvasReorderDragSession(
         currentState,
@@ -78,23 +86,31 @@ export function useCanvasReorderDrag({
   ) => {
     if (dragState.status !== "dragging") return
 
+    const placementPlan = targetNodeId === dragState.nodeId
+      ? dragState.plan
+      : createSiblingReorderPlacementPlan(editorState, {
+          nodeId: dragState.nodeId,
+          placement,
+          targetNodeId,
+        })
     const updatedState = updateCanvasReorderDragSession(
       dragState,
-      createSiblingReorderPlacementPlan(editorState, {
-        nodeId: dragState.nodeId,
-        placement,
-        targetNodeId,
-      }),
+      placementPlan,
       pointer,
     )
     const readyPlan = getReadyCanvasReorderPlan(updatedState)
 
-    setDragState(finishCanvasReorderDragSession())
+    setDragState(readyPlan ? commitCanvasReorderDragSession(updatedState) : finishCanvasReorderDragSession())
 
     if (readyPlan) {
       onReorderNodeToIndex(readyPlan.nodeId, readyPlan.toIndex)
     }
   }, [dragState, editorState, onReorderNodeToIndex])
+
+  useEffect(() => {
+    if (dragState.status !== "committing" || mutationStatus.status === "pending") return
+    setDragState(finishCanvasReorderDragSession())
+  }, [dragState.status, mutationStatus.status])
 
   const getBlockState = useCallback((nodeId: string): CanvasReorderBlockState => {
     return getCanvasReorderBlockState({
@@ -108,9 +124,14 @@ export function useCanvasReorderDrag({
     getActiveCanvasReorderInsertionSlot(dragState)
   ), [dragState])
 
+  const getActivePreviewSiblingIds = useCallback(() => (
+    getActiveCanvasReorderPreviewSiblingIds(dragState)
+  ), [dragState])
+
   return {
     dragState,
     getActiveInsertionSlot,
+    getActivePreviewSiblingIds,
     getBlockState,
     onDragEnd,
     onDragOver,

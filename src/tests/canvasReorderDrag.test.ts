@@ -7,8 +7,10 @@ import { createSiblingReorderPlacementPlan } from "../editor/commands/reorderPla
 import { getCanvasReorderAutoScrollDelta } from "../editor/interaction/canvasReorderAutoScroll"
 import { getCanvasKeyboardReorderAction } from "../editor/interaction/canvasReorderKeyboard"
 import {
+  commitCanvasReorderDragSession,
   finishCanvasReorderDragSession,
   getActiveCanvasReorderInsertionSlot,
+  getActiveCanvasReorderPreviewSiblingIds,
   getCanvasReorderBlockState,
   getReadyCanvasReorderPlan,
   startCanvasReorderDragSession,
@@ -161,8 +163,43 @@ describe("canvas reorder drag boundary", () => {
       insertIndex: 2,
       scope: "body-flow",
     })
+    expect(getActiveCanvasReorderPreviewSiblingIds(updated)).toEqual([
+      "title",
+      "detail-table",
+      "summary-columns",
+    ])
     expect(finishCanvasReorderDragSession()).toEqual({
       status: "idle",
+    })
+  })
+
+  it("keeps the ready preview order available while a drop commit is pending", () => {
+    const state = createCoreFixtureState()
+    const plan = createSiblingReorderPlacementPlan(state, {
+      nodeId: "summary-left-text",
+      placement: "after",
+      targetNodeId: "detail-cell-b-text",
+    })
+    const updated = updateCanvasReorderDragSession(
+      startCanvasReorderDragSession("summary-columns", { x: 20, y: 40 }),
+      plan,
+      { x: 40, y: 220 },
+    )
+    const committing = commitCanvasReorderDragSession(updated)
+
+    expect(committing.status).toBe("committing")
+    expect(getActiveCanvasReorderPreviewSiblingIds(committing)).toEqual([
+      "title",
+      "detail-table",
+      "summary-columns",
+    ])
+    expect(getCanvasReorderBlockState({
+      dragState: committing,
+      isDraggable: true,
+      nodeId: "summary-columns",
+    })).toMatchObject({
+      isDragging: false,
+      targetState: "idle",
     })
   })
 
@@ -304,12 +341,19 @@ describe("canvas reorder drag boundary", () => {
     const hitTestSource = readSource("src", "editor", "interaction", "canvasReorderHitTest.ts")
 
     expect(appSource).toContain("useCanvasReorderDrag")
+    expect(appSource).toContain("mutationStatus")
     expect(appSource).toContain("getCanvasKeyboardReorderFocusDecision")
     expect(appSource).toContain("pendingKeyboardReorderFocusNodeId")
     expect(appSource).toContain("onCanvasFocusHandled={handleCanvasFocusHandled}")
     expect(hookSource).toContain("createSiblingReorderPlacementPlan")
+    expect(hookSource).toContain("commitCanvasReorderDragSession")
+    expect(hookSource).toContain("mutationStatus.status === \"pending\"")
+    expect(hookSource).toContain("targetNodeId === currentState.nodeId")
+    expect(hookSource).toContain("targetNodeId === dragState.nodeId")
     expect(hookSource).toContain("getActiveCanvasReorderInsertionSlot")
+    expect(hookSource).toContain("getActiveCanvasReorderPreviewSiblingIds")
     expect(hookSource).toContain("getActiveInsertionSlot")
+    expect(hookSource).toContain("getActivePreviewSiblingIds")
     expect(hookSource).toContain("onReorderNodeToIndex")
     expect(shellSource).toContain("canvasFocusNodeId={canvasFocusNodeId}")
     expect(shellSource).toContain("onReorderNode(nodeId, direction, \"keyboard\")")
@@ -321,6 +365,10 @@ describe("canvas reorder drag boundary", () => {
     expect(pageStackSource).toContain("onPointerUp={handlePointerUp}")
     expect(pageStackSource).toContain("onKeyboardReorderNode={onKeyboardReorderNode}")
     expect(pageSource).toContain("PaperReorderSlot")
+    expect(pageSource).toContain("getPreviewOrderedNodes")
+    expect(pageSource).toContain("canvasReorderDrag.getActivePreviewSiblingIds()")
+    expect(pageSource).toContain("previewNodes.map")
+    expect(pageSource).toContain("shouldRenderInsertionSlot")
     expect(pageSource).toContain("getActiveSlotPlacementForNode")
     expect(pageSource).toContain("data-reorder-slot-index={slot.insertIndex}")
     expect(pageSource).toContain("data-reorder-slot-target-id={targetNodeId}")

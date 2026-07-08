@@ -15,6 +15,12 @@ export type CanvasReorderDragState =
     }
   | {
       nodeId: string
+      plan: Extract<SiblingReorderPlacementPlan, { status: "ready" }>
+      pointer: CanvasReorderDragPointer
+      status: "committing"
+    }
+  | {
+      nodeId: string
       plan: SiblingReorderPlacementPlan | null
       pointer: CanvasReorderDragPointer
       status: "dragging"
@@ -33,6 +39,7 @@ export interface CanvasReorderBlockState {
 export interface CanvasReorderInteraction {
   dragState: CanvasReorderDragState
   getActiveInsertionSlot: () => SiblingReorderInsertionSlot | null
+  getActivePreviewSiblingIds: () => readonly string[] | null
   getBlockState: (nodeId: string) => CanvasReorderBlockState
   onDragEnd: () => void
   onDragOver: (targetNodeId: string, placement: NodeReorderPlacement, pointer: CanvasReorderDragPointer) => void
@@ -93,7 +100,22 @@ export function finishCanvasReorderDragSession(): CanvasReorderDragState {
 export function getReadyCanvasReorderPlan(
   state: CanvasReorderDragState,
 ): Extract<SiblingReorderPlacementPlan, { status: "ready" }> | null {
+  if (state.status === "committing") return state.plan
   return state.status === "dragging" && state.plan?.status === "ready" ? state.plan : null
+}
+
+export function commitCanvasReorderDragSession(
+  state: CanvasReorderDragState,
+): CanvasReorderDragState {
+  const plan = getReadyCanvasReorderPlan(state)
+  if (!plan || state.status !== "dragging") return finishCanvasReorderDragSession()
+
+  return {
+    nodeId: plan.nodeId,
+    plan,
+    pointer: state.pointer,
+    status: "committing",
+  }
 }
 
 export function getActiveCanvasReorderInsertionSlot(
@@ -102,12 +124,18 @@ export function getActiveCanvasReorderInsertionSlot(
   return getReadyCanvasReorderPlan(state)?.slot ?? null
 }
 
+export function getActiveCanvasReorderPreviewSiblingIds(
+  state: CanvasReorderDragState,
+): readonly string[] | null {
+  return getReadyCanvasReorderPlan(state)?.previewSiblingIds ?? null
+}
+
 export function getCanvasReorderBlockState({
   dragState,
   isDraggable,
   nodeId,
 }: CanvasReorderBlockStateInput): CanvasReorderBlockState {
-  if (dragState.status !== "dragging") {
+  if (dragState.status !== "dragging" && dragState.status !== "committing") {
     return isDraggable
       ? {
           ...IDLE_CANVAS_REORDER_BLOCK_STATE,
@@ -123,7 +151,7 @@ export function getCanvasReorderBlockState({
 
   return {
     isBlockedTarget: targetState === "blocked",
-    isDragging: dragState.nodeId === nodeId,
+    isDragging: dragState.status === "dragging" && dragState.nodeId === nodeId,
     isDraggable,
     isNoopTarget: targetState === "noop",
     placement: null,
