@@ -400,6 +400,8 @@ describe("canvas reorder drag boundary", () => {
     expect(stageSource).toContain("onCanvasFocusHandled(canvasFocusNodeId)")
     expect(pageStackSource).toContain("hitTestCanvasReorderTarget")
     expect(pageStackSource).toContain("scrollCanvasReorderRootAtPointer")
+    expect(pageStackSource).toContain("lastReorderHit")
+    expect(pageStackSource).toContain("const dropHit = session.lastReorderHit")
     expect(pageStackSource).toContain("onPointerDown={handlePointerDown}")
     expect(pageStackSource).toContain("onPointerUp={handlePointerUp}")
     expect(pageStackSource).toContain("onKeyboardReorderNode={onKeyboardReorderNode}")

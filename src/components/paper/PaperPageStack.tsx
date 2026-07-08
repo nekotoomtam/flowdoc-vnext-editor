@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from "react"
 import { PaperPage } from "./PaperPage"
 import type { NodeReorderDirection } from "../../editor/commands/commandTypes"
+import type { NodeReorderPlacement } from "../../editor/commands/reorderPlacement"
 import type { CanvasReorderInteraction } from "../../editor/interaction/canvasReorderDragSession"
 import { scrollCanvasReorderRootAtPointer } from "../../editor/interaction/canvasReorderAutoScroll"
 import { hitTestCanvasReorderTarget } from "../../editor/interaction/canvasReorderHitTest"
@@ -10,10 +11,16 @@ import { hitTestCanvasNodeTarget } from "../../editor/selection/hitTest"
 
 interface PointerDragSession {
   dragging: boolean
+  lastReorderHit: PointerReorderHit | null
   nodeId: string
   pointerId: number
   startX: number
   startY: number
+}
+
+interface PointerReorderHit {
+  nodeId: string
+  placement: NodeReorderPlacement
 }
 
 interface AutoScrollSession {
@@ -121,6 +128,7 @@ export function PaperPageStack({
 
     pointerDragSessionRef.current = {
       dragging: false,
+      lastReorderHit: null,
       nodeId: hit.nodeId,
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -148,6 +156,10 @@ export function PaperPageStack({
     )
     if (!hit.nodeId || !hit.placement) return
 
+    session.lastReorderHit = {
+      nodeId: hit.nodeId,
+      placement: hit.placement,
+    }
     event.preventDefault()
     canvasReorderDrag.onDragOver(hit.nodeId, hit.placement, {
       x: event.clientX,
@@ -177,13 +189,21 @@ export function PaperPageStack({
       event.clientX,
       event.clientY,
     )
-    if (!hit.nodeId || !hit.placement) {
+    const dropHit = session.lastReorderHit ?? (
+      hit.nodeId && hit.placement
+        ? {
+            nodeId: hit.nodeId,
+            placement: hit.placement,
+          }
+        : null
+    )
+    if (!dropHit) {
       canvasReorderDrag.onDragEnd()
       return
     }
 
     event.preventDefault()
-    canvasReorderDrag.onDrop(hit.nodeId, hit.placement, {
+    canvasReorderDrag.onDrop(dropHit.nodeId, dropHit.placement, {
       x: event.clientX,
       y: event.clientY,
     })
