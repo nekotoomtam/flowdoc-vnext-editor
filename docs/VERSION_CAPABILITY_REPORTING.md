@@ -1,7 +1,7 @@
 # Version Capability Reporting
 
 Status: Phase 262 partial package 3/document 4 mutation consumption complete.
-Only same-parent `node.reorder` is enabled.
+Only block-subtree `node.delete` and same-parent `node.reorder` are enabled.
 
 ## Outcome
 
@@ -38,9 +38,9 @@ Backend mutation commands are disabled until capability status is
 `compatible`. This prevents the fixture fallback from sending active-version
 commands to a backend whose version contract is unavailable or incompatible.
 
-For a v4 partial working set, only backend-advertised `node.reorder` is enabled.
-Text drafts, field-chip insertion, duplicate, delete, live layout, and exact
-layout commands remain closed.
+For a v4 partial working set, only backend-advertised delete/reorder are enabled.
+Text drafts, field-chip insertion, duplicate, live layout, and exact layout
+commands remain closed.
 
 The existing backend base-revision and stale-apply gates remain unchanged.
 
@@ -78,7 +78,7 @@ not the fully active runtime.
 
 ## FAIL / BLOCKER
 
-- Package 3/document 4 cannot delete, duplicate, edit text/images, live-layout,
+- Package 3/document 4 cannot duplicate, edit text/images, live-layout,
   exactly render, or export.
 
 ## RISK
@@ -103,5 +103,5 @@ not the fully active runtime.
 
 ## Next Recommended Direction
 
-Define v4 delete/duplicate ownership and reference-impact rules before enabling
-the next mutation kinds.
+Lock duplicate ID allocation and shared registry reference rules before
+enabling `node.duplicate`.

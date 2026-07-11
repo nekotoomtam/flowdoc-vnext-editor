@@ -46,10 +46,11 @@ describe("document v4 read-only editor runtime", () => {
     expect(Object.values(workingSet.capabilities.byNodeId).every((capability) => (
       !capability.canInsertFieldChip
       && !capability.canOpenTextDraft
-      && !capability.deletable
       && !capability.duplicable
       && !capability.editable
     ))).toBe(true)
+    expect(workingSet.capabilities.byNodeId.title.deletable).toBe(true)
+    expect(workingSet.capabilities.byNodeId["detail-header-row"].deletable).toBe(false)
     expect(workingSet.capabilities.byNodeId.title.reorderable).toBe(true)
     expect(workingSet.capabilities.byNodeId["detail-header-row"].reorderable).toBe(false)
   })
@@ -96,6 +97,12 @@ describe("document v4 read-only editor runtime", () => {
     expect(createBackendMutationRequestFromCommand(state, {
       kind: "node.delete",
       reason: "inspector-delete",
+      source: "inspector",
+      target: { nodeId: "title" },
+    })).toMatchObject({ status: "ready" })
+    expect(createBackendMutationRequestFromCommand(state, {
+      kind: "node.duplicate",
+      reason: "inspector-duplicate",
       source: "inspector",
       target: { nodeId: "title" },
     })).toMatchObject({ status: "blocked" })

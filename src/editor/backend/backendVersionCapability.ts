@@ -251,12 +251,12 @@ export function createBackendVersionCapabilityResult(
   }
   if (!includesPair(mutationPairs, expectedTarget)
     || !targetMutation
-    || targetMutation.operationKinds.length !== 1
-    || targetMutation.operationKinds[0] !== "node.reorder") {
+    || targetMutation.operationKinds.length !== 2
+    || !["node.delete", "node.reorder"].every((kind) => targetMutation.operationKinds.includes(kind as EditorBackendMutationOperationKind))) {
     compatibilityIssues.push(issue(
       "migration-target-operation-mismatch",
       "backend.mutation.operations",
-      "Backend must advertise only node.reorder for the migration target.",
+      "Backend must advertise only node.delete and node.reorder for the migration target.",
     ))
   }
   if (!samePair(migrationPlanSource, expectedActive) || !samePair(migrationPlanTarget, expectedTarget)) {
