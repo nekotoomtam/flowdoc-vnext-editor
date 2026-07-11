@@ -37,7 +37,7 @@ function capabilityResponse(): Record<string, unknown> {
           },
           {
             pair: { packageVersion: 3, documentVersion: 4 },
-            operationKinds: ["node.delete", "node.reorder"],
+            operationKinds: ["node.delete", "node.duplicate", "node.reorder"],
           },
         ],
         status: "available",
@@ -77,7 +77,7 @@ describe("editor version capability boundary", () => {
         mutationOperations: expect.arrayContaining([
           {
             pair: { packageVersion: 3, documentVersion: 4 },
-            operationKinds: ["node.delete", "node.reorder"],
+            operationKinds: ["node.delete", "node.duplicate", "node.reorder"],
           },
         ]),
       },
@@ -91,7 +91,7 @@ describe("editor version capability boundary", () => {
     const falseRuntime = capabilityResponse()
     const backend = falseRuntime.backend as Record<string, unknown>
     const mutation = backend.mutation as { operations: Array<{ operationKinds: string[] }> }
-    mutation.operations[1].operationKinds.push("node.duplicate")
+    mutation.operations[1].operationKinds = ["node.reorder"]
 
     expect(createBackendVersionCapabilityResult(mismatch)).toMatchObject({
       status: "unsupported",

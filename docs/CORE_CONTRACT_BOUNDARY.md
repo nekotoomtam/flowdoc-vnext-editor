@@ -12,9 +12,9 @@ editing, mutation, live-layout, exact-layout, and export claims remain closed.
 Phase 261 adds explicit editor-owned migration intent/result state. Backend
 persistence remains service-owned, and accepted targets still enter only the
 isolated read-only core session.
-Phase 262 changes the editor mode to `partial`: core node capability and backend
-operation-per-pair reporting must both allow `node.delete` or `node.reorder`.
-No other v4 mutation is inferred from pair support.
+Phase 264 keeps the editor mode `partial`: core node capability and backend
+operation-per-pair reporting must both allow `node.delete`, `node.duplicate`,
+or `node.reorder`. No text/image/layout mutation is inferred from pair support.
 
 Status: accepted direction for the product editor frontend repository.
 

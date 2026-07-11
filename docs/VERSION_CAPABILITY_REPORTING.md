@@ -1,7 +1,7 @@
 # Version Capability Reporting
 
-Status: Phase 262 partial package 3/document 4 mutation consumption complete.
-Only block-subtree `node.delete` and same-parent `node.reorder` are enabled.
+Status: Phase 264 partial package 3/document 4 mutation consumption complete.
+Generic `node.delete`, `node.duplicate`, and `node.reorder` are enabled.
 
 ## Outcome
 
@@ -14,7 +14,7 @@ only through `src/core/coreAdapter.ts`.
 | State | Meaning | Editor behavior |
 |---|---|---|
 | checking | preflight is pending | fixture remains visible; mutation blocked |
-| compatible | backend pairs and operation lists match editor core | v3 mutation and v4 reorder allowed |
+| compatible | backend pairs and operation lists match editor core | v3 mutation and v4 generic lifecycle allowed |
 | unsupported | contract or version pairs drift | backend package/mutation blocked |
 | invalid-response | response shape is malformed | backend package/mutation blocked |
 | unavailable | endpoint/network is unavailable | fixture remains visible; mutation blocked |
@@ -38,9 +38,9 @@ Backend mutation commands are disabled until capability status is
 `compatible`. This prevents the fixture fallback from sending active-version
 commands to a backend whose version contract is unavailable or incompatible.
 
-For a v4 partial working set, only backend-advertised delete/reorder are enabled.
-Text drafts, field-chip insertion, duplicate, live layout, and exact layout
-commands remain closed.
+For a v4 partial working set, only backend-advertised generic node lifecycle
+operations are enabled. Text drafts, field-chip insertion, live layout, and
+exact layout commands remain closed.
 
 The existing backend base-revision and stale-apply gates remain unchanged.
 
@@ -78,8 +78,8 @@ not the fully active runtime.
 
 ## FAIL / BLOCKER
 
-- Package 3/document 4 cannot duplicate, edit text/images, live-layout,
-  exactly render, or export.
+- Package 3/document 4 cannot edit text/images, live-layout, exactly render, or
+  export.
 
 ## RISK
 
@@ -103,5 +103,5 @@ not the fully active runtime.
 
 ## Next Recommended Direction
 
-Lock duplicate ID allocation and shared registry reference rules before
-enabling `node.duplicate`.
+Close-audit the generic v4 node lifecycle and build a node-family readiness
+matrix before entering text-block editing semantics.

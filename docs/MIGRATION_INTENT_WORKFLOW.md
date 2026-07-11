@@ -24,7 +24,8 @@ user Upgrade intent
 Mutation commands are disabled while migration is pending. An applied response
 does not replace runtime state by itself; the target revision must be read back
 and accepted by the isolated core v4 projection. The editor enters `partial`
-mode because only `node.delete` and `node.reorder` are enabled.
+mode because only generic `node.delete`, `node.duplicate`, and `node.reorder`
+are enabled.
 
 If transport or target-read verification fails without a definitive stale or
 rejected result, retry reuses the same request id and base revision. This lets
@@ -48,8 +49,8 @@ second migration.
 - Request id, document id, base revision, target revision, and target version
   are verified before runtime replacement.
 - Applied and replayed outcomes both require a fresh target read.
-- V4 opens with block-subtree delete and same-parent reorder enabled; text,
-  field, duplicate, live layout, and exact layout remain disabled.
+- V4 opens with generic block lifecycle operations enabled; text, field-chip,
+  live layout, and exact layout remain disabled.
 
 ## FAIL / BLOCKER
 
@@ -77,5 +78,5 @@ second migration.
 
 ## Next Recommended Direction
 
-Lock duplicate ID allocation and shared registry reference rules before
-enabling `node.duplicate`.
+Close-audit the generic v4 node lifecycle and build a node-family readiness
+matrix before entering text-block editing semantics.

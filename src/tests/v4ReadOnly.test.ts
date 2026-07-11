@@ -46,11 +46,12 @@ describe("document v4 read-only editor runtime", () => {
     expect(Object.values(workingSet.capabilities.byNodeId).every((capability) => (
       !capability.canInsertFieldChip
       && !capability.canOpenTextDraft
-      && !capability.duplicable
       && !capability.editable
     ))).toBe(true)
     expect(workingSet.capabilities.byNodeId.title.deletable).toBe(true)
     expect(workingSet.capabilities.byNodeId["detail-header-row"].deletable).toBe(false)
+    expect(workingSet.capabilities.byNodeId.title.duplicable).toBe(true)
+    expect(workingSet.capabilities.byNodeId["detail-header-row"].duplicable).toBe(false)
     expect(workingSet.capabilities.byNodeId.title.reorderable).toBe(true)
     expect(workingSet.capabilities.byNodeId["detail-header-row"].reorderable).toBe(false)
   })
@@ -105,7 +106,7 @@ describe("document v4 read-only editor runtime", () => {
       reason: "inspector-duplicate",
       source: "inspector",
       target: { nodeId: "title" },
-    })).toMatchObject({ status: "blocked" })
+    })).toMatchObject({ status: "ready" })
 
     const reorderedPackage = structuredClone(migratedFixture)
     const section = reorderedPackage.document.document.sections[0]
