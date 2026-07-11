@@ -10,7 +10,7 @@ import {
 
 function capabilityResponse(): Record<string, unknown> {
   return {
-    contractVersion: 3,
+    contractVersion: 4,
     service: "flowdoc-vnext-backend",
     status: "ready",
     core: {
@@ -37,7 +37,12 @@ function capabilityResponse(): Record<string, unknown> {
           },
           {
             pair: { packageVersion: 3, documentVersion: 4 },
-            operationKinds: ["node.delete", "node.duplicate", "node.reorder"],
+            operationKinds: [
+              "node.delete",
+              "node.duplicate",
+              "node.reorder",
+              "text-block.rich-inline.replace",
+            ],
           },
         ],
         status: "available",
@@ -77,7 +82,12 @@ describe("editor version capability boundary", () => {
         mutationOperations: expect.arrayContaining([
           {
             pair: { packageVersion: 3, documentVersion: 4 },
-            operationKinds: ["node.delete", "node.duplicate", "node.reorder"],
+            operationKinds: [
+              "node.delete",
+              "node.duplicate",
+              "node.reorder",
+              "text-block.rich-inline.replace",
+            ],
           },
         ]),
       },

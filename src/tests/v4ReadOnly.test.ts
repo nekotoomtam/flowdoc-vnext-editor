@@ -4,10 +4,14 @@ import migratedFixture from "@flowdoc/vnext-core/fixtures/product-report-v4-migr
 import { loadReadOnlyCoreSnapshotFromPackage } from "../core/coreAdapter"
 import { bindFrontendCoreWorkingSetFromReadResult } from "../editor/coreBinding/workingSetFactory"
 import { projectRenderNodes } from "../editor/render/renderProjector"
-import { createBackendMutationRequestFromCommand } from "../editor/backend/backendMutationRequests"
+import {
+  createBackendMutationRequestFromCommand,
+  createBackendRichInlineMutationRequest,
+} from "../editor/backend/backendMutationRequests"
 import type { BackendMutationResultEnvelope } from "../editor/backend/backendTransport"
 import { createInitialEditorStateFromWorkingSet } from "../editor/runtime/editorState"
 import { applyRuntimeBackendMutationCommandResult } from "../editor/runtime/runtimeBackendMutationCommand"
+import { applyRuntimeBackendMutationResult } from "../editor/runtime/runtimeBackendMutation"
 
 function bindFixture(packageValue: unknown, documentId: string) {
   return bindFrontendCoreWorkingSetFromReadResult(loadReadOnlyCoreSnapshotFromPackage(packageValue, {
@@ -118,6 +122,7 @@ describe("document v4 read-only editor runtime", () => {
       baseRevision: 8,
       core: { historyIntent: "structure", renderInvalidation: null },
       documentId: "product-report-vnext-minimal",
+      idempotency: "new",
       issues: [],
       operationKind: "node.reorder",
       readEnvelope: {
@@ -146,5 +151,76 @@ describe("document v4 read-only editor runtime", () => {
       "summary-columns", "detail-table", "title",
     ])
     expect(applied.state.core.envelope.documentRevision).toBe(9)
+  })
+
+  it("builds and stale-gates v4 rich-inline intent without opening the WYSIWYG surface", () => {
+    const initialBinding = bindFixture(migratedFixture, "product-report-vnext-minimal")
+    if (!initialBinding.workingSet) throw new Error("v4 fixture did not bind")
+    const state = createInitialEditorStateFromWorkingSet(initialBinding.workingSet)
+    const updatedPackage = structuredClone(migratedFixture)
+    const title = updatedPackage.document.document.sections[0].nodes.title
+    if (title.type !== "text-block") throw new Error("expected title text block")
+    const text = title.children.find((item) => item.type === "text")
+    if (!text || text.type !== "text") throw new Error("expected title text")
+    text.text = "Updated through editor intent"
+
+    const built = createBackendRichInlineMutationRequest(state, {
+      children: title.children,
+      requestId: "v4-rich-inline",
+      source: "canvas",
+      textBlockId: "title",
+    })
+    const malformed = createBackendRichInlineMutationRequest(state, {
+      children: [{ id: "invalid", type: "unknown-inline" }],
+      source: "canvas",
+      textBlockId: "title",
+    })
+
+    expect(built).toMatchObject({
+      status: "ready",
+      request: {
+        baseRevision: 8,
+        operation: {
+          kind: "text-block.rich-inline.replace",
+          textBlockId: "title",
+        },
+        requestId: "v4-rich-inline",
+      },
+    })
+    expect(malformed).toMatchObject({ status: "blocked" })
+    expect(state.core.capabilities.global.canOpenTextDraft).toBe(false)
+
+    const result: BackendMutationResultEnvelope = {
+      baseRevision: 8,
+      core: { historyIntent: "content", renderInvalidation: { lane: "text-content" } },
+      documentId: "product-report-vnext-minimal",
+      idempotency: "new",
+      issues: [],
+      operationKind: "text-block.rich-inline.replace",
+      readEnvelope: {
+        baseRevision: 8,
+        documentId: "product-report-vnext-minimal",
+        envelopeId: "v4-rich-inline:mutation-result",
+        packageValue: updatedPackage,
+        purpose: "mutation-result",
+        receivedAt: 160,
+        requestedAt: 150,
+        sourceKind: "mutation-result",
+        sourceRevision: 9,
+      },
+      receivedAt: 160,
+      requestId: "v4-rich-inline",
+      requestedAt: 150,
+      revision: 9,
+      status: "applied",
+      targetNodeIds: ["title"],
+    }
+    const applied = applyRuntimeBackendMutationResult(state, result)
+    const stale = applyRuntimeBackendMutationResult(applied.state, result)
+
+    expect(applied).toMatchObject({ status: "applied", reason: null })
+    expect(applied.state.core.envelope.documentRevision).toBe(9)
+    expect(applied.state.selection.selectedNodeId).toBe("title")
+    expect(stale).toMatchObject({ status: "blocked-stale", reason: "base-revision-mismatch" })
   })
 })

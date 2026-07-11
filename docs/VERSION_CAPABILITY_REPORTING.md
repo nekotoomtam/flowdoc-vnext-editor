@@ -1,7 +1,8 @@
 # Version Capability Reporting
 
-Status: Phase 264 partial package 3/document 4 mutation consumption complete.
-Generic `node.delete`, `node.duplicate`, and `node.reorder` are enabled.
+Status: package 3/document 4 mutation transport integration complete. Generic
+node lifecycle remains enabled in the UI; rich-inline intent is integrated but
+the WYSIWYG input surface remains closed.
 
 ## Outcome
 
@@ -14,7 +15,7 @@ only through `src/core/coreAdapter.ts`.
 | State | Meaning | Editor behavior |
 |---|---|---|
 | checking | preflight is pending | fixture remains visible; mutation blocked |
-| compatible | backend pairs and operation lists match editor core | v3 mutation and v4 generic lifecycle allowed |
+| compatible | backend pairs and operation lists match editor contracts | v3 mutation and advertised v4 operations may cross transport |
 | unsupported | contract or version pairs drift | backend package/mutation blocked |
 | invalid-response | response shape is malformed | backend package/mutation blocked |
 | unavailable | endpoint/network is unavailable | fixture remains visible; mutation blocked |
@@ -38,11 +39,14 @@ Backend mutation commands are disabled until capability status is
 `compatible`. This prevents the fixture fallback from sending active-version
 commands to a backend whose version contract is unavailable or incompatible.
 
-For a v4 partial working set, only backend-advertised generic node lifecycle
-operations are enabled. Text drafts, field-chip insertion, live layout, and
-exact layout commands remain closed.
+For a v4 partial working set, backend-advertised generic node lifecycle
+operations are enabled in the existing UI. The editor can also build a
+`text-block.rich-inline.replace` request from children accepted by the core
+adapter grammar and stale-gate its response. No text draft, field-chip input,
+IME, live layout, or exact layout UI is activated by that integration.
 
-The existing backend base-revision and stale-apply gates remain unchanged.
+Applied mutation envelopes must report new or replayed idempotency. The
+existing backend base-revision and editor stale-apply gates remain unchanged.
 
 ## Persistence Facts
 
@@ -62,6 +66,9 @@ returned v4 package.
 - Backend capability is checked before backend document loading.
 - Migration-target packages use an isolated read-only core session.
 - Mutation capability is checked per version pair and operation kind.
+- Core inline grammar is consumed only through `coreAdapter.ts`.
+- Rich-inline intent carries children and a target id, not structure policy or
+  session permissions.
 - Block and inline images appear as structural placeholders without claiming
   asset-byte or exact-render support.
 - Block images retain generic lifecycle capability on the explicit `media`
@@ -80,8 +87,8 @@ not the fully active runtime.
 
 ## FAIL / BLOCKER
 
-- Package 3/document 4 cannot edit text/images, live-layout, exactly render, or
-  export.
+- Package 3/document 4 has no WYSIWYG text/image input, live-layout, exact
+  renderer, or export workflow.
 
 ## RISK
 
@@ -99,11 +106,11 @@ not the fully active runtime.
 
 - editor canonical working-set shape;
 - selection, viewport, history, jobs, and layout state;
-- backend mutation response/stale-apply semantics;
+- backend-owned structure policy and session permissions;
 - package migration execution from editor intent;
-- v4 mutation, layout, exact renderer, asset-byte resolution, and export.
+- v4 WYSIWYG input, layout, exact renderer, asset-byte resolution, and export.
 
 ## Next Recommended Direction
 
-Close-audit the generic v4 node lifecycle and build a node-family readiness
-matrix before entering text-block editing semantics.
+Design the explicit text-draft/IME gate and editor-local draft state before
+connecting the integrated rich-inline intent to a visible editing surface.

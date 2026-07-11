@@ -1,10 +1,12 @@
 import {
   VNEXT_CORE_VERSION_CAPABILITY_CONTRACT,
+  InlineNodeV4TargetSchema,
   inspectVNextPackageVersionCapability,
   safeCreateVNextReadOnlyRuntimeSessionV4,
   safeCreateVNextRuntimeSession,
   type VNextCoreVersionCapabilityContract,
   type VNextPackageVersionInspection,
+  type InlineNodeV4Target,
 } from "@flowdoc/vnext-core"
 import productReportMinimalFixture from "@flowdoc/vnext-core/fixtures/product-report-vnext-minimal.flowdoc.json"
 import type {
@@ -94,4 +96,28 @@ export function getCoreVersionCapabilityContract(): VNextCoreVersionCapabilityCo
 
 export function inspectCorePackageVersionCapability(value: unknown): VNextPackageVersionInspection {
   return inspectVNextPackageVersionCapability(value)
+}
+
+export type CoreInlineNodeV4Target = InlineNodeV4Target
+
+export type CoreInlineNodeV4TargetListParseResult =
+  | { children: CoreInlineNodeV4Target[]; status: "valid" }
+  | { reason: string; status: "invalid" }
+
+export function parseCoreInlineNodeV4TargetList(
+  value: unknown,
+): CoreInlineNodeV4TargetListParseResult {
+  if (!Array.isArray(value)) return { reason: "Inline children must be an array.", status: "invalid" }
+  const children: CoreInlineNodeV4Target[] = []
+  for (let index = 0; index < value.length; index += 1) {
+    const parsed = InlineNodeV4TargetSchema.safeParse(value[index])
+    if (!parsed.success) {
+      return {
+        reason: `Inline child ${index} is invalid: ${parsed.error.issues[0]?.message ?? "unknown issue"}`,
+        status: "invalid",
+      }
+    }
+    children.push(parsed.data)
+  }
+  return { children, status: "valid" }
 }

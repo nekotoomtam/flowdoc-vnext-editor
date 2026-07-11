@@ -1,5 +1,8 @@
 import type { CoreReadTransportEnvelope } from "../../core/coreTypes"
-import { inspectCorePackageVersionCapability } from "../../core/coreAdapter"
+import {
+  inspectCorePackageVersionCapability,
+  type CoreInlineNodeV4Target,
+} from "../../core/coreAdapter"
 import {
   createBackendVersionCapabilityResult,
   createUnavailableVersionCapabilityResult,
@@ -27,6 +30,11 @@ export type BackendMutationOperation =
       kind: "node.reorder"
       nodeId: string
       toIndex: number
+    }
+  | {
+      kind: "text-block.rich-inline.replace"
+      textBlockId: string
+      children: CoreInlineNodeV4Target[]
     }
 
 export interface BackendMutationRequest {
@@ -116,6 +124,7 @@ export interface BackendMutationResultEnvelope {
   baseRevision: number
   core: unknown
   documentId: string
+  idempotency: "new" | "replayed" | null
   issues: BackendMutationIssue[]
   operationKind: BackendMutationOperation["kind"]
   readEnvelope?: CoreReadTransportEnvelope

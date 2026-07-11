@@ -84,7 +84,9 @@ export function EditorApp() {
     editorState,
     enabled: versionCapabilityStatus === "compatible"
       && migrationStatus.status !== "pending",
-    enabledOperationKinds: enabledMutationOperationKinds,
+    enabledOperationKinds: enabledMutationOperationKinds.filter((kind) => (
+      kind === "node.delete" || kind === "node.duplicate" || kind === "node.reorder"
+    )),
     setEditorState,
   })
   const [pendingKeyboardReorderFocusNodeId, setPendingKeyboardReorderFocusNodeId] = useState<string | null>(null)

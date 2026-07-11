@@ -109,6 +109,16 @@ export function applyRuntimeBackendMutationResult(
     }
   }
 
+  if (result.idempotency !== "new" && result.idempotency !== "replayed") {
+    return {
+      failures: [],
+      issues: result.issues,
+      reason: "invalid-idempotency",
+      state,
+      status: "blocked-invalid",
+    }
+  }
+
   const reason = staleReason(state, result)
   if (reason) {
     return {

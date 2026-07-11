@@ -549,6 +549,7 @@ describe("editor backend integration boundary", () => {
         historyIntent: "structure",
       },
       documentId: "backend-document",
+      idempotency: "new",
       issues: [],
       operationKind: "node.duplicate",
       readEnvelope: {
@@ -602,6 +603,7 @@ describe("editor backend integration boundary", () => {
         historyIntent: "structure",
       },
       documentId: "backend-document",
+      idempotency: "new",
       issues: [],
       operationKind: "node.duplicate",
       readEnvelope: {
@@ -664,6 +666,7 @@ describe("editor backend integration boundary", () => {
         historyIntent: "structure",
       },
       documentId: "backend-document",
+      idempotency: "new",
       issues: [],
       operationKind: "node.delete",
       readEnvelope: {
@@ -703,6 +706,7 @@ describe("editor backend integration boundary", () => {
         historyIntent: "structure",
       },
       documentId: "backend-document",
+      idempotency: "new",
       issues: [],
       operationKind: "node.duplicate",
       readEnvelope: {
@@ -739,6 +743,7 @@ describe("editor backend integration boundary", () => {
       baseRevision: 3,
       core: null,
       documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      idempotency: null,
       issues: [
         {
           code: "cannot-reorder",
@@ -797,6 +802,7 @@ describe("editor backend integration boundary", () => {
       baseRevision: 3,
       core: null,
       documentId: CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+      idempotency: null,
       issues: [
         {
           code: "revision-stale",
@@ -910,6 +916,7 @@ describe("editor backend integration boundary", () => {
               historyIntent: "structure",
             },
             documentId: request.documentId,
+            idempotency: "new" as const,
             issues: [],
             operationKind: request.operation.kind,
             readEnvelope: {

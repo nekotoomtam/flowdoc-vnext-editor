@@ -5,7 +5,13 @@ export interface EditorVersionPair {
   packageVersion: number
 }
 
-export type EditorBackendMutationOperationKind = "node.delete" | "node.duplicate" | "node.reorder"
+export const EDITOR_BACKEND_VERSION_CAPABILITY_CONTRACT_VERSION = 4 as const
+
+export type EditorBackendMutationOperationKind =
+  | "node.delete"
+  | "node.duplicate"
+  | "node.reorder"
+  | "text-block.rich-inline.replace"
 
 export interface EditorMutationOperationSupport {
   operationKinds: EditorBackendMutationOperationKind[]
@@ -95,7 +101,9 @@ function pairList(value: unknown): EditorVersionPair[] | null {
 
 function mutationOperationSupport(value: unknown): EditorMutationOperationSupport[] | null {
   if (!isRecord(value) || !Array.isArray(value.operations)) return null
-  const supported = new Set<EditorBackendMutationOperationKind>(["node.delete", "node.duplicate", "node.reorder"])
+  const supported = new Set<EditorBackendMutationOperationKind>([
+    "node.delete", "node.duplicate", "node.reorder", "text-block.rich-inline.replace",
+  ])
   const entries = value.operations.map((entry): EditorMutationOperationSupport | null => {
     if (!isRecord(entry) || !Array.isArray(entry.operationKinds)) return null
     const operationPair = pair(entry.pair)
@@ -219,11 +227,11 @@ export function createBackendVersionCapabilityResult(
   const compatibilityIssues: EditorVersionCapabilityIssue[] = []
   const activeMutation = mutationOperations.find((entry) => samePair(entry.pair, expectedActive))
   const targetMutation = mutationOperations.find((entry) => samePair(entry.pair, expectedTarget))
-  if (contractVersion !== expected.contractVersion) {
+  if (contractVersion !== EDITOR_BACKEND_VERSION_CAPABILITY_CONTRACT_VERSION) {
     compatibilityIssues.push(issue(
       "version-contract-mismatch",
       "contractVersion",
-      `Backend contract version ${contractVersion} does not match editor contract ${expected.contractVersion}.`,
+      `Backend contract version ${contractVersion} does not match editor contract ${EDITOR_BACKEND_VERSION_CAPABILITY_CONTRACT_VERSION}.`,
     ))
   }
   if (!samePair(active, expectedActive) || !samePair(migrationTarget, expectedTarget)) {
@@ -251,12 +259,13 @@ export function createBackendVersionCapabilityResult(
   }
   if (!includesPair(mutationPairs, expectedTarget)
     || !targetMutation
-    || targetMutation.operationKinds.length !== 3
-    || !["node.delete", "node.duplicate", "node.reorder"].every((kind) => targetMutation.operationKinds.includes(kind as EditorBackendMutationOperationKind))) {
+    || targetMutation.operationKinds.length !== 4
+    || !["node.delete", "node.duplicate", "node.reorder", "text-block.rich-inline.replace"]
+      .every((kind) => targetMutation.operationKinds.includes(kind as EditorBackendMutationOperationKind))) {
     compatibilityIssues.push(issue(
       "migration-target-operation-mismatch",
       "backend.mutation.operations",
-      "Backend must advertise only node.delete, node.duplicate, and node.reorder for the migration target.",
+      "Backend migration target operation support does not match the editor integration contract.",
     ))
   }
   if (!samePair(migrationPlanSource, expectedActive) || !samePair(migrationPlanTarget, expectedTarget)) {

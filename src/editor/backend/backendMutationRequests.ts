@@ -13,7 +13,9 @@ import type { EditorRuntimeState } from "../runtime/editorState"
 import type {
   BackendMutationOperation,
   BackendMutationRequest,
+  BackendMutationSource,
 } from "./backendTransport"
+import { parseCoreInlineNodeV4TargetList } from "../../core/coreAdapter"
 
 export type BackendMutationCommand =
   | DeleteNodeCommand
@@ -33,6 +35,14 @@ export type BackendMutationRequestBuildResult =
 export interface CreateBackendMutationRequestOptions {
   requestId?: string
   timestamp?: number
+}
+
+export interface CreateBackendRichInlineMutationRequestOptions
+  extends CreateBackendMutationRequestOptions {
+  children: unknown
+  reason?: string
+  source: BackendMutationSource
+  textBlockId: string
 }
 
 function createRequestId(
@@ -124,6 +134,42 @@ export function createBackendMutationRequestFromCommand(
       reason: command.reason,
       requestId: options.requestId ?? createRequestId(command, nodeId, baseRevision, timestamp),
       source: command.source,
+    },
+    status: "ready",
+  }
+}
+
+export function createBackendRichInlineMutationRequest(
+  state: EditorRuntimeState,
+  options: CreateBackendRichInlineMutationRequestOptions,
+): BackendMutationRequestBuildResult {
+  if (state.core.envelope.status !== "fresh") {
+    return { reason: "Rich-inline mutation requires a fresh core envelope.", status: "blocked" }
+  }
+  if (state.core.document.packageVersion !== 3 || state.core.document.documentVersion !== 4) {
+    return { reason: "Rich-inline mutation requires package 3/document 4.", status: "blocked" }
+  }
+  if (state.view.nodeById[options.textBlockId]?.type !== "text-block") {
+    return { reason: `Text block ${options.textBlockId} is not available.`, status: "blocked" }
+  }
+  const parsed = parseCoreInlineNodeV4TargetList(options.children)
+  if (parsed.status === "invalid") return { reason: parsed.reason, status: "blocked" }
+
+  const baseRevision = state.core.envelope.documentRevision
+  const timestamp = options.timestamp ?? Date.now()
+  return {
+    request: {
+      baseRevision,
+      documentId: state.core.envelope.documentId,
+      operation: {
+        kind: "text-block.rich-inline.replace",
+        textBlockId: options.textBlockId,
+        children: parsed.children,
+      },
+      reason: options.reason,
+      requestId: options.requestId
+        ?? `text-block.rich-inline.replace:${options.textBlockId}:${baseRevision}:${timestamp}`,
+      source: options.source,
     },
     status: "ready",
   }
