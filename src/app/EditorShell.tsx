@@ -16,16 +16,20 @@ import type { CanvasReorderInteraction } from "../editor/interaction/canvasReord
 import { createRenderProjectionLayoutQaSummary } from "../editor/render/renderProjectionLayoutQa"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
+import type { RuntimeDocumentMigrationStatus } from "../editor/runtime/runtimeMigrationStatus"
 
 export interface EditorShellProps {
   canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
   editorState: EditorRuntimeState
   layoutQaEnabled: boolean
+  migrationEnabled: boolean
+  migrationStatus: RuntimeDocumentMigrationStatus
   mutationStatus: RuntimeNodeMutationStatus
   versionCapabilityStatus: EditorVersionCapabilityStatus
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
+  onMigrateDocument: () => void
   onCanvasFocusHandled: (nodeId: string) => void
   onReorderNode: (
     nodeId: string,
@@ -43,10 +47,13 @@ export function EditorShell({
   canvasReorderDrag,
   editorState,
   layoutQaEnabled,
+  migrationEnabled,
+  migrationStatus,
   mutationStatus,
   versionCapabilityStatus,
   onDeleteNode,
   onDuplicateNode,
+  onMigrateDocument,
   onCanvasFocusHandled,
   onReorderNode,
   onSelectNode,
@@ -71,6 +78,9 @@ export function EditorShell({
       <AppHeader document={document} diagnostics={diagnostics} />
       <EditorToolbar
         diagnostics={diagnostics}
+        migrationEnabled={migrationEnabled}
+        migrationStatus={migrationStatus}
+        onMigrateDocument={onMigrateDocument}
         paper={paper}
         onSelectPaperPreset={onSelectPaperPreset}
         onSelectPaperZoom={onSelectPaperZoom}

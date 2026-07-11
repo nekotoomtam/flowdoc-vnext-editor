@@ -66,11 +66,16 @@ returned v4 package.
 - Mutation is gated on compatible service capability.
 - The status bar exposes the current operational capability state.
 
+## Migration Intent
+
+Phase 261 adds an explicit `Upgrade` command and result workflow. It is enabled
+only for fresh backend package 2/document 3 state when migration persistence is
+advertised as available. Applied and replayed results are read back and opened
+through the v4 read-only session; stale, rejected, invalid, and unavailable
+results retain the current editor state.
+
 ## FAIL / BLOCKER
 
-- No migration request UI or transport exists.
-- Backend revisioned migration persistence is available, but no editor
-  migration intent/result workflow exists.
 - Package 3/document 4 cannot be edited, live-laid-out, exactly rendered, or
   exported by the active editor.
 
@@ -83,7 +88,7 @@ returned v4 package.
 
 ## UNKNOWN
 
-- User-facing migration offer and blocked-issue presentation.
+- Production permission policy and optional migration dry-run presentation.
 - Capability refresh cadence after backend deployment changes.
 
 ## Intentionally Not Changed
@@ -96,6 +101,5 @@ returned v4 package.
 
 ## Next Recommended Direction
 
-Add an explicit editor migration intent/result boundary that handles blocked,
-stale, applied, and replayed results, then refreshes an accepted result into
-the read-only session.
+Define the first v4 active-operation slice and its graph/history/layout
+invalidation contract before enabling editor mutation.

@@ -3,6 +3,7 @@ import {
   FileText,
   Highlighter,
   RotateCcw,
+  RefreshCw,
   Table2,
   Type,
   ZoomIn,
@@ -10,9 +11,13 @@ import {
 } from "lucide-react"
 import type { CoreDiagnosticsSummary } from "../../core/coreTypes"
 import type { PaperModel, PaperPreset } from "../../editor/paper/paperModel"
+import type { RuntimeDocumentMigrationStatus } from "../../editor/runtime/runtimeMigrationStatus"
 
 export interface EditorToolbarProps {
   diagnostics: CoreDiagnosticsSummary
+  migrationEnabled: boolean
+  migrationStatus: RuntimeDocumentMigrationStatus
+  onMigrateDocument: () => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
   paper: PaperModel
@@ -22,6 +27,9 @@ const PAPER_PRESETS: PaperPreset[] = ["A4", "Letter"]
 
 export function EditorToolbar({
   diagnostics,
+  migrationEnabled,
+  migrationStatus,
+  onMigrateDocument,
   onSelectPaperPreset,
   onSelectPaperZoom,
   paper,
@@ -98,6 +106,21 @@ export function EditorToolbar({
         </button>
       </div>
       <div className="toolbar-spacer" />
+      {migrationStatus.status !== "idle" && (
+        <span aria-live="polite" className="toolbar-readiness">
+          {migrationStatus.message}
+        </span>
+      )}
+      <button
+        className="tool-button"
+        disabled={!migrationEnabled || migrationStatus.status === "pending"}
+        onClick={onMigrateDocument}
+        title="Upgrade document version"
+        type="button"
+      >
+        <RefreshCw aria-hidden="true" size={16} />
+        <span>Upgrade</span>
+      </button>
       <span className="toolbar-readiness">Keys: {diagnostics.keyDataStatus}</span>
     </nav>
   )

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { EditorShell } from "./EditorShell"
 import { useCanvasReorderDrag } from "./useCanvasReorderDrag"
 import { useBackendNodeMutation } from "./useBackendNodeMutation"
+import { useBackendDocumentMigration } from "./useBackendDocumentMigration"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource, NodeReorderDirection } from "../editor/commands/commandTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
@@ -51,6 +52,19 @@ export function EditorApp() {
   )
   const [editorState, setEditorState] = useState(initialState)
   const [versionCapabilityStatus, setVersionCapabilityStatus] = useState<EditorVersionCapabilityStatus>("checking")
+  const [migrationPersistenceAvailable, setMigrationPersistenceAvailable] = useState(false)
+  const migrationEnabled = versionCapabilityStatus === "compatible"
+    && migrationPersistenceAvailable
+    && editorState.core.envelope.sourceKind === "api"
+    && editorState.seed.document.runtimeMode !== "read-only"
+    && editorState.seed.document.packageVersion === 2
+    && editorState.seed.document.documentVersion === 3
+  const { migrateDocument, migrationStatus } = useBackendDocumentMigration({
+    backendClient,
+    editorState,
+    enabled: migrationEnabled,
+    setEditorState,
+  })
   const {
     deleteNode,
     duplicateNode,
@@ -61,7 +75,8 @@ export function EditorApp() {
     backendClient,
     editorState,
     enabled: versionCapabilityStatus === "compatible"
-      && editorState.seed.document.runtimeMode !== "read-only",
+      && editorState.seed.document.runtimeMode !== "read-only"
+      && migrationStatus.status !== "pending",
     setEditorState,
   })
   const [pendingKeyboardReorderFocusNodeId, setPendingKeyboardReorderFocusNodeId] = useState<string | null>(null)
@@ -79,6 +94,10 @@ export function EditorApp() {
       .then(async (capability) => {
         if (cancelled) return
         setVersionCapabilityStatus(capability.status)
+        setMigrationPersistenceAvailable(
+          capability.status === "compatible"
+          && capability.envelope.migrationPersistence === "available",
+        )
         if (capability.status !== "compatible") return
 
         const result = await backendClient.readDocument(documentId)
@@ -94,7 +113,10 @@ export function EditorApp() {
         ))
       })
       .catch(() => {
-        if (!cancelled) setVersionCapabilityStatus("unavailable")
+        if (!cancelled) {
+          setVersionCapabilityStatus("unavailable")
+          setMigrationPersistenceAvailable(false)
+        }
         // Keep the fixture boot path active when the backend is unavailable.
       })
 
@@ -174,9 +196,12 @@ export function EditorApp() {
       canvasReorderDrag={canvasReorderDrag}
       editorState={editorState}
       layoutQaEnabled={layoutQaEnabled}
+      migrationEnabled={migrationEnabled}
+      migrationStatus={migrationStatus}
       mutationStatus={mutationStatus}
       onDeleteNode={deleteNode}
       onDuplicateNode={duplicateNode}
+      onMigrateDocument={migrateDocument}
       onCanvasFocusHandled={handleCanvasFocusHandled}
       onReorderNode={handleReorderNode}
       onSelectNode={handleSelectNode}

@@ -38,6 +38,45 @@ export interface BackendMutationRequest {
   source: BackendMutationSource
 }
 
+export interface BackendMigrationRequest {
+  baseRevision: number
+  documentId: string
+  reason?: string
+  requestId: string
+  source: "editor"
+}
+
+export interface BackendMigrationIssue {
+  code: string
+  message: string
+  path: string
+  severity: "error" | "warning"
+}
+
+export interface BackendMigrationResultEnvelope {
+  baseRevision: number
+  documentId: string
+  idempotency: "new" | "replayed" | null
+  issues: BackendMigrationIssue[]
+  receivedAt: number
+  requestId: string
+  requestedAt: number
+  revision: number | null
+  sourceSnapshot: {
+    retainedAt: string
+    sourceRevision: number
+    targetRevision: number
+  } | null
+  status: "applied" | "rejected" | "stale"
+  summary: {
+    changeCount: number
+    errorCount: number
+    normalizedTextBlockCount: number
+    warningCount: number
+  } | null
+  target: { packageVersion: 3; documentVersion: 4 } | null
+}
+
 export interface BackendTransportIssue {
   code: string
   message: string
@@ -111,6 +150,7 @@ export interface FlowDocBackendClientOptions {
 
 export interface FlowDocBackendClient {
   commitMutation(request: BackendMutationRequest): Promise<BackendMutationResultEnvelope>
+  migrateDocument(request: BackendMigrationRequest): Promise<BackendMigrationResultEnvelope>
   readDocument(documentId: string): Promise<BackendDocumentReadResult>
   readVersionCapabilities(): Promise<EditorBackendVersionCapabilityResult>
 }
@@ -271,6 +311,21 @@ export function createFlowDocBackendClient(options: FlowDocBackendClientOptions)
       )
 
       return await response.json() as BackendMutationResultEnvelope
+    },
+
+    async migrateDocument(request) {
+      const response = await fetchImpl(
+        `${baseUrl}/documents/${encodeURIComponent(request.documentId)}/migrations/package-v3-document-v4`,
+        {
+          body: JSON.stringify(request),
+          headers: {
+            "content-type": "application/json",
+          },
+          method: "POST",
+        },
+      )
+
+      return await response.json() as BackendMigrationResultEnvelope
     },
 
     async readDocument(documentId) {

@@ -9,6 +9,9 @@ snapshot retention as available; editor migration intent remains deferred.
 Phase 260 adds a separate v4 read-only core session consumed through the same
 adapter. Its working set is selectable and structurally renderable, but all
 editing, mutation, live-layout, exact-layout, and export claims remain closed.
+Phase 261 adds explicit editor-owned migration intent/result state. Backend
+persistence remains service-owned, and accepted targets still enter only the
+isolated read-only core session.
 
 Status: accepted direction for the product editor frontend repository.
 
