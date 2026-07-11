@@ -22,6 +22,7 @@ import {
 export interface UseBackendNodeMutationOptions {
   backendClient: Pick<FlowDocBackendClient, "commitMutation">
   editorState: EditorRuntimeState
+  enabled: boolean
   setEditorState: Dispatch<SetStateAction<EditorRuntimeState>>
 }
 
@@ -65,6 +66,7 @@ function appliedMessage(command: BackendMutationCommand): string {
 export function useBackendNodeMutation({
   backendClient,
   editorState,
+  enabled,
   setEditorState,
 }: UseBackendNodeMutationOptions): UseBackendNodeMutationResult {
   const editorStateRef = useRef(editorState)
@@ -78,6 +80,15 @@ export function useBackendNodeMutation({
 
   const runMutationCommand = useCallback((command: BackendMutationCommand) => {
     const nodeId = command.target.nodeId
+    if (!enabled) {
+      setMutationStatus({
+        command: command.kind,
+        message: "Backend version capability is not compatible.",
+        nodeId,
+        status: "failed",
+      })
+      return
+    }
     const built = createBackendMutationRequestFromCommand(editorStateRef.current, command)
     if (built.status === "blocked") {
       setMutationStatus({
@@ -134,7 +145,7 @@ export function useBackendNodeMutation({
           status: "failed",
         })
       })
-  }, [backendClient, setEditorState])
+  }, [backendClient, enabled, setEditorState])
 
   const deleteNode = useCallback((nodeId: string) => {
     runMutationCommand({

@@ -1,5 +1,10 @@
 # Core Contract Boundary
 
+Phase 258 adds version capability access through `src/core/coreAdapter.ts`.
+Backend transport compares service-advertised active and migration-target pairs
+with the adapter contract before loading packages. Package 3/document 4 remains
+a recognized migration target and is blocked from the active editor runtime.
+
 Status: accepted direction for the product editor frontend repository.
 
 ## Purpose

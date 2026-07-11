@@ -1,5 +1,9 @@
 import {
+  VNEXT_CORE_VERSION_CAPABILITY_CONTRACT,
+  inspectVNextPackageVersionCapability,
   safeCreateVNextRuntimeSession,
+  type VNextCoreVersionCapabilityContract,
+  type VNextPackageVersionInspection,
 } from "@flowdoc/vnext-core"
 import productReportMinimalFixture from "@flowdoc/vnext-core/fixtures/product-report-vnext-minimal.flowdoc.json"
 import type {
@@ -32,6 +36,10 @@ import {
 const coreReadDependencies: CoreFixtureReadDependencies = {
   createRuntimeSession: safeCreateVNextRuntimeSession,
   productReportMinimalFixture,
+}
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
 }
 
 export {
@@ -76,4 +84,12 @@ export function loadInitialCoreSnapshot(
   options: LoadInitialCoreSnapshotOptions = {},
 ): CoreAdapterSnapshot {
   return loadInitialCoreSnapshotFromFixture(options, coreReadDependencies)
+}
+
+export function getCoreVersionCapabilityContract(): VNextCoreVersionCapabilityContract {
+  return cloneJson(VNEXT_CORE_VERSION_CAPABILITY_CONTRACT)
+}
+
+export function inspectCorePackageVersionCapability(value: unknown): VNextPackageVersionInspection {
+  return inspectVNextPackageVersionCapability(value)
 }

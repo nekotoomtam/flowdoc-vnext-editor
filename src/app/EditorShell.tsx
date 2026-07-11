@@ -15,6 +15,7 @@ import type { RuntimeNodeMutationStatus } from "../editor/runtime/runtimeMutatio
 import type { CanvasReorderInteraction } from "../editor/interaction/canvasReorderDragSession"
 import { createRenderProjectionLayoutQaSummary } from "../editor/render/renderProjectionLayoutQa"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
+import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
 
 export interface EditorShellProps {
   canvasFocusNodeId: string | null
@@ -22,6 +23,7 @@ export interface EditorShellProps {
   editorState: EditorRuntimeState
   layoutQaEnabled: boolean
   mutationStatus: RuntimeNodeMutationStatus
+  versionCapabilityStatus: EditorVersionCapabilityStatus
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
   onCanvasFocusHandled: (nodeId: string) => void
@@ -42,6 +44,7 @@ export function EditorShell({
   editorState,
   layoutQaEnabled,
   mutationStatus,
+  versionCapabilityStatus,
   onDeleteNode,
   onDuplicateNode,
   onCanvasFocusHandled,
@@ -111,6 +114,7 @@ export function EditorShell({
         previewPageCount={canvasRenderView.pages.length}
         selection={selection}
         view={view}
+        versionCapabilityStatus={versionCapabilityStatus}
       />
     </div>
   )

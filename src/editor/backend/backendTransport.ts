@@ -1,4 +1,10 @@
 import type { CoreReadTransportEnvelope } from "../../core/coreTypes"
+import { inspectCorePackageVersionCapability } from "../../core/coreAdapter"
+import {
+  createBackendVersionCapabilityResult,
+  createUnavailableVersionCapabilityResult,
+  type EditorBackendVersionCapabilityResult,
+} from "./backendVersionCapability"
 
 export type BackendMutationSource =
   | "canvas"
@@ -55,7 +61,7 @@ export type BackendDocumentReadResult =
     }
   | {
       issues: BackendTransportIssue[]
-      status: "invalid-response" | "not-found"
+      status: "invalid-response" | "not-found" | "unsupported-version"
       statusCode?: number
     }
 
@@ -106,6 +112,7 @@ export interface FlowDocBackendClientOptions {
 export interface FlowDocBackendClient {
   commitMutation(request: BackendMutationRequest): Promise<BackendMutationResultEnvelope>
   readDocument(documentId: string): Promise<BackendDocumentReadResult>
+  readVersionCapabilities(): Promise<EditorBackendVersionCapabilityResult>
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -174,6 +181,34 @@ export function createBackendDocumentReadResult(
     return {
       issues,
       status: "invalid-response",
+      statusCode: options.statusCode,
+    }
+  }
+
+  const versionInspection = inspectCorePackageVersionCapability(value.packageValue)
+  if (versionInspection.status === "invalid-version-markers") {
+    return {
+      issues: [issue(
+        "packageValue",
+        "backend package has invalid package/document version markers",
+        "invalid-version-markers",
+      )],
+      status: "unsupported-version",
+      statusCode: options.statusCode,
+    }
+  }
+  if (versionInspection.capability.disposition !== "active") {
+    return {
+      issues: [issue(
+        "packageValue",
+        versionInspection.capability.disposition === "migration-target"
+          ? "backend package is a recognized migration target but is not active in the editor runtime"
+          : "backend package version is not supported by the editor runtime",
+        versionInspection.capability.disposition === "migration-target"
+          ? "migration-required"
+          : "unsupported-version",
+      )],
+      status: "unsupported-version",
       statusCode: options.statusCode,
     }
   }
@@ -261,6 +296,13 @@ export function createFlowDocBackendClient(options: FlowDocBackendClientOptions)
         requestedAt,
         statusCode: response.status,
       })
+    },
+
+    async readVersionCapabilities() {
+      const response = await fetchImpl(`${baseUrl}/capabilities/versions`)
+      const body = await response.json()
+      if (!response.ok) return createUnavailableVersionCapabilityResult(response.status)
+      return createBackendVersionCapabilityResult(body, { statusCode: response.status })
     },
   }
 }

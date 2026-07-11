@@ -8,6 +8,7 @@ import type { PaperModel } from "../../editor/paper/paperModel"
 import type { RenderProjectionLayoutQaSummary } from "../../editor/render/renderProjectionLayoutQa"
 import type { EditorView } from "../../editor/runtime/editorView"
 import type { SelectionState } from "../../editor/selection/selectionState"
+import type { EditorVersionCapabilityStatus } from "../../editor/backend/backendVersionCapability"
 
 export interface StatusBarProps {
   core: FrontendCoreWorkingSet
@@ -19,6 +20,7 @@ export interface StatusBarProps {
   previewPageCount: number
   selection: SelectionState
   view: EditorView
+  versionCapabilityStatus: EditorVersionCapabilityStatus
 }
 
 export function StatusBar({
@@ -31,6 +33,7 @@ export function StatusBar({
   previewPageCount,
   selection,
   view,
+  versionCapabilityStatus,
 }: StatusBarProps) {
   const jobCounts = getJobCounts(jobs)
   const historySummary = getHistoryStackSummary(history)
@@ -42,6 +45,7 @@ export function StatusBar({
       <span>
         Core: {core.envelope.sourceKind} r{core.envelope.documentRevision}
       </span>
+      <span>Versions: {versionCapabilityStatus}</span>
       <span>Render: {renderKind}</span>
       <span>Selected: {selection.selectedNodeId ?? "none"}</span>
       <span>

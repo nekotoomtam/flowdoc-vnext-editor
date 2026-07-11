@@ -11,6 +11,7 @@ import {
 } from "../editor/backend/backendConfig"
 import { resolveFlowDocLayoutQaEnabled } from "../editor/config/editorFeatureConfig"
 import { createFlowDocBackendClient } from "../editor/backend/backendTransport"
+import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { loadFrontendCoreWorkingSetFromTransportEnvelope } from "../editor/coreBinding/workingSetFactory"
 import {
@@ -49,6 +50,7 @@ export function EditorApp() {
     [],
   )
   const [editorState, setEditorState] = useState(initialState)
+  const [versionCapabilityStatus, setVersionCapabilityStatus] = useState<EditorVersionCapabilityStatus>("checking")
   const {
     deleteNode,
     duplicateNode,
@@ -58,6 +60,7 @@ export function EditorApp() {
   } = useBackendNodeMutation({
     backendClient,
     editorState,
+    enabled: versionCapabilityStatus === "compatible",
     setEditorState,
   })
   const [pendingKeyboardReorderFocusNodeId, setPendingKeyboardReorderFocusNodeId] = useState<string | null>(null)
@@ -71,16 +74,26 @@ export function EditorApp() {
   useEffect(() => {
     let cancelled = false
 
-    void backendClient.readDocument(documentId)
-      .then((result) => {
-        if (cancelled || result.status !== "found") return
+    void backendClient.readVersionCapabilities()
+      .then(async (capability) => {
+        if (cancelled) return
+        setVersionCapabilityStatus(capability.status)
+        if (capability.status !== "compatible") return
 
-        const state = createInitialEditorStateFromWorkingSet(
+        const result = await backendClient.readDocument(documentId)
+        if (cancelled || result.status !== "found") {
+          if (!cancelled && result.status === "unsupported-version") {
+            setVersionCapabilityStatus("unsupported")
+          }
+          return
+        }
+
+        setEditorState(createInitialEditorStateFromWorkingSet(
           loadFrontendCoreWorkingSetFromTransportEnvelope(result.envelope),
-        )
-        setEditorState(state)
+        ))
       })
       .catch(() => {
+        if (!cancelled) setVersionCapabilityStatus("unavailable")
         // Keep the fixture boot path active when the backend is unavailable.
       })
 
@@ -169,6 +182,7 @@ export function EditorApp() {
       onSelectPaperPreset={handleSelectPaperPreset}
       onSelectPaperZoom={handleSelectPaperZoom}
       onViewportFactsChange={handleViewportFactsChange}
+      versionCapabilityStatus={versionCapabilityStatus}
     />
   )
 }
