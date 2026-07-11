@@ -64,6 +64,8 @@ returned v4 package.
 - Mutation capability is checked per version pair and operation kind.
 - Block and inline images appear as structural placeholders without claiming
   asset-byte or exact-render support.
+- Block images retain generic lifecycle capability on the explicit `media`
+  operation surface rather than being classified as utility nodes.
 - Mutation is gated on compatible service capability.
 - The status bar exposes the current operational capability state.
 

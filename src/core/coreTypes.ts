@@ -30,6 +30,7 @@ export type CoreEditorChildrenField = "cellIds" | "childIds" | "columnIds" | "ro
 export type CoreEditorOperationSurface =
   | "columns"
   | "generated"
+  | "media"
   | "table"
   | "text-block"
   | "utility"

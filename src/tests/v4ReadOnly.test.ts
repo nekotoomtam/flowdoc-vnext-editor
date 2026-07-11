@@ -63,6 +63,7 @@ describe("document v4 read-only editor runtime", () => {
 
     expect(workingSet.readModel.nodeById["body-text"].label).toContain("[Image]")
     expect(workingSet.readModel.presentation.presentationNodeById["body-image"]).toMatchObject({
+      operationSurface: "media",
       role: "surface",
       surfaceType: "image",
     })
