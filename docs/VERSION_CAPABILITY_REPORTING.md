@@ -48,8 +48,9 @@ The editor requires backend capability reporting to state:
 - `baseRevisionRequired: true`;
 - whether source snapshot retention is active.
 
-Current backend status is `not-wired` with source retention false. This is an
-operational fact, not permission for the editor to migrate locally.
+Current backend status is `available` with source retention true. This is an
+operational fact, not permission for the editor to migrate locally or load the
+returned v4 package into the active runtime.
 
 ## PASS
 
@@ -62,7 +63,8 @@ operational fact, not permission for the editor to migrate locally.
 ## FAIL / BLOCKER
 
 - No migration request UI or transport exists.
-- Backend revisioned migration persistence remains unavailable.
+- Backend revisioned migration persistence is available, but no editor
+  migration intent/result workflow exists.
 - Package 3/document 4 cannot be edited or rendered by the active editor.
 
 ## RISK
@@ -87,5 +89,5 @@ operational fact, not permission for the editor to migrate locally.
 
 ## Next Recommended Direction
 
-Add the backend revision-gated migration request/result contract and source
-snapshot retention before exposing an explicit migration command in the editor.
+Add an explicit editor migration intent/result boundary that handles blocked,
+stale, applied, and replayed results without loading v4 into the active runtime.

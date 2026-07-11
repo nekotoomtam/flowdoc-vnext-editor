@@ -33,8 +33,8 @@ function capabilityResponse(): Record<string, unknown> {
       },
       migrationPersistence: {
         baseRevisionRequired: true,
-        sourceSnapshotRetention: false,
-        status: "not-wired",
+        sourceSnapshotRetention: true,
+        status: "available",
       },
     },
   }
@@ -47,9 +47,9 @@ describe("editor version capability boundary", () => {
       envelope: {
         active: { packageVersion: 2, documentVersion: 3 },
         migrationTarget: { packageVersion: 3, documentVersion: 4 },
-        migrationPersistence: "not-wired",
+        migrationPersistence: "available",
         migrationBaseRevisionRequired: true,
-        migrationSourceSnapshotRetention: false,
+        migrationSourceSnapshotRetention: true,
         documentReadPairs: [{ packageVersion: 2, documentVersion: 3 }],
         mutationPairs: [{ packageVersion: 2, documentVersion: 3 }],
       },
