@@ -41,7 +41,10 @@ function createNodeCapabilities(readModel: EditorReadModel, nodeId: string): Nod
   }
 }
 
-export function createCommandCapabilityMirror(readModel: EditorReadModel): CommandCapabilityMirror {
+export function createCommandCapabilityMirror(
+  readModel: EditorReadModel,
+  options: { readOnly?: boolean } = {},
+): CommandCapabilityMirror {
   return {
     byNodeId: Object.fromEntries(
       readModel.nodeOrder.map((nodeId) => [nodeId, createNodeCapabilities(readModel, nodeId)]),
@@ -50,7 +53,7 @@ export function createCommandCapabilityMirror(readModel: EditorReadModel): Comma
       canCommitMutation: false,
       canOpenTextDraft: false,
       canRequestExactLayout: false,
-      canRequestLiveLayout: true,
+      canRequestLiveLayout: options.readOnly !== true,
     },
     revision: readModel.revision,
     sourceRevision: readModel.sourceRevision,

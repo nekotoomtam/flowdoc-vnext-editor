@@ -15,6 +15,7 @@ export interface CreateNodePresentationInput {
 const CONTEXT_NODE_TYPES = new Set(["document", "section", "zone"])
 const SURFACE_TYPE_BY_NODE_TYPE: Record<string, EditorPresentationSurfaceType | undefined> = {
   columns: "columns",
+  image: "image",
   heading: "text-block",
   "page-break": "page-break",
   paragraph: "text-block",

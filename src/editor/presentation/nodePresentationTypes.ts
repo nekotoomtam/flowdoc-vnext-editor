@@ -7,6 +7,7 @@ import type {
 
 export type EditorPresentationSurfaceType =
   | "columns"
+  | "image"
   | "page-break"
   | "table"
   | "text-block"

@@ -6,6 +6,9 @@ with the adapter contract before loading packages. Package 3/document 4 remains
 a recognized migration target and is blocked from the active editor runtime.
 Phase 259 backend capability reports revisioned migration persistence and source
 snapshot retention as available; editor migration intent remains deferred.
+Phase 260 adds a separate v4 read-only core session consumed through the same
+adapter. Its working set is selectable and structurally renderable, but all
+editing, mutation, live-layout, exact-layout, and export claims remain closed.
 
 Status: accepted direction for the product editor frontend repository.
 

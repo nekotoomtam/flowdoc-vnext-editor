@@ -60,7 +60,8 @@ export function EditorApp() {
   } = useBackendNodeMutation({
     backendClient,
     editorState,
-    enabled: versionCapabilityStatus === "compatible",
+    enabled: versionCapabilityStatus === "compatible"
+      && editorState.seed.document.runtimeMode !== "read-only",
     setEditorState,
   })
   const [pendingKeyboardReorderFocusNodeId, setPendingKeyboardReorderFocusNodeId] = useState<string | null>(null)

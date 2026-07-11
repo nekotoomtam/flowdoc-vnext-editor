@@ -197,16 +197,12 @@ export function createBackendDocumentReadResult(
       statusCode: options.statusCode,
     }
   }
-  if (versionInspection.capability.disposition !== "active") {
+  if (versionInspection.capability.disposition === "unsupported") {
     return {
       issues: [issue(
         "packageValue",
-        versionInspection.capability.disposition === "migration-target"
-          ? "backend package is a recognized migration target but is not active in the editor runtime"
-          : "backend package version is not supported by the editor runtime",
-        versionInspection.capability.disposition === "migration-target"
-          ? "migration-required"
-          : "unsupported-version",
+        "backend package version is not supported by the editor runtime",
+        "unsupported-version",
       )],
       status: "unsupported-version",
       statusCode: options.statusCode,

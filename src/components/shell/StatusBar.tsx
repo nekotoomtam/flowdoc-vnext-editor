@@ -46,6 +46,7 @@ export function StatusBar({
         Core: {core.envelope.sourceKind} r{core.envelope.documentRevision}
       </span>
       <span>Versions: {versionCapabilityStatus}</span>
+      <span>Mode: {document.runtimeMode ?? "active"}</span>
       <span>Render: {renderKind}</span>
       <span>Selected: {selection.selectedNodeId ?? "none"}</span>
       <span>

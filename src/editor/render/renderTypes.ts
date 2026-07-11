@@ -2,6 +2,7 @@ export type RenderNodeKind =
   | "columns"
   | "generic"
   | "heading"
+  | "image"
   | "page-break"
   | "paragraph"
   | "table"

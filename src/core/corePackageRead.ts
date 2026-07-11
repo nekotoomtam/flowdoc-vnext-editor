@@ -47,6 +47,17 @@ export interface CorePackageReadDependencies {
     value: unknown,
     options: { source?: CoreRuntimeSessionSource },
   ) => CoreRuntimeSessionResult
+  createReadOnlyRuntimeSessionV4?: (
+    value: unknown,
+    options: { source?: CoreRuntimeSessionSource },
+  ) => CoreRuntimeSessionResult
+}
+
+function isV4Target(value: unknown): boolean {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false
+  const record = value as Record<string, unknown>
+  if (record.packageVersion !== 3 || typeof record.document !== "object" || record.document === null) return false
+  return (record.document as Record<string, unknown>).version === 4
 }
 
 function corePackageIssueMessage(issues: CoreRuntimePackageIssue[]): string {
@@ -61,7 +72,17 @@ export function createCoreEditorSeedFromPackage(
   },
   dependencies: CorePackageReadDependencies,
 ): CoreEditorSeed | CoreReadBindingFailure {
-  const result = dependencies.createRuntimeSession(packageValue, {
+  const createSession = isV4Target(packageValue)
+    ? dependencies.createReadOnlyRuntimeSessionV4
+    : dependencies.createRuntimeSession
+  if (!createSession) {
+    return createCoreReadFailure({
+      code: "core-unavailable",
+      documentId: options.documentId,
+      message: "The core v4 read-only runtime is unavailable.",
+    })
+  }
+  const result = createSession(packageValue, {
     source: options.source,
   })
 

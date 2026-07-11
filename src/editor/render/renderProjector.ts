@@ -11,6 +11,7 @@ export type PreviewPaginationOptions = PaperPreviewFlowMetricsOptions
 
 function getRenderKind(node: CoreEditorNodeSummary): RenderNodeKind {
   if (node.type === "columns") return "columns"
+  if (node.type === "image") return "image"
   if (node.type === "heading" || node.textRole === "heading") return "heading"
   if (node.type === "page-break") return "page-break"
   if (node.type === "paragraph" || node.type === "text-block") return "paragraph"
@@ -36,6 +37,7 @@ export function getEstimatedRenderNodeHeightPx(
     return 78 + previewRows * 34
   }
   if (node.renderKind === "heading") return 68
+  if (node.renderKind === "image") return 180
   if (node.renderKind === "toc") return 92
   if (node.renderKind === "page-break") return getPreviewPageFlowCapacityPx(options)
   return 58

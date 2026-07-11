@@ -13,6 +13,7 @@ type CoreRuntimeInlineNode =
   | { type: "line-break" }
   | { type: "page-number" }
   | { type: "text"; text: string }
+  | { type: "inline-image" }
 
 type CoreRuntimeAuthoredNode = {
   children?: CoreRuntimeInlineNode[]
@@ -78,12 +79,14 @@ export interface CoreRuntimeSessionForSeed {
     }
   }
   packageVersion: number
+  readOnly?: boolean
 }
 
 function inlineLabel(inline: CoreRuntimeInlineNode): string {
   if (inline.type === "text") return inline.text
   if (inline.type === "field-ref") return inline.label ?? inline.fallback ?? `{${inline.key}}`
   if (inline.type === "page-number") return "#"
+  if (inline.type === "inline-image") return "[Image]"
   return " "
 }
 
@@ -121,6 +124,8 @@ function labelForCoreNode(node: CoreRuntimeAuthoredNode): string {
       return "Divider"
     case "spacer":
       return "Spacer"
+    case "image":
+      return "Image"
     default:
       return humanizeId(node.id)
   }
@@ -265,6 +270,7 @@ export function createCoreRuntimeEditorSeed(session: CoreRuntimeSessionForSeed):
       documentVersion: session.documentVersion,
       id: session.document.document.id,
       packageVersion: session.packageVersion,
+      runtimeMode: session.readOnly ? "read-only" : "active",
       title: session.package.meta.title,
     },
     nodes: [

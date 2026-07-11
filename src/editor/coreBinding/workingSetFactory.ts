@@ -63,7 +63,9 @@ export function createFrontendCoreWorkingSetFromSnapshot(
   const readModel = createEditorReadModel(snapshot.seed, {
     sourceRevision: envelope.documentRevision,
   })
-  const capabilities = createCommandCapabilityMirror(readModel)
+  const capabilities = createCommandCapabilityMirror(readModel, {
+    readOnly: snapshot.seed.document.runtimeMode === "read-only",
+  })
   const shouldCreateRenderProjection =
     options.includeRenderProjection !== false && snapshot.renderProjectionAvailable
   const renderProjection =

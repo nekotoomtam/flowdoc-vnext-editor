@@ -1,7 +1,7 @@
 # Version Capability Reporting
 
-Status: Phase 258 editor capability consumption complete. Package 3/document 4
-remains outside the active editor runtime.
+Status: Phase 260 read-only package 3/document 4 consumption complete. The
+target remains outside active mutation, live layout, and exact rendering.
 
 ## Outcome
 
@@ -14,7 +14,7 @@ only through `src/core/coreAdapter.ts`.
 | State | Meaning | Editor behavior |
 |---|---|---|
 | checking | preflight is pending | fixture remains visible; mutation blocked |
-| compatible | backend active pair matches editor core | backend read and mutation allowed |
+| compatible | backend pairs match editor core | v3 read/mutation and v4 read-only loading allowed |
 | unsupported | contract or version pairs drift | backend package/mutation blocked |
 | invalid-response | response shape is malformed | backend package/mutation blocked |
 | unavailable | endpoint/network is unavailable | fixture remains visible; mutation blocked |
@@ -25,18 +25,22 @@ Every found backend package is inspected for package/document markers before it
 enters the core read transport envelope.
 
 - package 2/document 3 continues to the active runtime;
-- package 3/document 4 returns `unsupported-version` with
-  `migration-required`;
+- package 3/document 4 enters the named core v4 read-only session;
 - unknown pairs return `unsupported-version`;
 - missing or invalid markers return `invalid-version-markers`.
 
-The editor does not invoke the target parser or create a v4 runtime session.
+The editor invokes the target parser only through `coreAdapter.ts` and creates
+the named v4 read-only session. It never routes v4 through the active session.
 
 ## Mutation Gate
 
 Backend mutation commands are disabled until capability status is
 `compatible`. This prevents the fixture fallback from sending active-version
 commands to a backend whose version contract is unavailable or incompatible.
+
+For a v4 read-only working set, mutation remains disabled even when backend
+capability is compatible. Text drafts, field-chip insertion, reorder, duplicate,
+delete, live layout, and exact layout commands are all closed.
 
 The existing backend base-revision and stale-apply gates remain unchanged.
 
@@ -49,14 +53,16 @@ The editor requires backend capability reporting to state:
 - whether source snapshot retention is active.
 
 Current backend status is `available` with source retention true. This is an
-operational fact, not permission for the editor to migrate locally or load the
-returned v4 package into the active runtime.
+operational fact, not permission for the editor to migrate locally or mutate a
+returned v4 package.
 
 ## PASS
 
 - Core imports remain behind `coreAdapter.ts`.
 - Backend capability is checked before backend document loading.
-- Migration-target packages are blocked before active runtime parsing.
+- Migration-target packages use an isolated read-only core session.
+- Block and inline images appear as structural placeholders without claiming
+  asset-byte or exact-render support.
 - Mutation is gated on compatible service capability.
 - The status bar exposes the current operational capability state.
 
@@ -65,7 +71,8 @@ returned v4 package into the active runtime.
 - No migration request UI or transport exists.
 - Backend revisioned migration persistence is available, but no editor
   migration intent/result workflow exists.
-- Package 3/document 4 cannot be edited or rendered by the active editor.
+- Package 3/document 4 cannot be edited, live-laid-out, exactly rendered, or
+  exported by the active editor.
 
 ## RISK
 
@@ -84,10 +91,11 @@ returned v4 package into the active runtime.
 - editor canonical working-set shape;
 - selection, viewport, history, jobs, and layout state;
 - backend mutation response/stale-apply semantics;
-- package migration execution;
-- v4 runtime, layout, renderer, and export behavior.
+- package migration execution from editor intent;
+- v4 mutation, layout, exact renderer, asset-byte resolution, and export.
 
 ## Next Recommended Direction
 
 Add an explicit editor migration intent/result boundary that handles blocked,
-stale, applied, and replayed results without loading v4 into the active runtime.
+stale, applied, and replayed results, then refreshes an accepted result into
+the read-only session.

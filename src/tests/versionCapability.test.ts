@@ -10,7 +10,7 @@ import {
 
 function capabilityResponse(): Record<string, unknown> {
   return {
-    contractVersion: 1,
+    contractVersion: 2,
     service: "flowdoc-vnext-backend",
     status: "ready",
     core: {
@@ -19,7 +19,10 @@ function capabilityResponse(): Record<string, unknown> {
     },
     backend: {
       documentRead: {
-        pairs: [{ packageVersion: 2, documentVersion: 3 }],
+        pairs: [
+          { packageVersion: 2, documentVersion: 3 },
+          { packageVersion: 3, documentVersion: 4 },
+        ],
         status: "available",
       },
       mutation: {
@@ -50,7 +53,10 @@ describe("editor version capability boundary", () => {
         migrationPersistence: "available",
         migrationBaseRevisionRequired: true,
         migrationSourceSnapshotRetention: true,
-        documentReadPairs: [{ packageVersion: 2, documentVersion: 3 }],
+        documentReadPairs: [
+          { packageVersion: 2, documentVersion: 3 },
+          { packageVersion: 3, documentVersion: 4 },
+        ],
         mutationPairs: [{ packageVersion: 2, documentVersion: 3 }],
       },
     })
@@ -58,12 +64,12 @@ describe("editor version capability boundary", () => {
 
   it("blocks contract drift and false migration-target runtime claims", () => {
     const mismatch = capabilityResponse()
-    mismatch.contractVersion = 2
+    mismatch.contractVersion = 1
 
     const falseRuntime = capabilityResponse()
     const backend = falseRuntime.backend as Record<string, unknown>
-    const documentRead = backend.documentRead as { pairs: unknown[] }
-    documentRead.pairs.push({ packageVersion: 3, documentVersion: 4 })
+    const mutation = backend.mutation as { pairs: unknown[] }
+    mutation.pairs.push({ packageVersion: 3, documentVersion: 4 })
 
     expect(createBackendVersionCapabilityResult(mismatch)).toMatchObject({
       status: "unsupported",
@@ -102,7 +108,7 @@ describe("editor version capability boundary", () => {
     })
   })
 
-  it("blocks migration-target packages before active runtime loading", () => {
+  it("accepts migration-target packages for the read-only runtime", () => {
     expect(createBackendDocumentReadResult({
       documentId: "target-document",
       packageValue: {
@@ -117,8 +123,11 @@ describe("editor version capability boundary", () => {
       requestedAt: 100,
       statusCode: 200,
     })).toMatchObject({
-      status: "unsupported-version",
-      issues: [expect.objectContaining({ code: "migration-required" })],
+      status: "found",
+      envelope: expect.objectContaining({
+        documentId: "target-document",
+        sourceRevision: 8,
+      }),
     })
   })
 

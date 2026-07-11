@@ -1,6 +1,7 @@
 import {
   VNEXT_CORE_VERSION_CAPABILITY_CONTRACT,
   inspectVNextPackageVersionCapability,
+  safeCreateVNextReadOnlyRuntimeSessionV4,
   safeCreateVNextRuntimeSession,
   type VNextCoreVersionCapabilityContract,
   type VNextPackageVersionInspection,
@@ -35,6 +36,7 @@ import {
 
 const coreReadDependencies: CoreFixtureReadDependencies = {
   createRuntimeSession: safeCreateVNextRuntimeSession,
+  createReadOnlyRuntimeSessionV4: safeCreateVNextReadOnlyRuntimeSessionV4,
   productReportMinimalFixture,
 }
 

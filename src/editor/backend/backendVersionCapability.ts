@@ -209,7 +209,14 @@ export function createBackendVersionCapabilityResult(
       "Backend does not advertise active document read and mutation support.",
     ))
   }
-  if (includesPair(documentReadPairs, expectedTarget) || includesPair(mutationPairs, expectedTarget)) {
+  if (!includesPair(documentReadPairs, expectedTarget)) {
+    compatibilityIssues.push(issue(
+      "migration-target-read-unavailable",
+      "backend.documentRead",
+      "Backend does not advertise migration-target read support.",
+    ))
+  }
+  if (includesPair(mutationPairs, expectedTarget)) {
     compatibilityIssues.push(issue(
       "migration-target-runtime-claim",
       "backend",
