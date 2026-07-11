@@ -5,6 +5,13 @@ export interface EditorVersionPair {
   packageVersion: number
 }
 
+export type EditorBackendMutationOperationKind = "node.delete" | "node.duplicate" | "node.reorder"
+
+export interface EditorMutationOperationSupport {
+  operationKinds: EditorBackendMutationOperationKind[]
+  pair: EditorVersionPair
+}
+
 export interface EditorVersionCapabilityIssue {
   code: string
   message: string
@@ -30,6 +37,7 @@ export interface EditorBackendVersionCapabilityEnvelope {
   migrationPlanTarget: EditorVersionPair
   migrationTarget: EditorVersionPair
   mutationPairs: EditorVersionPair[]
+  mutationOperations: EditorMutationOperationSupport[]
   service: "flowdoc-vnext-backend"
 }
 
@@ -85,6 +93,23 @@ function pairList(value: unknown): EditorVersionPair[] | null {
   return pairs.every((candidate) => candidate != null) ? pairs as EditorVersionPair[] : null
 }
 
+function mutationOperationSupport(value: unknown): EditorMutationOperationSupport[] | null {
+  if (!isRecord(value) || !Array.isArray(value.operations)) return null
+  const supported = new Set<EditorBackendMutationOperationKind>(["node.delete", "node.duplicate", "node.reorder"])
+  const entries = value.operations.map((entry): EditorMutationOperationSupport | null => {
+    if (!isRecord(entry) || !Array.isArray(entry.operationKinds)) return null
+    const operationPair = pair(entry.pair)
+    if (!operationPair || !entry.operationKinds.every((kind) => supported.has(kind as EditorBackendMutationOperationKind))) {
+      return null
+    }
+    return {
+      operationKinds: [...entry.operationKinds] as EditorBackendMutationOperationKind[],
+      pair: operationPair,
+    }
+  })
+  return entries.every((entry) => entry != null) ? entries as EditorMutationOperationSupport[] : null
+}
+
 export function createUnavailableVersionCapabilityResult(
   statusCode?: number,
 ): EditorBackendVersionCapabilityResult {
@@ -121,6 +146,7 @@ export function createBackendVersionCapabilityResult(
   const migrationTarget = pair(core?.migrationTarget)
   const documentReadPairs = pairList(backend?.documentRead)
   const mutationPairs = pairList(backend?.mutation)
+  const mutationOperations = mutationOperationSupport(backend?.mutation)
   const migrationPlanSource = pair(migrationPlan?.source)
   const migrationPlanTarget = pair(migrationPlan?.target)
   const contractVersion = typeof value.contractVersion === "number" && Number.isInteger(value.contractVersion)
@@ -154,6 +180,9 @@ export function createBackendVersionCapabilityResult(
   if (!mutationPairs) {
     shapeIssues.push(issue("invalid-version-capability", "backend.mutation", "Mutation support is invalid."))
   }
+  if (!mutationOperations) {
+    shapeIssues.push(issue("invalid-version-capability", "backend.mutation.operations", "Mutation operation support is invalid."))
+  }
   if (!migrationPlanSource || !migrationPlanTarget || migrationPlan?.status !== "core-available") {
     shapeIssues.push(issue("invalid-version-capability", "backend.migrationPlan", "Migration plan support is invalid."))
   }
@@ -178,7 +207,7 @@ export function createBackendVersionCapabilityResult(
       "Migration source snapshot retention status is required.",
     ))
   }
-  if (shapeIssues.length > 0 || !active || !migrationTarget || !documentReadPairs || !mutationPairs
+  if (shapeIssues.length > 0 || !active || !migrationTarget || !documentReadPairs || !mutationPairs || !mutationOperations
     || !migrationPlanSource || !migrationPlanTarget || !persistenceStatus || contractVersion == null
     || sourceSnapshotRetention == null) {
     return { issues: shapeIssues, status: "invalid-response", ...options }
@@ -188,6 +217,8 @@ export function createBackendVersionCapabilityResult(
   const expectedActive = { ...expected.active }
   const expectedTarget = { ...expected.migrationTarget }
   const compatibilityIssues: EditorVersionCapabilityIssue[] = []
+  const activeMutation = mutationOperations.find((entry) => samePair(entry.pair, expectedActive))
+  const targetMutation = mutationOperations.find((entry) => samePair(entry.pair, expectedTarget))
   if (contractVersion !== expected.contractVersion) {
     compatibilityIssues.push(issue(
       "version-contract-mismatch",
@@ -202,7 +233,9 @@ export function createBackendVersionCapabilityResult(
       "Backend core version pairs do not match the editor core adapter.",
     ))
   }
-  if (!includesPair(documentReadPairs, expectedActive) || !includesPair(mutationPairs, expectedActive)) {
+  if (!includesPair(documentReadPairs, expectedActive) || !includesPair(mutationPairs, expectedActive)
+    || !activeMutation
+    || !["node.delete", "node.duplicate", "node.reorder"].every((kind) => activeMutation.operationKinds.includes(kind as EditorBackendMutationOperationKind))) {
     compatibilityIssues.push(issue(
       "active-version-unavailable",
       "backend",
@@ -216,11 +249,14 @@ export function createBackendVersionCapabilityResult(
       "Backend does not advertise migration-target read support.",
     ))
   }
-  if (includesPair(mutationPairs, expectedTarget)) {
+  if (!includesPair(mutationPairs, expectedTarget)
+    || !targetMutation
+    || targetMutation.operationKinds.length !== 1
+    || targetMutation.operationKinds[0] !== "node.reorder") {
     compatibilityIssues.push(issue(
-      "migration-target-runtime-claim",
-      "backend",
-      "Backend must not advertise migration-target runtime support before activation.",
+      "migration-target-operation-mismatch",
+      "backend.mutation.operations",
+      "Backend must advertise only node.reorder for the migration target.",
     ))
   }
   if (!samePair(migrationPlanSource, expectedActive) || !samePair(migrationPlanTarget, expectedTarget)) {
@@ -246,6 +282,7 @@ export function createBackendVersionCapabilityResult(
       migrationTarget,
       migrationSourceSnapshotRetention: sourceSnapshotRetention,
       mutationPairs,
+      mutationOperations,
       service: "flowdoc-vnext-backend",
     },
     issues: [],

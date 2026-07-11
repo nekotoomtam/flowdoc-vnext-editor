@@ -3,7 +3,7 @@ export interface CoreEditorDocumentSummary {
   title: string
   packageVersion: number
   documentVersion: number
-  runtimeMode?: "active" | "read-only"
+  runtimeMode?: "active" | "partial" | "read-only"
 }
 
 export interface CoreDiagnosticsSummary {

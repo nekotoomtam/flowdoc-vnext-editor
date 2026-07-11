@@ -80,6 +80,7 @@ export interface CoreRuntimeSessionForSeed {
   }
   packageVersion: number
   readOnly?: boolean
+  mutationOperationKinds?: readonly string[]
 }
 
 function inlineLabel(inline: CoreRuntimeInlineNode): string {
@@ -270,7 +271,9 @@ export function createCoreRuntimeEditorSeed(session: CoreRuntimeSessionForSeed):
       documentVersion: session.documentVersion,
       id: session.document.document.id,
       packageVersion: session.packageVersion,
-      runtimeMode: session.readOnly ? "read-only" : "active",
+      runtimeMode: session.readOnly
+        ? (session.mutationOperationKinds?.length ?? 0) > 0 ? "partial" : "read-only"
+        : "active",
       title: session.package.meta.title,
     },
     nodes: [

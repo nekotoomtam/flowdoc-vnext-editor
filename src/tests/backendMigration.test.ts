@@ -126,7 +126,7 @@ describe("explicit backend document migration", () => {
       packageVersion: 3,
       sourceKind: "api",
     })
-    expect(applied.state.seed.document.runtimeMode).toBe("read-only")
+    expect(applied.state.seed.document.runtimeMode).toBe("partial")
     expect(applied.state.core.capabilities.global).toMatchObject({
       canCommitMutation: false,
       canRequestLiveLayout: false,
@@ -141,7 +141,7 @@ describe("explicit backend document migration", () => {
       targetRead(),
     )).toMatchObject({
       status: "replayed",
-      state: { seed: { document: { runtimeMode: "read-only" } } },
+      state: { seed: { document: { runtimeMode: "partial" } } },
     })
   })
 
@@ -202,6 +202,6 @@ describe("explicit backend document migration", () => {
       expect(doc).toContain(section)
     }
     expect(doc).toContain("Package reads never trigger migration automatically")
-    expect(doc).toContain("v4 read-only working-set replacement")
+    expect(doc).toContain("v4 partial-operation working-set replacement")
   })
 })

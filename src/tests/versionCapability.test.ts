@@ -10,7 +10,7 @@ import {
 
 function capabilityResponse(): Record<string, unknown> {
   return {
-    contractVersion: 2,
+    contractVersion: 3,
     service: "flowdoc-vnext-backend",
     status: "ready",
     core: {
@@ -26,7 +26,20 @@ function capabilityResponse(): Record<string, unknown> {
         status: "available",
       },
       mutation: {
-        pairs: [{ packageVersion: 2, documentVersion: 3 }],
+        pairs: [
+          { packageVersion: 2, documentVersion: 3 },
+          { packageVersion: 3, documentVersion: 4 },
+        ],
+        operations: [
+          {
+            pair: { packageVersion: 2, documentVersion: 3 },
+            operationKinds: ["node.delete", "node.duplicate", "node.reorder"],
+          },
+          {
+            pair: { packageVersion: 3, documentVersion: 4 },
+            operationKinds: ["node.reorder"],
+          },
+        ],
         status: "available",
       },
       migrationPlan: {
@@ -57,19 +70,28 @@ describe("editor version capability boundary", () => {
           { packageVersion: 2, documentVersion: 3 },
           { packageVersion: 3, documentVersion: 4 },
         ],
-        mutationPairs: [{ packageVersion: 2, documentVersion: 3 }],
+        mutationPairs: [
+          { packageVersion: 2, documentVersion: 3 },
+          { packageVersion: 3, documentVersion: 4 },
+        ],
+        mutationOperations: expect.arrayContaining([
+          {
+            pair: { packageVersion: 3, documentVersion: 4 },
+            operationKinds: ["node.reorder"],
+          },
+        ]),
       },
     })
   })
 
   it("blocks contract drift and false migration-target runtime claims", () => {
     const mismatch = capabilityResponse()
-    mismatch.contractVersion = 1
+    mismatch.contractVersion = 2
 
     const falseRuntime = capabilityResponse()
     const backend = falseRuntime.backend as Record<string, unknown>
-    const mutation = backend.mutation as { pairs: unknown[] }
-    mutation.pairs.push({ packageVersion: 3, documentVersion: 4 })
+    const mutation = backend.mutation as { operations: Array<{ operationKinds: string[] }> }
+    mutation.operations[1].operationKinds.push("node.delete")
 
     expect(createBackendVersionCapabilityResult(mismatch)).toMatchObject({
       status: "unsupported",
@@ -77,7 +99,7 @@ describe("editor version capability boundary", () => {
     })
     expect(createBackendVersionCapabilityResult(falseRuntime)).toMatchObject({
       status: "unsupported",
-      issues: [expect.objectContaining({ code: "migration-target-runtime-claim" })],
+      issues: [expect.objectContaining({ code: "migration-target-operation-mismatch" })],
     })
   })
 

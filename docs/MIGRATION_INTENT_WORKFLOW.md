@@ -1,6 +1,6 @@
 # Document Migration Intent Workflow
 
-Status: Phase 261 complete.
+Status: Phase 261 migration workflow complete; Phase 262 target mode is partial.
 
 ## Outcome
 
@@ -18,12 +18,13 @@ user Upgrade intent
   -> applied/replayed target document read
   -> request/result/read identity and revision verification
   -> core adapter package 3/document 4 parse
-  -> v4 read-only working-set replacement
+  -> v4 partial-operation working-set replacement
 ```
 
 Mutation commands are disabled while migration is pending. An applied response
 does not replace runtime state by itself; the target revision must be read back
-and accepted by the isolated core v4 read-only session.
+and accepted by the isolated core v4 projection. The editor enters `partial`
+mode because only `node.reorder` is enabled.
 
 If transport or target-read verification fails without a definitive stale or
 rejected result, retry reuses the same request id and base revision. This lets
@@ -34,8 +35,8 @@ second migration.
 
 | Result | Editor behavior |
 |---|---|
-| applied/new | verify target read and open read-only |
-| applied/replayed | verify retained target read and open read-only |
+| applied/new | verify target read and open partial mode |
+| applied/replayed | verify retained target read and open partial mode |
 | stale | keep current state and report newer revision |
 | rejected | keep current state and surface backend issue |
 | invalid/mismatched read | keep current state and report verification failure |
@@ -47,7 +48,8 @@ second migration.
 - Request id, document id, base revision, target revision, and target version
   are verified before runtime replacement.
 - Applied and replayed outcomes both require a fresh target read.
-- V4 opens with text/field/structural mutation and live/exact layout disabled.
+- V4 opens with only same-parent reorder enabled; text, field, delete,
+  duplicate, live layout, and exact layout remain disabled.
 
 ## FAIL / BLOCKER
 
@@ -75,5 +77,5 @@ second migration.
 
 ## Next Recommended Direction
 
-Define the first v4 active-operation slice and its graph/history/layout
-invalidation contract before enabling any editor mutation in read-only mode.
+Define v4 delete/duplicate ownership and reference-impact rules before enabling
+the next mutation kinds.

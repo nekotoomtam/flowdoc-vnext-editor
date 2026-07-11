@@ -13,6 +13,7 @@ import {
 import { resolveFlowDocLayoutQaEnabled } from "../editor/config/editorFeatureConfig"
 import { createFlowDocBackendClient } from "../editor/backend/backendTransport"
 import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
+import type { EditorBackendMutationOperationKind } from "../editor/backend/backendVersionCapability"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
 import { loadFrontendCoreWorkingSetFromTransportEnvelope } from "../editor/coreBinding/workingSetFactory"
 import {
@@ -53,10 +54,17 @@ export function EditorApp() {
   const [editorState, setEditorState] = useState(initialState)
   const [versionCapabilityStatus, setVersionCapabilityStatus] = useState<EditorVersionCapabilityStatus>("checking")
   const [migrationPersistenceAvailable, setMigrationPersistenceAvailable] = useState(false)
+  const [mutationOperationSupport, setMutationOperationSupport] = useState<
+    Array<{ pair: { packageVersion: number; documentVersion: number }; operationKinds: EditorBackendMutationOperationKind[] }>
+  >([])
+  const enabledMutationOperationKinds = mutationOperationSupport.find((entry) => (
+    entry.pair.packageVersion === editorState.seed.document.packageVersion
+    && entry.pair.documentVersion === editorState.seed.document.documentVersion
+  ))?.operationKinds ?? []
   const migrationEnabled = versionCapabilityStatus === "compatible"
     && migrationPersistenceAvailable
     && editorState.core.envelope.sourceKind === "api"
-    && editorState.seed.document.runtimeMode !== "read-only"
+    && editorState.seed.document.runtimeMode === "active"
     && editorState.seed.document.packageVersion === 2
     && editorState.seed.document.documentVersion === 3
   const { migrateDocument, migrationStatus } = useBackendDocumentMigration({
@@ -75,8 +83,8 @@ export function EditorApp() {
     backendClient,
     editorState,
     enabled: versionCapabilityStatus === "compatible"
-      && editorState.seed.document.runtimeMode !== "read-only"
       && migrationStatus.status !== "pending",
+    enabledOperationKinds: enabledMutationOperationKinds,
     setEditorState,
   })
   const [pendingKeyboardReorderFocusNodeId, setPendingKeyboardReorderFocusNodeId] = useState<string | null>(null)
@@ -98,6 +106,9 @@ export function EditorApp() {
           capability.status === "compatible"
           && capability.envelope.migrationPersistence === "available",
         )
+        setMutationOperationSupport(
+          capability.status === "compatible" ? capability.envelope.mutationOperations : [],
+        )
         if (capability.status !== "compatible") return
 
         const result = await backendClient.readDocument(documentId)
@@ -116,6 +127,7 @@ export function EditorApp() {
         if (!cancelled) {
           setVersionCapabilityStatus("unavailable")
           setMigrationPersistenceAvailable(false)
+          setMutationOperationSupport([])
         }
         // Keep the fixture boot path active when the backend is unavailable.
       })

@@ -98,9 +98,9 @@ export function useBackendDocumentMigration({
         }
         setMigrationStatus({
           message: applied.status === "applied"
-            ? "Document upgraded and opened read-only."
+            ? "Document upgraded with partial v4 operations."
             : applied.status === "replayed"
-              ? "Migration replay verified and opened read-only."
+              ? "Migration replay verified with partial v4 operations."
               : applied.status === "stale" || applied.status === "blocked-stale"
                 ? "Migration blocked by a newer document revision."
                 : applied.status === "rejected"

@@ -1,7 +1,7 @@
 # Version Capability Reporting
 
-Status: Phase 260 read-only package 3/document 4 consumption complete. The
-target remains outside active mutation, live layout, and exact rendering.
+Status: Phase 262 partial package 3/document 4 mutation consumption complete.
+Only same-parent `node.reorder` is enabled.
 
 ## Outcome
 
@@ -14,7 +14,7 @@ only through `src/core/coreAdapter.ts`.
 | State | Meaning | Editor behavior |
 |---|---|---|
 | checking | preflight is pending | fixture remains visible; mutation blocked |
-| compatible | backend pairs match editor core | v3 read/mutation and v4 read-only loading allowed |
+| compatible | backend pairs and operation lists match editor core | v3 mutation and v4 reorder allowed |
 | unsupported | contract or version pairs drift | backend package/mutation blocked |
 | invalid-response | response shape is malformed | backend package/mutation blocked |
 | unavailable | endpoint/network is unavailable | fixture remains visible; mutation blocked |
@@ -38,9 +38,9 @@ Backend mutation commands are disabled until capability status is
 `compatible`. This prevents the fixture fallback from sending active-version
 commands to a backend whose version contract is unavailable or incompatible.
 
-For a v4 read-only working set, mutation remains disabled even when backend
-capability is compatible. Text drafts, field-chip insertion, reorder, duplicate,
-delete, live layout, and exact layout commands are all closed.
+For a v4 partial working set, only backend-advertised `node.reorder` is enabled.
+Text drafts, field-chip insertion, duplicate, delete, live layout, and exact
+layout commands remain closed.
 
 The existing backend base-revision and stale-apply gates remain unchanged.
 
@@ -61,6 +61,7 @@ returned v4 package.
 - Core imports remain behind `coreAdapter.ts`.
 - Backend capability is checked before backend document loading.
 - Migration-target packages use an isolated read-only core session.
+- Mutation capability is checked per version pair and operation kind.
 - Block and inline images appear as structural placeholders without claiming
   asset-byte or exact-render support.
 - Mutation is gated on compatible service capability.
@@ -72,12 +73,13 @@ Phase 261 adds an explicit `Upgrade` command and result workflow. It is enabled
 only for fresh backend package 2/document 3 state when migration persistence is
 advertised as available. Applied and replayed results are read back and opened
 through the v4 read-only session; stale, rejected, invalid, and unavailable
-results retain the current editor state.
+results retain the current editor state. Accepted targets enter partial mode,
+not the fully active runtime.
 
 ## FAIL / BLOCKER
 
-- Package 3/document 4 cannot be edited, live-laid-out, exactly rendered, or
-  exported by the active editor.
+- Package 3/document 4 cannot delete, duplicate, edit text/images, live-layout,
+  exactly render, or export.
 
 ## RISK
 
@@ -101,5 +103,5 @@ results retain the current editor state.
 
 ## Next Recommended Direction
 
-Define the first v4 active-operation slice and its graph/history/layout
-invalidation contract before enabling editor mutation.
+Define v4 delete/duplicate ownership and reference-impact rules before enabling
+the next mutation kinds.

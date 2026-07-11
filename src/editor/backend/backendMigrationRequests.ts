@@ -18,14 +18,14 @@ export function canRetryBackendMigrationRequest(
   return request != null
     && request.documentId === state.core.envelope.documentId
     && request.baseRevision === state.core.envelope.documentRevision
-    && state.seed.document.runtimeMode !== "read-only"
+    && state.seed.document.runtimeMode === "active"
 }
 
 export function createBackendMigrationRequest(
   state: EditorRuntimeState,
   options: { reason?: string; requestId: string },
 ): BackendMigrationRequestBuildResult {
-  if (state.seed.document.runtimeMode === "read-only") {
+  if (state.seed.document.runtimeMode !== "active") {
     return { reason: "document-not-active", status: "blocked" }
   }
   if (state.core.envelope.status !== "fresh") {

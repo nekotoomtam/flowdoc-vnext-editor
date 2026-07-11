@@ -86,7 +86,7 @@ export function applyRuntimeBackendMigrationResult(
   const workingSet = binding.workingSet
   if (workingSet.document.packageVersion !== 3
     || workingSet.document.documentVersion !== 4
-    || workingSet.document.runtimeMode !== "read-only") {
+    || workingSet.document.runtimeMode !== "partial") {
     return blocked(state, result, "blocked-invalid", "target-runtime-not-read-only")
   }
 
