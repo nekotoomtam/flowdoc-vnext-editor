@@ -2,7 +2,7 @@
 
 Status: active
 Date opened: 2026-07-01
-Date updated: 2026-07-09
+Date updated: 2026-07-11
 Scope: FlowDoc vNext Editor Phase 1 UX foundation
 
 ## Current Validation Baseline
@@ -324,6 +324,27 @@ Record each manual QA pass with:
 - RISK: page 3 is exactly at the current estimated flow capacity. This is a
   useful regression marker, but it is still preview-estimate evidence rather
   than exact export pagination.
+
+2026-07-11 product-realistic baseline browser evidence:
+
+- QA pass: in-app browser automation against `http://127.0.0.1:4004/`.
+- Setup: backend served canonical `product-report-vnext-baseline` from the core
+  package fixture at revision `1`; editor started with
+  `VITE_FLOWDOC_LAYOUT_QA=true`,
+  `VITE_FLOWDOC_BACKEND_URL=http://127.0.0.1:4011`, and
+  `VITE_FLOWDOC_DOCUMENT_ID=product-report-vnext-baseline`.
+- PASS: status bar loaded `Document: product-report-vnext-baseline`,
+  `Core: api r1`, `Pages: 2`, `Nodes: 64`, `Text blocks: 35`, and
+  `Tables: 1`.
+- PASS: the node-backed preview displayed the synthetic product values
+  `Northstar Retail`, `June 2026`, `Product Operations`, and `On track`.
+- PASS: layout QA reported `Layout QA: 2/2 fit`, `Overflow: 0/0`, and
+  `Max fill: 99%`; page estimates were `894` and `612` against an active flow
+  capacity of `907`.
+- RISK: current editor summaries do not materialize `data.values` into
+  field-ref display output. The baseline fixture mirrors its synthetic data in
+  authored field-ref fallbacks so this QA remains product-shaped without
+  claiming dynamic binding or exact export fidelity.
 
 ## Exit Criteria
 
