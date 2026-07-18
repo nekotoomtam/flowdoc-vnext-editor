@@ -2,8 +2,9 @@
 
 Status: `PDF-EXPORT-LOCAL-F` Editor eligibility, request, redacted status,
 cancellation, verified download, retry, and stale-revision integration accepted
-through a development-only same-origin proxy. Local readiness and every
-production binding remain closed.
+through a development-only same-origin proxy. `PDF-EXPORT-LOCAL-G` now accepts
+the bounded canonical local-readiness audit. Product-document eligibility and
+every production binding remain closed.
 
 ## Runtime Boundary
 
@@ -103,20 +104,33 @@ production build or default Backend application server.
   `../flowdoc-vnext-backend/src/tests/pdfExportLocalEligibilityHttpHandler.test.ts`
   and `pdfExportLocalProviders.integration.test.ts`.
 
+## LOCAL-G Follow-Up
+
+The Backend actual-provider gate now proves the Editor-facing public contract
+across two operating-system processes. The first process admits, renders,
+reports redacted completion, and downloads the exact canonical PDF. The second
+process replays the same caller key, reports the identical public status and
+download bytes, and invokes no worker work. The public status key set is checked
+exactly, so provider, tenant, principal, credential, contract, and resource
+details cannot expand into the Editor response unnoticed.
+
+Actual HTTP cancellation before worker handoff reports cancelled state, returns
+no PDF, and creates no object. The complete LOCAL-G fault and measured resource
+record is retained in
+`../flowdoc-vnext-backend/docs/PDF_EXPORT_LOCAL_READINESS_AUDIT.md`.
+
 ## RISK
 
 - Browser lifecycle tests currently exercise the default ineligible product
   lane; the eligible canonical sequence is contract/state evidence because the
   canonical source is not a product Editor working set.
 - Polling is intentionally simple and local. Visibility-aware scheduling and
-  long-running reconnect policy remain readiness concerns.
+  long-running reconnect policy remain future product-lane ergonomics work.
 - The local bearer is development-only and is not a production identity or
   tenancy model.
 
 ## UNKNOWN
 
-- LOCAL-G restart/cancellation/corruption/fidelity/load evidence through the
-  complete HTTP, worker, and Editor-facing contract.
 - Trusted product-document measurement and resource eligibility.
 - Production identity, deployment, provider, SLO, capacity, retention,
   backup, TLS, rate-limit, monitoring, cost, and rollout decisions.
@@ -130,5 +144,7 @@ production build or default Backend application server.
 - Canonical fixture substitution for the current product document.
 - Production proxy, credential, provider, renderer, deployment, or activation.
 
-Next phase: `PDF-EXPORT-LOCAL-G` end-to-end restart, cancellation, corruption,
-fidelity, and bounded-load readiness audit. Production remains NO-GO.
+LOCAL-A through LOCAL-G local qualification is complete. Next local work is one
+trusted product-readable document revision with complete measured and
+digest-bound resource evidence, followed by its eligible Editor lifecycle.
+Production remains NO-GO.
