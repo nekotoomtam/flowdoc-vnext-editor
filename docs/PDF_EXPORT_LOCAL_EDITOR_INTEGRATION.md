@@ -1,0 +1,134 @@
+# PDF Export Local Editor Integration
+
+Status: `PDF-EXPORT-LOCAL-F` Editor eligibility, request, redacted status,
+cancellation, verified download, retry, and stale-revision integration accepted
+through a development-only same-origin proxy. Local readiness and every
+production binding remain closed.
+
+## Runtime Boundary
+
+The Editor sends PDF traffic only to `/api/pdf-export-local`. In the explicit
+local development profile, Vite proxies that prefix to the separate Backend
+PDF listener on `127.0.0.1:4012`. The browser never receives or sends the local
+bearer token. The proxy overwrites the Authorization header from the Backend
+`.env.local` value inside the Vite Node process.
+
+The proxy exists only when all of these values are exact:
+
+- Vite command is `serve`;
+- `FLOWDOC_PDF_LOCAL_RUNTIME_PROFILE=local-integration`;
+- `FLOWDOC_PDF_LOCAL_INTEGRATION=1`;
+- `FLOWDOC_PDF_LOCAL_HTTP_HOST=127.0.0.1`;
+- the port is bounded; and
+- the local bearer token satisfies the Backend length/whitespace contract.
+
+Build mode returns no proxy profile even when those variables are present.
+The credential is not a `VITE_*` variable and is not compiled into browser
+assets.
+
+## Editor Workflow
+
+Eligibility is checked against the exact current Core working-set
+`documentId` and `documentRevision`. Only an `eligible` response for the same
+pin opens request intent. A stale response, unsupported document, non-fresh
+working set, changed revision, mismatched operation response, or invalid
+public contract closes the command.
+
+The browser request body contains exactly `documentId` and
+`documentRevision`. Caller request and cancellation idempotency keys are
+created once per UI intent and retained across transport retries. Tenant,
+principal, renderer, measured contract, resource, provider, and credential
+fields are never accepted from Editor state.
+
+Accepted operations are polled at a bounded one-second cadence. The Editor
+accepts only the redacted public status fields and ignores no additional
+fields: an expanded response fails the exact parser. Active operations expose
+cancel intent, completed operations expose download, and failed/cancelled
+operations expose a new request intent. Download requires a successful
+`application/pdf` response and uses the fixed filename `flowdoc-export.pdf`.
+
+Changing the current document revision clears the operation, request key,
+cancel key, and prior eligibility before another check. An old async response
+cannot update the new document pin.
+
+## Current Eligibility
+
+The accepted Backend resolver still supports only the retained Phase T
+canonical document revision. The Editor's normal product document is therefore
+shown as `PDF unavailable`; it is not replaced by the canonical evidence
+fixture and no configuration can override the working-set pin.
+
+The transport and state integration cover an eligible canonical response, but
+the current product read route does not expose that canonical source as an
+Editor working set. Product-document export remains closed until trusted
+measurement and digest-bound resource resolution exist for the exact product
+revision.
+
+## Local Commands
+
+Prepare and run the Backend providers, HTTP process, and worker from the
+Backend repository:
+
+```text
+npm run pdf-export-local:env
+npm run pdf-export-local:up
+npm run pdf-export-local:migrate
+npm run pdf-export-local:http
+npm run pdf-export-local:worker
+```
+
+Run the Editor in a separate terminal:
+
+```text
+npm run dev:pdf-export-local
+```
+
+Normal `npm run dev` starts without the PDF proxy. Neither command changes the
+production build or default Backend application server.
+
+## Evidence
+
+- `src/editor/pdfExport/localPdfExportContracts.ts` owns exact public parsing
+  and pin checks.
+- `src/editor/pdfExport/localPdfExportTransport.ts` owns same-origin HTTP
+  intent and accepts no browser credential.
+- `src/app/useLocalPdfExport.ts` owns eligibility, idempotency, polling,
+  cancellation, download, retry, and stale async-result handling.
+- `src/components/shell/EditorToolbar.tsx` owns compact command/status
+  presentation.
+- `vite.config.ts` owns the fail-closed development proxy.
+- `src/tests/localPdfExport.test.ts` proves contracts, routes, browser headers,
+  control states, proxy gating, and server-side credential injection.
+- Backend eligibility and actual-provider evidence lives in
+  `../flowdoc-vnext-backend/src/tests/pdfExportLocalEligibilityHttpHandler.test.ts`
+  and `pdfExportLocalProviders.integration.test.ts`.
+
+## RISK
+
+- Browser lifecycle tests currently exercise the default ineligible product
+  lane; the eligible canonical sequence is contract/state evidence because the
+  canonical source is not a product Editor working set.
+- Polling is intentionally simple and local. Visibility-aware scheduling and
+  long-running reconnect policy remain readiness concerns.
+- The local bearer is development-only and is not a production identity or
+  tenancy model.
+
+## UNKNOWN
+
+- LOCAL-G restart/cancellation/corruption/fidelity/load evidence through the
+  complete HTTP, worker, and Editor-facing contract.
+- Trusted product-document measurement and resource eligibility.
+- Production identity, deployment, provider, SLO, capacity, retention,
+  backup, TLS, rate-limit, monitoring, cost, and rollout decisions.
+
+## Intentionally Not Changed
+
+- Core document, layout, renderer handoff, receipt, or completion contracts.
+- Backend default application server or CORS policy.
+- Renderer, worker, PostgreSQL, or S3-compatible provider implementation in
+  the Editor.
+- Canonical fixture substitution for the current product document.
+- Production proxy, credential, provider, renderer, deployment, or activation.
+
+Next phase: `PDF-EXPORT-LOCAL-G` end-to-end restart, cancellation, corruption,
+fidelity, and bounded-load readiness audit. Production remains NO-GO.

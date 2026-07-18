@@ -100,6 +100,16 @@ button:disabled {
   padding: 5px 8px;
 }
 
+.toolbar-spinner {
+  animation: toolbar-spin 900ms linear infinite;
+}
+
+@keyframes toolbar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .app-header-status span {
   color: var(--color-text-muted);
   font-size: 12px;

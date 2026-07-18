@@ -1,22 +1,28 @@
 import {
   ClipboardPlus,
+  Download,
   FileText,
+  FileDown,
   Highlighter,
+  LoaderCircle,
   RotateCcw,
   RefreshCw,
   Table2,
   Type,
+  X,
   ZoomIn,
   ZoomOut,
 } from "lucide-react"
 import type { CoreDiagnosticsSummary } from "../../core/coreTypes"
 import type { PaperModel, PaperPreset } from "../../editor/paper/paperModel"
 import type { RuntimeDocumentMigrationStatus } from "../../editor/runtime/runtimeMigrationStatus"
+import type { LocalPdfExportInteraction } from "../../app/useLocalPdfExport"
 
 export interface EditorToolbarProps {
   diagnostics: CoreDiagnosticsSummary
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
+  localPdfExport: LocalPdfExportInteraction
   onMigrateDocument: () => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
@@ -29,12 +35,23 @@ export function EditorToolbar({
   diagnostics,
   migrationEnabled,
   migrationStatus,
+  localPdfExport,
   onMigrateDocument,
   onSelectPaperPreset,
   onSelectPaperZoom,
   paper,
 }: EditorToolbarProps) {
   const zoomPercent = Math.round(paper.zoom * 100)
+  const pdfIcon = localPdfExport.control.action === "cancel"
+    ? <X aria-hidden="true" size={16} />
+    : localPdfExport.control.action === "download"
+      ? <Download aria-hidden="true" size={16} />
+      : localPdfExport.control.label.startsWith("Retry")
+        ? <RefreshCw aria-hidden="true" size={16} />
+        : localPdfExport.control.action == null && !localPdfExport.control.label.startsWith("PDF unavailable")
+          && !localPdfExport.control.label.startsWith("Revision changed")
+          ? <LoaderCircle aria-hidden="true" className="toolbar-spinner" size={16} />
+          : <FileDown aria-hidden="true" size={16} />
 
   return (
     <nav className="editor-toolbar" aria-label="Editor toolbar">
@@ -111,6 +128,20 @@ export function EditorToolbar({
           {migrationStatus.message}
         </span>
       )}
+      <span aria-live="polite" className="toolbar-readiness">
+        {localPdfExport.control.statusLabel}
+      </span>
+      <button
+        aria-label={localPdfExport.control.label}
+        className="tool-button"
+        disabled={localPdfExport.control.disabled}
+        onClick={localPdfExport.activate}
+        title={localPdfExport.control.label}
+        type="button"
+      >
+        {pdfIcon}
+        <span>{localPdfExport.control.label}</span>
+      </button>
       <button
         className="tool-button"
         disabled={!migrationEnabled || migrationStatus.status === "pending"}

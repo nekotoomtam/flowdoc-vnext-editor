@@ -17,12 +17,14 @@ import { createRenderProjectionLayoutQaSummary } from "../editor/render/renderPr
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
 import type { RuntimeDocumentMigrationStatus } from "../editor/runtime/runtimeMigrationStatus"
+import type { LocalPdfExportInteraction } from "./useLocalPdfExport"
 
 export interface EditorShellProps {
   canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
   editorState: EditorRuntimeState
   layoutQaEnabled: boolean
+  localPdfExport: LocalPdfExportInteraction
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
   mutationStatus: RuntimeNodeMutationStatus
@@ -47,6 +49,7 @@ export function EditorShell({
   canvasReorderDrag,
   editorState,
   layoutQaEnabled,
+  localPdfExport,
   migrationEnabled,
   migrationStatus,
   mutationStatus,
@@ -80,6 +83,7 @@ export function EditorShell({
         diagnostics={diagnostics}
         migrationEnabled={migrationEnabled}
         migrationStatus={migrationStatus}
+        localPdfExport={localPdfExport}
         onMigrateDocument={onMigrateDocument}
         paper={paper}
         onSelectPaperPreset={onSelectPaperPreset}

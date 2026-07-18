@@ -3,6 +3,7 @@ import { EditorShell } from "./EditorShell"
 import { useCanvasReorderDrag } from "./useCanvasReorderDrag"
 import { useBackendNodeMutation } from "./useBackendNodeMutation"
 import { useBackendDocumentMigration } from "./useBackendDocumentMigration"
+import { useLocalPdfExport } from "./useLocalPdfExport"
 import type { PaperPreset } from "../editor/paper/paperModel"
 import type { EditorCommand, EditorCommandSource, NodeReorderDirection } from "../editor/commands/commandTypes"
 import { CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID } from "../core/coreAdapter"
@@ -12,6 +13,7 @@ import {
 } from "../editor/backend/backendConfig"
 import { resolveFlowDocLayoutQaEnabled } from "../editor/config/editorFeatureConfig"
 import { createFlowDocBackendClient } from "../editor/backend/backendTransport"
+import { createLocalPdfExportClient } from "../editor/pdfExport/localPdfExportTransport"
 import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
 import type { EditorBackendMutationOperationKind } from "../editor/backend/backendVersionCapability"
 import { loadInitialCoreWorkingSet } from "../editor/coreBinding/workingSetFactory"
@@ -43,6 +45,7 @@ export function EditorApp() {
     }),
     [backendBaseUrl],
   )
+  const localPdfExportClient = useMemo(() => createLocalPdfExportClient(), [])
   const initialState = useMemo(
     () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
       baseRevision: 3,
@@ -52,6 +55,14 @@ export function EditorApp() {
     [],
   )
   const [editorState, setEditorState] = useState(initialState)
+  const localPdfExport = useLocalPdfExport({
+    client: localPdfExportClient,
+    enabled: editorState.core.envelope.status === "fresh",
+    pin: {
+      documentId: editorState.core.envelope.documentId,
+      documentRevision: editorState.core.envelope.documentRevision,
+    },
+  })
   const [versionCapabilityStatus, setVersionCapabilityStatus] = useState<EditorVersionCapabilityStatus>("checking")
   const [migrationPersistenceAvailable, setMigrationPersistenceAvailable] = useState(false)
   const [mutationOperationSupport, setMutationOperationSupport] = useState<
@@ -210,6 +221,7 @@ export function EditorApp() {
       canvasReorderDrag={canvasReorderDrag}
       editorState={editorState}
       layoutQaEnabled={layoutQaEnabled}
+      localPdfExport={localPdfExport}
       migrationEnabled={migrationEnabled}
       migrationStatus={migrationStatus}
       mutationStatus={mutationStatus}
