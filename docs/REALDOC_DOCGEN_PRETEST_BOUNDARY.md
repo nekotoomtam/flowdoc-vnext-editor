@@ -1,8 +1,9 @@
 # REALDOC DocGen Pre-Test Boundary
 
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock with
-`PDF-EXPORT-REALDOC-E.1` Core generation-input contract accepted. No Editor UI
-or runtime change; production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.1` generation-input and `PDF-EXPORT-REALDOC-E.2` Core
+mapping/validation runtime accepted. No Editor UI or runtime change;
+production remains NO-GO.
 
 ## Product Role
 
@@ -93,6 +94,30 @@ value, layout fact, renderer fact, or browser-generated snapshot becomes
 authoritative. The current transport still sends only `documentId` and
 `documentRevision`; E.1 adds no UI, hook, parser, state, proxy, or route.
 
+## E.2 Pre-Test Handoff
+
+Core now proves that direct canonical snapshots and identity-pinned adapted
+JSON can converge on the same validated canonical snapshot fingerprint. Exact
+payload bytes are checked before mapping, mapper exceptions are redacted, and
+diagnostics contain codes, structural paths, counts, and fingerprints rather
+than supplied business values.
+
+This does not move mapping into the Editor. In the future pre-test flow, the
+browser may select a file and mapping profile, but Backend must fingerprint the
+admitted bytes, select the allowlisted mapper, allocate/load the generation
+instance, and call the same Core runtime used by an external API caller. The
+browser cannot submit executable mapper code or authoritative canonical
+snapshots for an adapted payload.
+
+Ready canonical snapshots contain test business data and belong only to the
+protected generation operation. Editor lifecycle state should retain operation
+identity, content-free diagnostics, stale gates, and artifact status, not copy
+the canonical values into authored Structure state or general client logs.
+
+E.2 adds no file picker, mapping-profile selector, diagnostics panel, state,
+hook, request body, proxy, preview, or route. The current local transport still
+sends only `documentId` and `documentRevision`.
+
 ## Existing Local PDF Controls
 
 LOCAL-F and LOCAL-G remain a development-only canonical evidence workflow. The
@@ -140,5 +165,5 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free diagnostics,
-and direct/adapted parity in Core/Backend before pre-test UI implementation.
+`PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission before pre-test
+UI implementation. Production remains NO-GO.

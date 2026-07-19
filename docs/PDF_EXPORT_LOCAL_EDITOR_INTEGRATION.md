@@ -154,3 +154,8 @@ separate from authored Structure truth and use the same Backend
 mapping/generation path as an external API-shaped caller. The current controls
 remain reusable lifecycle evidence only. See
 `docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md`. Production remains NO-GO.
+
+REALDOC-E.2 now proves exact payload/mapper execution and direct/adapted
+canonical parity inside Core. It still does not change this Editor transport,
+add test-data selection, run mapping in the browser, or expose canonical
+business values as lifecycle state. Backend admission remains the next gate.
