@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 
-describe("PDF-EXPORT-REALDOC-E.0-E.3 Editor pre-test boundary", () => {
+describe("PDF-EXPORT-REALDOC-E.0-E.4 Editor pre-test boundary", () => {
   it("keeps Structure authoring separate from imported test values", () => {
     const doc = read("../../docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md")
 
@@ -15,6 +15,7 @@ describe("PDF-EXPORT-REALDOC-E.0-E.3 Editor pre-test boundary", () => {
       "## E.1 Pre-Test Handoff",
       "## E.2 Pre-Test Handoff",
       "## E.3 Pre-Test Handoff",
+      "## E.4 Pre-Test Handoff",
       "## Existing Local PDF Controls",
       "## Book-Form UX Pressure",
       "## Explicitly Not Changed",
@@ -36,7 +37,8 @@ describe("PDF-EXPORT-REALDOC-E.0-E.3 Editor pre-test boundary", () => {
     expect(doc).toMatch(/E\.2 adds no file picker, mapping-profile selector/)
     expect(doc).toMatch(/Backend now accepts one strict local DocGen request/)
     expect(doc).toMatch(/This phase deliberately does not connect the Editor/)
-    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.4` binds one admitted 69C canonical record")
+    expect(doc).toMatch(/Backend now accepts the E\.3 `instanceId` and revision/)
+    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5` adds Editor pre-test")
   })
 
   it("does not reinterpret the LOCAL-F document pin as DocGen admission", () => {
@@ -55,5 +57,6 @@ describe("PDF-EXPORT-REALDOC-E.0-E.3 Editor pre-test boundary", () => {
     expect(localIntegration).toMatch(/REALDOC-E\.1 now accepts the pure Core input plan/)
     expect(localIntegration).toMatch(/REALDOC-E\.2 now proves exact payload\/mapper execution/)
     expect(localIntegration).toMatch(/REALDOC-E\.3 now accepts the separate optional Backend/)
+    expect(localIntegration).toMatch(/REALDOC-E\.4 now completes that Backend binding/)
   })
 })

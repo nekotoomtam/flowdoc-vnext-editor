@@ -163,7 +163,13 @@ business values as lifecycle state. Backend admission remains the next gate.
 REALDOC-E.3 now accepts the separate optional Backend
 `POST /docgen-local/admissions` boundary with trusted Structure, mapper, and
 asset-byte admission plus a protected canonical record. This Editor transport
-is intentionally unchanged and still cannot call that route. E.4 must first
-bind the record to the artifact lifecycle; E.5 then adds the pre-test surface
+is intentionally unchanged and still cannot call that route. E.4 binds the
+record to the artifact lifecycle; E.5 then adds the pre-test surface
 through a same-origin development transport without exposing a local credential
 or storing test values in authored Structure state.
+
+REALDOC-E.4 now completes that Backend binding. One protected 69C generation
+reuses the existing PDF operation, worker, cancellation, persistence, status,
+and verified-download lifecycle. This Editor transport remains intentionally
+unchanged; E.5 owns the separate test-data selection, admission diagnostics,
+stale gates, and artifact controls for the DocGen pre-test flow.

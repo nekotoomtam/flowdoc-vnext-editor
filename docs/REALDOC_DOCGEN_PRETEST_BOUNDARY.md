@@ -1,8 +1,9 @@
 # REALDOC DocGen Pre-Test Boundary
 
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
-accepted E.1 generation input, E.2 Core runtime, and E.3 bounded local Backend
-admission. No Editor UI or runtime change; production remains NO-GO.
+accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
+admission, and E.4 local artifact lifecycle. No Editor UI or runtime change;
+production remains NO-GO.
 
 ## Product Role
 
@@ -138,6 +139,21 @@ transport still sends only a current `documentId` and `documentRevision`; it is
 not silently widened or relabeled. E.5 will add pre-test UX only after E.4 has
 connected the admitted canonical record to the shared artifact lifecycle.
 
+## E.4 Pre-Test Handoff
+
+Backend now accepts the E.3 `instanceId` and revision through the existing
+`POST /pdf-exports` route, resolves only the protected canonical record, and
+reuses the existing worker, cancellation, persistence, status, and verified
+download lifecycle. The 69C section completes as a 10-page local artifact;
+route replay does not rematerialize and cancellation before worker persists no
+bytes.
+
+This phase still deliberately does not connect the Editor. E.5 may reuse the
+existing lifecycle controls only after a new pre-test state admits one exact
+Published Structure plus selected test data. The browser must retain the
+content-free admission receipt and operation status, not canonical business
+values or measured contracts.
+
 ## Existing Local PDF Controls
 
 LOCAL-F and LOCAL-G remain a development-only canonical evidence workflow. The
@@ -185,6 +201,5 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.4` binds one admitted 69C canonical record to
-materialization, resolution, and the local artifact lifecycle. Editor pre-test
-UI remains E.5. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5` adds Editor pre-test over the accepted E.3 admission
+and E.4 artifact lifecycle. Production remains NO-GO.
