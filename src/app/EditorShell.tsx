@@ -21,7 +21,7 @@ import type { LocalPdfExportInteraction } from "./useLocalPdfExport"
 import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
 import { PreviewUnavailableView } from "../components/preview/PreviewUnavailableView"
 import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
-import type { PreviewTestInputFormInteraction } from "./usePreviewTestInputForm"
+import type { PreviewTestInputInteraction } from "./usePreviewTestInput"
 import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
 
 export interface EditorShellProps {
@@ -31,7 +31,7 @@ export interface EditorShellProps {
   editorState: EditorRuntimeState
   layoutQaEnabled: boolean
   localPdfExport: LocalPdfExportInteraction
-  previewTestInput: PreviewTestInputFormInteraction
+  previewTestInput: PreviewTestInputInteraction
   testInputProjection: VNextPublishedStructureTestInputProjectionV1 | null
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
@@ -167,7 +167,7 @@ export function EditorShell({
             id="workspace-panel-preview"
             role="tabpanel"
           >
-            {testInputProjection && previewTestInput.state ? (
+            {testInputProjection && previewTestInput.form.state && previewTestInput.json.state ? (
               <PreviewTestInputView
                 document={document}
                 interaction={previewTestInput}

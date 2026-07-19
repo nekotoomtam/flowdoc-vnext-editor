@@ -4,14 +4,19 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
 import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
 import { createTestInputFormState } from "../editor/preview/testInputFormState"
+import {
+  createTestInputJsonDiagnostics,
+  createTestInputJsonState,
+} from "../editor/preview/testInputJsonState"
 import { REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE } from "../fixtures/realdocE54TestInputProjectionFixture"
 import type { PreviewTestInputFormInteraction } from "../app/usePreviewTestInputForm"
+import type { PreviewTestInputInteraction } from "../app/usePreviewTestInput"
 
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 
 describe("PDF-EXPORT-REALDOC-E.5.4 generated Form UI", () => {
   it("renders scalar, image, collection, and unplaced controls from the Core projection", () => {
-    const interaction: PreviewTestInputFormInteraction = {
+    const form: PreviewTestInputFormInteraction = {
       state: createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE),
       lastIssue: null,
       addCollectionItem: vi.fn(),
@@ -24,6 +29,28 @@ describe("PDF-EXPORT-REALDOC-E.5.4 generated Form UI", () => {
       setDocumentImage: vi.fn(),
       setDocumentValue: vi.fn(),
       getSelectedFile: vi.fn(() => null),
+    }
+    const jsonState = createTestInputJsonState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
+    const interaction: PreviewTestInputInteraction = {
+      mode: "form",
+      form,
+      json: {
+        state: jsonState,
+        diagnostics: createTestInputJsonDiagnostics(
+          jsonState,
+          REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+          [],
+        ),
+        lastIssue: null,
+        mappingProfiles: [],
+        clearPayload: vi.fn(),
+        reset: vi.fn(),
+        selectFile: vi.fn(async () => undefined),
+        selectMappingProfile: vi.fn(),
+        setPayloadText: vi.fn(),
+      },
+      resetActive: vi.fn(),
+      setMode: vi.fn(),
     }
     const markup = renderToStaticMarkup(createElement(PreviewTestInputView, {
       document: { id: "qa", title: "QA document", packageVersion: 3, documentVersion: 4 },
@@ -55,7 +82,7 @@ describe("PDF-EXPORT-REALDOC-E.5.4 generated Form UI", () => {
     expect(handoff).toContain("`PDF-EXPORT-REALDOC-E.5.5`")
     expect(routes).toContain("import.meta.env.DEV")
     expect(routes).toContain('path="/__qa/realdoc-e5-4-form"')
-    expect(shell).toContain("testInputProjection && previewTestInput.state")
+    expect(shell).toContain("testInputProjection && previewTestInput.form.state && previewTestInput.json.state")
     expect(shell).toContain("PreviewUnavailableView")
     expect(formState).toContain('storage: "memory-only"')
     expect(formState).not.toContain("localStorage")

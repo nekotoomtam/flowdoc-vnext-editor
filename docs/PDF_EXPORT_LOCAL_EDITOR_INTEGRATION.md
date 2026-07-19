@@ -181,6 +181,7 @@ It opens the existing Design runtime by URL, keeps Preview disabled, and makes
 no per-user authorization claim. REALDOC-E.5.2 now adds the shared workspace
 header and URL-backed Design/Preview tabs while preserving the Design runtime.
 The Preview route reports unavailable and does not call this PDF transport.
-E.5.4 now accepts temporary Editor Form state over the E.5.3 Core projection.
-E.5.5 next adds JSON/mapping state without relabeling this PDF transport as
-DocGen admission.
+E.5.4 accepts temporary Editor Form state over the E.5.3 Core projection. E.5.5
+now accepts temporary JSON/mapping preparation without relabeling this PDF
+transport as DocGen admission. E.5.6 next owns the separate Published Preview
+binding.

@@ -20,7 +20,7 @@ describe("PDF-EXPORT-REALDOC-E.5.3 test-input projection handoff", () => {
     expect(doc).toMatch(/one document value identity per field key/)
     expect(doc).toContain("`metadata-unavailable` is not optional or required")
     expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.5`")
-    expect(product).toContain("`E.5.4` temporary generated Form accepted")
+    expect(product).toMatch(/`E\.5\.4` temporary generated Form, and\s+`E\.5\.5` temporary JSON\/mapping preparation accepted/)
     expect(preview).toContain("Preview unavailable")
     expect(preview).not.toContain("testInput")
     expect(preview).not.toContain("dataContract")

@@ -1,4 +1,7 @@
 import {
+  CheckCircle2,
+  CircleAlert,
+  FileJson,
   FileText,
   ImagePlus,
   Plus,
@@ -14,10 +17,18 @@ import type {
 import type { CoreEditorDocumentSummary } from "../../core/coreTypes"
 import type { PreviewTestInputFormInteraction } from "../../app/usePreviewTestInputForm"
 import type {
+  PreviewTestInputInteraction,
+  PreviewTestInputJsonInteraction,
+} from "../../app/usePreviewTestInput"
+import type {
   TestInputEditableValue,
   TestInputImageSelection,
   TestInputScalarValue,
 } from "../../editor/preview/testInputFormState"
+import {
+  testInputMappingProfileMatchesProjection,
+  testInputMappingProfileOptionKey,
+} from "../../editor/preview/testInputJsonState"
 
 type EditableFieldProjection =
   | VNextTestInputDocumentFieldProjectionV1
@@ -311,9 +322,150 @@ function CollectionField({
   )
 }
 
+function formatBytes(byteLength: number): string {
+  if (byteLength < 1024) return `${byteLength} B`
+  return `${(byteLength / 1024).toFixed(byteLength < 10 * 1024 ? 1 : 0)} KiB`
+}
+
+function JsonInputPane({
+  interaction,
+  projection,
+}: {
+  interaction: PreviewTestInputJsonInteraction
+  projection: VNextPublishedStructureTestInputProjectionV1
+}) {
+  const { diagnostics, state } = interaction
+  if (!state || !diagnostics) return null
+  const selectionKey = state.mappingProfile == null
+    ? ""
+    : JSON.stringify([
+        state.mappingProfile.mappingProfileId,
+        state.mappingProfile.mappingProfileVersion,
+        state.mappingProfile.profileFingerprint,
+      ])
+  const selectedOption = interaction.mappingProfiles.find((option) => (
+    testInputMappingProfileOptionKey(option) === selectionKey
+  ))
+  const statusLabel = diagnostics.status === "ready-for-admission"
+    ? "Ready"
+    : diagnostics.status === "blocked" ? "Blocked" : "Incomplete"
+
+  return (
+    <div className="test-input-json-scroll">
+      <section className="test-input-json-section">
+        <div className="test-input-json-heading">
+          <div>
+            <strong>JSON payload</strong>
+            <span>{formatBytes(diagnostics.summary.payloadByteLength)} / 1 MiB</span>
+          </div>
+          <input
+            accept=".json,application/json,text/json"
+            className="test-input-file-input"
+            id="test-input-json-file"
+            onChange={(event) => {
+              void interaction.selectFile(event.currentTarget.files?.[0] ?? null)
+              event.currentTarget.value = ""
+            }}
+            type="file"
+          />
+          <label className="tool-button test-input-file-button" htmlFor="test-input-json-file">
+            <FileJson aria-hidden="true" size={16} />
+            <span>Choose JSON</span>
+          </label>
+        </div>
+        {state.payloadSource.kind === "file" ? (
+          <div className="test-input-json-file-summary">
+            <span title={state.payloadSource.file.fileName}>{state.payloadSource.file.fileName}</span>
+            <button
+              aria-label="Clear JSON payload"
+              className="icon-button test-input-clear-button"
+              onClick={interaction.clearPayload}
+              title="Clear JSON payload"
+              type="button"
+            >
+              <X aria-hidden="true" size={14} />
+            </button>
+          </div>
+        ) : null}
+        <textarea
+          aria-label="JSON payload"
+          className="test-input-json-editor"
+          onChange={(event) => interaction.setPayloadText(event.currentTarget.value)}
+          placeholder="{}"
+          spellCheck={false}
+          value={state.payloadText}
+        />
+      </section>
+
+      <section className="test-input-json-section">
+        <div className="test-input-json-heading">
+          <div>
+            <strong>Mapping profile</strong>
+            <span>Exact version</span>
+          </div>
+        </div>
+        <select
+          aria-label="Mapping profile"
+          className="test-input-select"
+          onChange={(event) => interaction.selectMappingProfile(event.currentTarget.value || null)}
+          value={selectionKey}
+        >
+          <option value="">Select profile</option>
+          {interaction.mappingProfiles.map((option) => (
+            <option
+              disabled={!testInputMappingProfileMatchesProjection(option, projection)}
+              key={testInputMappingProfileOptionKey(option)}
+              value={testInputMappingProfileOptionKey(option)}
+            >
+              {option.label} (v{option.profile.mappingProfileVersion})
+            </option>
+          ))}
+        </select>
+        {selectedOption ? (
+          <dl className="test-input-profile-facts">
+            <div><dt>Profile</dt><dd>{selectedOption.profile.mappingProfileId}</dd></div>
+            <div>
+              <dt>Source</dt>
+              <dd>
+                {selectedOption.profile.sourceContract.sourceContractId}
+                {` v${selectedOption.profile.sourceContract.sourceContractVersion}`}
+              </dd>
+            </div>
+            <div><dt>Execution</dt><dd>{selectedOption.profile.execution.kind}</dd></div>
+          </dl>
+        ) : null}
+      </section>
+
+      <section className="test-input-json-section test-input-json-diagnostics">
+        <div className="test-input-json-heading">
+          <div>
+            <strong>Local checks</strong>
+            <span data-status={diagnostics.status}>{statusLabel}</span>
+          </div>
+        </div>
+        {diagnostics.issues.length === 0 ? (
+          <div className="test-input-diagnostic-row" data-severity="ready">
+            <CheckCircle2 aria-hidden="true" size={16} />
+            <span>JSON and profile are ready for admission.</span>
+          </div>
+        ) : diagnostics.issues.map((item) => (
+          <div className="test-input-diagnostic-row" data-severity={item.severity} key={`${item.code}:${item.path}`}>
+            <CircleAlert aria-hidden="true" size={16} />
+            <span>{item.message}</span>
+          </div>
+        ))}
+        <div className="test-input-execution-row">
+          <span>Mapping</span>
+          <strong>Not run</strong>
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export interface PreviewTestInputViewProps {
   document: CoreEditorDocumentSummary
-  interaction: PreviewTestInputFormInteraction
+  interaction: PreviewTestInputInteraction
   projection: VNextPublishedStructureTestInputProjectionV1
 }
 
@@ -322,8 +474,16 @@ export function PreviewTestInputView({
   interaction,
   projection,
 }: PreviewTestInputViewProps) {
-  if (!interaction.state) return null
+  const formInteraction = interaction.form
+  if (!formInteraction.state || !interaction.json.state) return null
   const fieldByKey = new Map(projection.fields.map((field) => [field.key, field]))
+  const activeRevision = interaction.mode === "form"
+    ? formInteraction.state.revision
+    : interaction.json.state.revision
+  const activeDirty = interaction.mode === "form"
+    ? formInteraction.state.dirty
+    : interaction.json.state.dirty
+  const activeIssue = interaction.mode === "form" ? formInteraction.lastIssue : interaction.json.lastIssue
 
   return (
     <main className="test-input-preview" aria-label="Document Preview test input">
@@ -333,12 +493,12 @@ export function PreviewTestInputView({
           <span>Memory only</span>
         </div>
         <div className="test-input-toolbar-actions">
-          <span className="test-input-revision">Revision {interaction.state.revision}</span>
+          <span className="test-input-revision">Revision {activeRevision}</span>
           <button
             aria-label="Reset test data"
             className="icon-button"
-            disabled={!interaction.state.dirty}
-            onClick={interaction.reset}
+            disabled={!activeDirty}
+            onClick={interaction.resetActive}
             title="Reset test data"
             type="button"
           >
@@ -347,13 +507,29 @@ export function PreviewTestInputView({
         </div>
       </div>
       <div className="test-input-workspace">
-        <aside className="test-input-pane" aria-label="Test input form">
-          {interaction.lastIssue ? (
+        <aside className="test-input-pane" aria-label="Test input">
+          <div className="test-input-mode-bar">
+            <div aria-label="Test input mode" className="segmented-control" role="group">
+              {(["form", "json"] as const).map((mode) => (
+                <button
+                  aria-pressed={interaction.mode === mode}
+                  className="segmented-button"
+                  data-active={interaction.mode === mode}
+                  key={mode}
+                  onClick={() => interaction.setMode(mode)}
+                  type="button"
+                >
+                  {mode === "form" ? "Form" : "JSON"}
+                </button>
+              ))}
+            </div>
+          </div>
+          {activeIssue ? (
             <div aria-live="polite" className="test-input-issue" role="status">
-              {interaction.lastIssue.message}
+              {activeIssue.message}
             </div>
           ) : null}
-          <div className="test-input-form-scroll">
+          {interaction.mode === "form" ? <div className="test-input-form-scroll">
             {projection.groups.map((group) => (
               <section className="test-input-group" key={group.groupId}>
                 <div className="test-input-group-heading">
@@ -364,12 +540,14 @@ export function PreviewTestInputView({
                   const field = fieldByKey.get(fieldKey)
                   if (!field) return null
                   return field.valueType === "collection"
-                    ? <CollectionField field={field} interaction={interaction} key={field.key} />
-                    : <DocumentField field={field} interaction={interaction} key={field.key} />
+                    ? <CollectionField field={field} interaction={formInteraction} key={field.key} />
+                    : <DocumentField field={field} interaction={formInteraction} key={field.key} />
                 })}
               </section>
             ))}
-          </div>
+          </div> : (
+            <JsonInputPane interaction={interaction.json} projection={projection} />
+          )}
         </aside>
         <section className="test-input-preview-surface" aria-label="Exact preview status">
           <div className="test-input-preview-paper">

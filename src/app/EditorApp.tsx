@@ -27,7 +27,7 @@ import { getCanvasKeyboardReorderFocusDecision } from "../editor/interaction/can
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
 import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
-import { usePreviewTestInputForm } from "./usePreviewTestInputForm"
+import { usePreviewTestInput } from "./usePreviewTestInput"
 
 export interface EditorAppProps {
   activeWorkspaceView?: DocumentWorkspaceView
@@ -74,7 +74,7 @@ export function EditorApp({
     [],
   )
   const [editorState, setEditorState] = useState(initialState)
-  const previewTestInput = usePreviewTestInputForm(testInputProjection)
+  const previewTestInput = usePreviewTestInput(testInputProjection)
   const localPdfExport = useLocalPdfExport({
     client: localPdfExportClient,
     enabled: editorState.core.envelope.status === "fresh",

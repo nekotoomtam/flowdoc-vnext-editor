@@ -3,9 +3,9 @@
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
 admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
-E.5.1 Library, E.5.2 workspace tabs, E.5.3 Core test-input projection, and E.5.4
-temporary generated Form. No Preview execution is active; production remains
-NO-GO.
+E.5.1 Library, E.5.2 workspace tabs, E.5.3 Core test-input projection, E.5.4
+temporary generated Form, and E.5.5 temporary JSON/mapping preparation. No
+Preview execution is active; production remains NO-GO.
 
 ## Product Role
 
@@ -253,10 +253,28 @@ change clears all temporary values. Normal document Preview remains unavailable
 until a trusted projection transport exists. No canonical snapshot, validation,
 mapping, materialization, exact page, Backend call, or artifact is created.
 
+## E.5.5 Temporary JSON And Mapping Handoff
+
+Editor now retains selected or entered JSON text plus one exact mapping-profile
+id, version, and fingerprint in memory for the active Preview session. The
+profile must be present in the supplied catalog and match the exact Published
+Structure owner and generation data-contract target. Switching Form/JSON modes
+preserves each mode independently.
+
+Local checks cover presence, the existing 1 MiB adapted JSON limit, JSON syntax,
+profile availability, and owner/target compatibility. Diagnostics contain only
+generated codes, structural paths, generated messages, counts, and byte length;
+they never contain supplied values or parser exception text.
+
+This state is only `ready-for-admission`. Mapping, canonical snapshot creation,
+runtime validation, materialization, exact pages, Backend admission, and
+artifact execution remain `not-run`. Normal Preview stays unavailable until
+trusted projection and profile discovery are connected.
+
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.4` now accepts Editor-owned temporary Form state and
-generated controls. E.5.5 next adds JSON and mapping-profile selection with
-content-free diagnostics, without Preview execution. No multi-user
-authorization is claimed.
+`PDF-EXPORT-REALDOC-E.5.5` now accepts temporary JSON and exact mapping-profile
+selection with content-free local diagnostics. E.5.6 next binds Published
+Preview through E.3/E.4 without making the browser mapper or artifact truth. No
+multi-user authorization is claimed.
 Production remains NO-GO.

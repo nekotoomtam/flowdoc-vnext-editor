@@ -45,7 +45,10 @@ export function FlowDocApp() {
         <Route element={<DocumentWorkspaceDefaultRoute />} path="/documents/:documentId" />
         <Route element={<DocumentWorkspaceRoute />} path="/documents/:documentId/:view" />
         {import.meta.env.DEV ? (
-          <Route element={<PreviewTestInputQaPage />} path="/__qa/realdoc-e5-4-form" />
+          <>
+            <Route element={<PreviewTestInputQaPage />} path="/__qa/realdoc-e5-4-form" />
+            <Route element={<PreviewTestInputQaPage />} path="/__qa/realdoc-e5-5-input" />
+          </>
         ) : null}
         <Route element={<Navigate replace to="/documents" />} path="*" />
       </Routes>

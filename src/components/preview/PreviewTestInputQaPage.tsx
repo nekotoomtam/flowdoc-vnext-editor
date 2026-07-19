@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom"
 import { AppHeader } from "../shell/AppHeader"
 import { PreviewTestInputView } from "./PreviewTestInputView"
-import { usePreviewTestInputForm } from "../../app/usePreviewTestInputForm"
+import { usePreviewTestInput } from "../../app/usePreviewTestInput"
 import { REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE } from "../../fixtures/realdocE54TestInputProjectionFixture"
+import { REALDOC_E55_MAPPING_PROFILES_FIXTURE } from "../../fixtures/realdocE55MappingProfilesFixture"
 
 const qaDocument = {
-  id: "realdoc-e5-4-form-qa",
+  id: "realdoc-e5-5-input-qa",
   title: "Test input workspace",
   packageVersion: 3,
   documentVersion: 4,
@@ -22,7 +23,10 @@ const qaDiagnostics = {
 
 export function PreviewTestInputQaPage() {
   const navigate = useNavigate()
-  const interaction = usePreviewTestInputForm(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
+  const interaction = usePreviewTestInput(
+    REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+    REALDOC_E55_MAPPING_PROFILES_FIXTURE,
+  )
 
   return (
     <div className="editor-shell">

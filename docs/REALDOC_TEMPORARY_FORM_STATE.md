@@ -109,7 +109,8 @@ empty.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.5` adds temporary JSON selection, exact mapping-profile
-selection, and content-free mapping diagnostics. It must converge with Form at
-the existing Core canonical validation boundary and must not activate Preview
-execution. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.5` now accepts separate temporary JSON selection, exact
+mapping-profile selection, and content-free local preparation diagnostics. Form
+and JSON state survive mode switches independently and still stop before
+Preview execution. E.5.6 next binds Published Preview. Production remains
+NO-GO.

@@ -82,6 +82,7 @@ must not silently survive.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.5` adds temporary JSON selection, exact mapping-profile
-selection, and content-free mapping diagnostics. Preview execution remains
-deferred. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.5` now accepts temporary JSON selection, exact
+mapping-profile selection, and content-free local preparation diagnostics.
+Mapping and Preview execution remain `not-run`. E.5.6 next binds Published
+Preview. Production remains NO-GO.
