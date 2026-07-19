@@ -22,7 +22,10 @@ This plan establishes the order of work needed before WYSIWYG can safely begin.
 
 ## Product Editor Definition
 
-The product editor is the real user-facing document editor surface for FlowDoc vNext.
+The product editor is the real user-facing Structure Definition authoring
+surface for FlowDoc vNext. It may feel like direct document editing on a page,
+but its primary saved and published artifact is a reusable Structure Definition
+rather than one generated business-data instance.
 
 It should allow users to work with structured documents directly on a page/canvas while preserving:
 
@@ -38,6 +41,13 @@ long-document responsiveness
 ```
 
 The product editor must feel like a direct document editor, but it must not become a second layout engine or a second document model.
+
+Field definitions, field placements, presentation, and test values remain
+separate truths. Mock or imported data may drive pre-test and preview, but those
+values do not become authored Structure content. External API callers and
+Editor pre-test must converge through the same Backend DocGen admission before
+canonical resolution. The retained boundary is documented in
+`docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md`.
 
 ## North Star
 

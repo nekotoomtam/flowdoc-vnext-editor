@@ -131,7 +131,8 @@ record is retained in
 
 ## UNKNOWN
 
-- Trusted product-document measurement and resource eligibility.
+- Published Structure generation admission, runtime mapping, and resource
+  eligibility for the future DocGen pre-test lane.
 - Production identity, deployment, provider, SLO, capacity, retention,
   backup, TLS, rate-limit, monitoring, cost, and rollout decisions.
 
@@ -144,7 +145,10 @@ record is retained in
 - Canonical fixture substitution for the current product document.
 - Production proxy, credential, provider, renderer, deployment, or activation.
 
-LOCAL-A through LOCAL-G local qualification is complete. Next local work is one
-trusted product-readable document revision with complete measured and
-digest-bound resource evidence, followed by its eligible Editor lifecycle.
-Production remains NO-GO.
+LOCAL-A through LOCAL-G local qualification is complete. REALDOC-E.0 now locks
+the next product path as Structure authoring plus API-driven DocGen, not current
+Editor-document eligibility. Test-data import must remain separate from
+authored Structure truth and use the same Backend mapping/generation path as an
+external API-shaped caller. The current controls remain reusable lifecycle
+evidence only. See `docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md`. Production remains
+NO-GO.
