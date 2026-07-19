@@ -13,7 +13,8 @@ describe("PDF-EXPORT-REALDOC-E.5.2 document workspace tabs", () => {
 
     expect(doc).toContain("Status: `PDF-EXPORT-REALDOC-E.5.2` accepted")
     expect(doc).toContain("Production remains NO-GO")
-    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.3`")
+    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.3` now accepts")
+    expect(doc).toMatch(/E\.5\.4 next adds temporary\s+Editor Form state/)
     expect(routes).toContain('path="/documents/:documentId/:view"')
     expect(routes).toContain("key={documentId}")
     expect(routes).not.toContain("key={activeView}")

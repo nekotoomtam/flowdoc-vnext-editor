@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 
-describe("PDF-EXPORT-REALDOC-E.0-E.5.2 Editor pre-test boundary", () => {
+describe("PDF-EXPORT-REALDOC-E.0-E.5.3 Editor pre-test boundary", () => {
   it("keeps Structure authoring separate from imported test values", () => {
     const doc = read("../../docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md")
 
@@ -18,6 +18,7 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.2 Editor pre-test boundary", () => {
       "## E.4 Pre-Test Handoff",
       "## E.5.0 Product Contract Lock",
       "## E.5.1 Local Library",
+      "## E.5.3 Projection Handoff",
       "## Existing Local PDF Controls",
       "## Book-Form UX Pressure",
       "## Explicitly Not Changed",
@@ -40,8 +41,8 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.2 Editor pre-test boundary", () => {
     expect(doc).toMatch(/Backend now accepts one strict local DocGen request/)
     expect(doc).toMatch(/This phase deliberately does not connect the Editor/)
     expect(doc).toMatch(/Backend now accepts the E\.3 `instanceId` and revision/)
-    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.2` now accepts the shared workspace header")
-    expect(doc).toContain("E.5.3 next adds the Core UI-neutral")
+    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral")
+    expect(doc).toContain("E.5.4 next adds Editor-owned temporary Form state")
   })
 
   it("does not reinterpret the LOCAL-F document pin as DocGen admission", () => {
@@ -63,5 +64,6 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.2 Editor pre-test boundary", () => {
     expect(localIntegration).toMatch(/REALDOC-E\.4 now completes that Backend binding/)
     expect(localIntegration).toMatch(/REALDOC-E\.5\.0 locks that product surface/)
     expect(localIntegration).toMatch(/REALDOC-E\.5\.1 now adds/)
+    expect(localIntegration).toMatch(/E\.5\.3 now accepts only the Core UI-neutral/)
   })
 })

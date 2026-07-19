@@ -3,8 +3,9 @@
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
 admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
-E.5.1 Library, and E.5.2 workspace tabs. No test-input or Preview execution is
-active; production remains NO-GO.
+E.5.1 Library, E.5.2 workspace tabs, and E.5.3 Core test-input projection. No
+Editor-owned test values or Preview execution are active; production remains
+NO-GO.
 
 ## Product Role
 
@@ -226,10 +227,22 @@ Editor responsibilities; pagination truth remains Core/backend output.
 list transport, `/documents` Library, and `/documents/:documentId/design`
 handoff. It stores no imported values and keeps Preview unavailable.
 
+## E.5.3 Projection Handoff
+
+Core now accepts exact Published Structure, generation data-contract, and table
+binding pins and returns one deterministic UI-neutral input projection. It
+retains one document value identity per field key, first-placement section
+order, unplaced contract fields, collection item scope, and image/media
+requirements. Missing scalar requiredness, enum choices, date format, and item
+limits remain explicit metadata-unavailable facts.
+
+The Editor has not consumed this projection yet. No temporary values, canonical
+snapshots, Backend admission, generation instance, Preview pages, or artifact
+lifecycle call are created in E.5.3.
+
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.2` now accepts the shared workspace header,
-document-keyed Design state retention, and URL-backed Design/Preview tabs. It
-adds no test input or Preview execution. E.5.3 next adds the Core UI-neutral
-test-input projection. No multi-user authorization is claimed. Production
-remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input
+projection. E.5.4 next adds Editor-owned temporary Form state without JSON
+mapping or Preview execution. No multi-user authorization is claimed.
+Production remains NO-GO.

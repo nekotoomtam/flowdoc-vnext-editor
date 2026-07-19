@@ -65,6 +65,7 @@ and Preview contracts are accepted.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.3` adds the Core UI-neutral test-input projection and
-represents missing scalar generation constraints without React, form-control,
-or screen-layout vocabulary. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input projection
+and explicit missing scalar generation constraints. E.5.4 next adds temporary
+Editor Form state; this E.5.2 workspace still performs no Preview execution.
+Production remains NO-GO.

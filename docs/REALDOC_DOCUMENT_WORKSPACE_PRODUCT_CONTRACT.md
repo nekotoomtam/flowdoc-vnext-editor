@@ -1,8 +1,8 @@
 # REALDOC Document Workspace Product Contract
 
 Status: `PDF-EXPORT-REALDOC-E.5.0` product contract accepted and
-`PDF-EXPORT-REALDOC-E.5.1` local Library plus `E.5.2` shared workspace tabs
-accepted. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.1` local Library, `E.5.2` shared workspace tabs, and
+`E.5.3` Core test-input projection accepted. Production remains NO-GO.
 
 ## Decision
 
@@ -251,7 +251,7 @@ label it exact while the Backend result is pending.
 3. `E.5.2` adds the shared workspace shell and URL-backed Design/Preview tabs.
    Accepted.
 4. `E.5.3` adds the Core UI-neutral test-input projection and missing generation
-   value constraints without UI vocabulary.
+   value constraints without UI vocabulary. Accepted.
 5. `E.5.4` adds Editor Form state and generated scalar/collection/image inputs.
 6. `E.5.5` adds JSON selection, mapping-profile selection, and diagnostics.
 7. `E.5.6` binds Published Preview to E.3/E.4.
@@ -262,7 +262,7 @@ label it exact while the Backend result is pending.
 
 ## Explicitly Not Changed
 
-- no generated-input projection or Form/JSON editing view;
+- no Editor-owned Form/JSON editing view or temporary test values;
 - no generated Form or test-data persistence;
 - no draft or published Preview admission;
 - no Structure publish implementation;
@@ -280,6 +280,8 @@ label it exact while the Backend result is pending.
 - Design and Preview are adjacent views with separate state authority.
 - Form and JSON input converge before canonical resolution.
 - Generated Form behavior is source-neutral and does not guess missing schema.
+- The accepted Core projection retains unplaced fields and reports missing
+  scalar constraints explicitly.
 - Draft and Published Preview identities cannot be confused.
 - Stale results are explicit and content-free lifecycle boundaries remain intact.
 
@@ -302,6 +304,7 @@ label it exact while the Backend result is pending.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.3` adds the Core UI-neutral test-input projection and
-missing generation constraint facts without UI vocabulary. Production remains
-NO-GO.
+`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input projection
+and missing generation constraint facts. `PDF-EXPORT-REALDOC-E.5.4` next adds
+Editor-owned temporary Form state and generated scalar, collection, and image
+inputs without Preview execution. Production remains NO-GO.
