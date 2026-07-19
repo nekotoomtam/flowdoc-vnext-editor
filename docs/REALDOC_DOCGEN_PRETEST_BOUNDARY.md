@@ -2,8 +2,8 @@
 
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
-admission, and E.4 local artifact lifecycle. No Editor UI or runtime change;
-production remains NO-GO.
+admission, E.4 local artifact lifecycle, and E.5.0 workspace product contract.
+No Editor UI or runtime change; production remains NO-GO.
 
 ## Product Role
 
@@ -136,8 +136,9 @@ yet. Exact idempotency replay does not rerun mapping.
 
 This phase deliberately does not connect the Editor. The existing LOCAL-F
 transport still sends only a current `documentId` and `documentRevision`; it is
-not silently widened or relabeled. E.5 will add pre-test UX only after E.4 has
-connected the admitted canonical record to the shared artifact lifecycle.
+not silently widened or relabeled. E.5.1 through E.5.9 add pre-test UX only
+after E.4 has connected the admitted canonical record to the shared artifact
+lifecycle.
 
 ## E.4 Pre-Test Handoff
 
@@ -148,11 +149,30 @@ download lifecycle. The 69C section completes as a 10-page local artifact;
 route replay does not rematerialize and cancellation before worker persists no
 bytes.
 
-This phase still deliberately does not connect the Editor. E.5 may reuse the
-existing lifecycle controls only after a new pre-test state admits one exact
-Published Structure plus selected test data. The browser must retain the
-content-free admission receipt and operation status, not canonical business
-values or measured contracts.
+This phase still deliberately does not connect the Editor. Later E.5 phases may
+reuse the existing lifecycle controls only after a new pre-test state admits
+one exact Published Structure plus selected test data. The browser must retain
+the content-free admission receipt and operation status, not canonical
+business values or measured contracts.
+
+## E.5.0 Product Contract Lock
+
+`docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md` now locks the first
+Editor product shape without activating it. A local Document Library opens one
+document workspace with URL-backed `Design` and `Preview` top views. Design
+keeps the current Structure authoring shell. Preview owns temporary Form or JSON
+test input, diagnostics, exact generated pages, and artifact controls without
+writing values into Structure state.
+
+Form controls must come from a Core UI-neutral test-input projection. One field
+key produces one input even when placed multiple times. The projection may use
+only accepted generation data-contract facts and must expose missing scalar
+requiredness, enum choices, or other constraints rather than inventing them.
+
+Published Preview reuses E.3/E.4 and remains the API-parity target. Draft
+Preview requires a separate immutable local draft snapshot and cannot pretend
+to be a Published Structure Version. Structure, target, test input, mapping,
+or asset changes mark downstream Preview results stale.
 
 ## Existing Local PDF Controls
 
@@ -196,10 +216,11 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 - Test payload file formats and size limits.
 - Mapping authoring UX and diagnostics presentation.
-- Draft preview versus Published Structure exact-preview policy.
+- Scalar generation constraints needed by an accessible generated Form.
 - Whether pre-test generation instances are temporary or reopenable.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5` adds Editor pre-test over the accepted E.3 admission
-and E.4 artifact lifecycle. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.1` adds the bounded local Document Library read model,
+Backend list boundary, and Library view. No multi-user authorization is claimed.
+Production remains NO-GO.

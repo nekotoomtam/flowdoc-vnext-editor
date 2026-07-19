@@ -164,12 +164,20 @@ REALDOC-E.3 now accepts the separate optional Backend
 `POST /docgen-local/admissions` boundary with trusted Structure, mapper, and
 asset-byte admission plus a protected canonical record. This Editor transport
 is intentionally unchanged and still cannot call that route. E.4 binds the
-record to the artifact lifecycle; E.5 then adds the pre-test surface
-through a same-origin development transport without exposing a local credential
-or storing test values in authored Structure state.
+record to the artifact lifecycle; E.5.1 through E.5.9 then add the pre-test
+surface through a same-origin development transport without exposing a local
+credential or storing test values in authored Structure state.
 
 REALDOC-E.4 now completes that Backend binding. One protected 69C generation
 reuses the existing PDF operation, worker, cancellation, persistence, status,
 and verified-download lifecycle. This Editor transport remains intentionally
-unchanged; E.5 owns the separate test-data selection, admission diagnostics,
-stale gates, and artifact controls for the DocGen pre-test flow.
+unchanged; later E.5 phases own the separate test-data selection, admission
+diagnostics, stale gates, and artifact controls for the DocGen pre-test flow.
+
+REALDOC-E.5.0 now locks that product surface in
+`docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md` without changing this
+transport. A local Document Library opens one workspace with URL-backed Design
+and Preview views. Preview accepts a generated Form or mapped JSON, keeps test
+values separate from authored Structure state, and distinguishes Draft Preview
+from Published API-parity Preview. E.5.1 next adds only the bounded local
+Library read model and first Library view.
