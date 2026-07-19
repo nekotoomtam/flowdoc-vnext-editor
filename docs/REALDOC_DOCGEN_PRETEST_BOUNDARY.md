@@ -1,9 +1,8 @@
 # REALDOC DocGen Pre-Test Boundary
 
-Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock with
-`PDF-EXPORT-REALDOC-E.1` generation-input and `PDF-EXPORT-REALDOC-E.2` Core
-mapping/validation runtime accepted. No Editor UI or runtime change;
-production remains NO-GO.
+Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
+accepted E.1 generation input, E.2 Core runtime, and E.3 bounded local Backend
+admission. No Editor UI or runtime change; production remains NO-GO.
 
 ## Product Role
 
@@ -118,6 +117,27 @@ E.2 adds no file picker, mapping-profile selector, diagnostics panel, state,
 hook, request body, proxy, preview, or route. The current local transport still
 sends only `documentId` and `documentRevision`.
 
+## E.3 Pre-Test Handoff
+
+Backend now accepts one strict local DocGen request at the optional loopback
+`POST /docgen-local/admissions` route. The request pins one Published Structure
+Version, digest-bound assets, and either direct canonical data/collections or
+an exact mapping-profile identity plus ephemeral JSON text. Backend derives
+tenant/principal from authentication, authorizes the exact Structure, creates
+the revision-0 instance, selects an allowlisted mapper, verifies asset bytes,
+and calls the same Core E.2 runtime used for API-shaped callers.
+
+The local HTTP envelope is capped at 2 MiB and adapted JSON at 1 MiB of UTF-8.
+Successful business values live only in a protected in-memory Backend record.
+The public receipt exposes content-free identities, fingerprints, counts, and
+diagnostics and stops at `materialization`; no preview or PDF artifact exists
+yet. Exact idempotency replay does not rerun mapping.
+
+This phase deliberately does not connect the Editor. The existing LOCAL-F
+transport still sends only a current `documentId` and `documentRevision`; it is
+not silently widened or relabeled. E.5 will add pre-test UX only after E.4 has
+connected the admitted canonical record to the shared artifact lifecycle.
+
 ## Existing Local PDF Controls
 
 LOCAL-F and LOCAL-G remain a development-only canonical evidence workflow. The
@@ -165,5 +185,6 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.3` bounded local Backend DocGen admission before pre-test
-UI implementation. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.4` binds one admitted 69C canonical record to
+materialization, resolution, and the local artifact lifecycle. Editor pre-test
+UI remains E.5. Production remains NO-GO.

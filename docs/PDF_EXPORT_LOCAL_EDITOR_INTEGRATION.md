@@ -159,3 +159,11 @@ REALDOC-E.2 now proves exact payload/mapper execution and direct/adapted
 canonical parity inside Core. It still does not change this Editor transport,
 add test-data selection, run mapping in the browser, or expose canonical
 business values as lifecycle state. Backend admission remains the next gate.
+
+REALDOC-E.3 now accepts the separate optional Backend
+`POST /docgen-local/admissions` boundary with trusted Structure, mapper, and
+asset-byte admission plus a protected canonical record. This Editor transport
+is intentionally unchanged and still cannot call that route. E.4 must first
+bind the record to the artifact lifecycle; E.5 then adds the pre-test surface
+through a same-origin development transport without exposing a local credential
+or storing test values in authored Structure state.
