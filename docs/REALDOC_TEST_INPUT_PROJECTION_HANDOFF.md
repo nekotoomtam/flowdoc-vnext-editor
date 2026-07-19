@@ -1,7 +1,8 @@
 # REALDOC Test-Input Projection Handoff
 
-Status: `PDF-EXPORT-REALDOC-E.5.3` Core projection accepted. Editor temporary
-Form state and Preview execution remain inactive. Production remains NO-GO.
+Status: `PDF-EXPORT-REALDOC-E.5.3` Core projection and
+`PDF-EXPORT-REALDOC-E.5.4` Editor temporary Form accepted. Preview execution
+remains inactive. Production remains NO-GO.
 
 ## Accepted Core Boundary
 
@@ -26,7 +27,7 @@ instance, media bytes, operation, or artifact.
 
 ## Editor Consumption Rule
 
-E.5.4 may translate the projection into familiar inputs, but the Editor must
+E.5.4 translates the projection into familiar inputs, and the Editor must
 not reinterpret it as authored Structure state. Temporary values remain keyed
 by projection owner, Structure fingerprint, data-contract fingerprint, and
 field scope.
@@ -40,20 +41,21 @@ The Editor must preserve these Core distinctions:
 - an image value is an asset reference, not embedded arbitrary text; and
 - projection readiness is not runtime validation or Preview readiness.
 
-E.5.4 may apply a bounded local editing limit for collection rows and image
+E.5.4 applies a bounded local editing limit for collection rows and image
 selection. That operational limit must not be presented as a Structure or
 generation semantic constraint while Core reports item limits unavailable.
 
 ## Current Workspace State
 
-The Preview route still renders `PreviewUnavailableView`. It does not load a
-Published Structure artifact, request this projection, create temporary test
-values, call Backend admission, or display exact generated pages.
+The Preview route renders the generated Form only when a ready projection is
+explicitly bound. Current local documents have no projection transport, so they
+still render `PreviewUnavailableView`. The local development QA route exercises
+the Form without claiming canonical or production evidence.
 
-No Editor runtime, route, state store, component, transport, browser storage,
-or styling changes are part of E.5.3.
+No Backend transport, browser storage, canonical snapshot, runtime validation,
+or exact page generation is part of E.5.4.
 
-## Stale Pins For E.5.4
+## Applied Stale Pins In E.5.4
 
 The first temporary Form state must be invalidated or revalidated when any of
 these facts changes:
@@ -80,6 +82,6 @@ must not silently survive.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.4` adds Editor-owned temporary Form state and generated
-scalar, collection, and image inputs over the accepted Core projection. JSON
-mapping and Preview execution remain deferred. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.5` adds temporary JSON selection, exact mapping-profile
+selection, and content-free mapping diagnostics. Preview execution remains
+deferred. Production remains NO-GO.

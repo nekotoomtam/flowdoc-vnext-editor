@@ -13,14 +13,14 @@ describe("PDF-EXPORT-REALDOC-E.5.3 test-input projection handoff", () => {
       "## Accepted Core Boundary",
       "## Editor Consumption Rule",
       "## Current Workspace State",
-      "## Stale Pins For E.5.4",
+      "## Applied Stale Pins In E.5.4",
       "## Explicitly Not Changed",
       "## Next Phase",
     ]) expect(doc).toContain(section)
     expect(doc).toMatch(/one document value identity per field key/)
     expect(doc).toContain("`metadata-unavailable` is not optional or required")
-    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.4`")
-    expect(product).toContain("`E.5.3` Core test-input projection accepted")
+    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.5`")
+    expect(product).toContain("`E.5.4` temporary generated Form accepted")
     expect(preview).toContain("Preview unavailable")
     expect(preview).not.toContain("testInput")
     expect(preview).not.toContain("dataContract")

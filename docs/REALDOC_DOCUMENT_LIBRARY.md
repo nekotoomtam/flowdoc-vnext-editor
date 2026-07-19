@@ -79,5 +79,5 @@ the shared Design/Preview tab strip or Preview state.
 
 Follow-up `PDF-EXPORT-REALDOC-E.5.2` now accepts the shared workspace header and
 URL-backed Design/Preview tabs while keeping Preview execution inactive. E.5.3
-now accepts the Core UI-neutral test-input projection. E.5.4 next adds temporary
-Editor Form state. Production remains NO-GO.
+accepts the Core UI-neutral test-input projection, and E.5.4 accepts temporary
+Editor Form state. E.5.5 next adds JSON/mapping state. Production remains NO-GO.

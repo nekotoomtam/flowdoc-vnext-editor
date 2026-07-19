@@ -2,7 +2,8 @@
 
 Status: `PDF-EXPORT-REALDOC-E.5.0` product contract accepted and
 `PDF-EXPORT-REALDOC-E.5.1` local Library, `E.5.2` shared workspace tabs, and
-`E.5.3` Core test-input projection accepted. Production remains NO-GO.
+`E.5.3` Core test-input projection and `E.5.4` temporary generated Form accepted.
+Production remains NO-GO.
 
 ## Decision
 
@@ -34,12 +35,16 @@ The accepted Editor now:
 - renders one design shell with header, toolbar, outline, canvas, inspector,
   diagnostics, and status bar;
 - retains that Design runtime while URL-backed Design/Preview views switch;
-- reports an honest content-free Preview unavailable state; and
+- reports an honest content-free Preview unavailable state when no accepted
+  projection is bound;
+- owns memory-only generated Form state after an accepted projection is bound;
+  and
 - exposes LOCAL-F PDF controls for the current document/revision pin only.
 
 Backend has both `read(documentId)` and a bounded newest-first list query.
 Existing LOCAL-F PDF controls are reusable lifecycle evidence, not the DocGen
-Preview transport. Generated input and Preview execution remain deferred.
+Preview transport. JSON input, normal projection transport, and Preview
+execution remain deferred.
 
 ## Navigation Contract
 
@@ -161,9 +166,9 @@ contract. Document presentation placement controls output, not input identity.
 The current scalar Field Contract contains `key`, `label`, `type`, and optional
 fallback text, but it does not represent scalar requiredness, enum choices,
 date constraints, multiline intent, or input help. Core must not invent these
-facts. E.5.3 may extend the generation data contract with source-neutral value
-constraints before the projection claims those controls. Collection item
-requiredness already exists and may be projected exactly.
+facts. E.5.3 therefore reports those facts as metadata unavailable instead of
+claiming richer controls. Collection item requiredness already exists and is
+projected exactly.
 
 ## State Ownership
 
@@ -253,6 +258,7 @@ label it exact while the Backend result is pending.
 4. `E.5.3` adds the Core UI-neutral test-input projection and missing generation
    value constraints without UI vocabulary. Accepted.
 5. `E.5.4` adds Editor Form state and generated scalar/collection/image inputs.
+   Accepted.
 6. `E.5.5` adds JSON selection, mapping-profile selection, and diagnostics.
 7. `E.5.6` binds Published Preview to E.3/E.4.
 8. `E.5.7` adds the separate local Draft Preview identity and admission path.
@@ -262,8 +268,9 @@ label it exact while the Backend result is pending.
 
 ## Explicitly Not Changed
 
-- no Editor-owned Form/JSON editing view or temporary test values;
-- no generated Form or test-data persistence;
+- no JSON editing view, mapped payload, or mapping-profile state;
+- no Form or test-data persistence beyond the active memory session;
+- no normal document projection transport;
 - no draft or published Preview admission;
 - no Structure publish implementation;
 - no authentication, authorization, sharing, folders, or collaboration;
@@ -282,6 +289,8 @@ label it exact while the Backend result is pending.
 - Generated Form behavior is source-neutral and does not guess missing schema.
 - The accepted Core projection retains unplaced fields and reports missing
   scalar constraints explicitly.
+- The generated Form keeps one value per field key, collection absence distinct
+  from included-empty, and selected image bytes outside pure state.
 - Draft and Published Preview identities cannot be confused.
 - Stale results are explicit and content-free lifecycle boundaries remain intact.
 
@@ -304,7 +313,8 @@ label it exact while the Backend result is pending.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input projection
-and missing generation constraint facts. `PDF-EXPORT-REALDOC-E.5.4` next adds
-Editor-owned temporary Form state and generated scalar, collection, and image
-inputs without Preview execution. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.4` now accepts Editor-owned memory-only Form state and
+generated scalar, collection, and image inputs over the exact Core projection.
+`PDF-EXPORT-REALDOC-E.5.5` next adds JSON selection, mapping-profile selection,
+and content-free diagnostics without Preview execution. Production remains
+NO-GO.

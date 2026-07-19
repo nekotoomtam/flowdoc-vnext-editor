@@ -20,6 +20,9 @@ import type { RuntimeDocumentMigrationStatus } from "../editor/runtime/runtimeMi
 import type { LocalPdfExportInteraction } from "./useLocalPdfExport"
 import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
 import { PreviewUnavailableView } from "../components/preview/PreviewUnavailableView"
+import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
+import type { PreviewTestInputFormInteraction } from "./usePreviewTestInputForm"
+import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
 
 export interface EditorShellProps {
   activeWorkspaceView: DocumentWorkspaceView
@@ -28,6 +31,8 @@ export interface EditorShellProps {
   editorState: EditorRuntimeState
   layoutQaEnabled: boolean
   localPdfExport: LocalPdfExportInteraction
+  previewTestInput: PreviewTestInputFormInteraction
+  testInputProjection: VNextPublishedStructureTestInputProjectionV1 | null
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
   mutationStatus: RuntimeNodeMutationStatus
@@ -56,6 +61,8 @@ export function EditorShell({
   editorState,
   layoutQaEnabled,
   localPdfExport,
+  previewTestInput,
+  testInputProjection,
   migrationEnabled,
   migrationStatus,
   mutationStatus,
@@ -160,10 +167,18 @@ export function EditorShell({
             id="workspace-panel-preview"
             role="tabpanel"
           >
-            <PreviewUnavailableView
-              document={document}
-              onReturnToDesign={() => onSelectWorkspaceView?.("design")}
-            />
+            {testInputProjection && previewTestInput.state ? (
+              <PreviewTestInputView
+                document={document}
+                interaction={previewTestInput}
+                projection={testInputProjection}
+              />
+            ) : (
+              <PreviewUnavailableView
+                document={document}
+                onReturnToDesign={() => onSelectWorkspaceView?.("design")}
+              />
+            )}
           </div>
         ) : null}
       </div>

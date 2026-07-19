@@ -107,6 +107,9 @@ button:disabled {
 }
 
 .app-header-status {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
   justify-self: end;
   min-width: 0;
 }

@@ -65,7 +65,7 @@ and Preview contracts are accepted.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input projection
-and explicit missing scalar generation constraints. E.5.4 next adds temporary
-Editor Form state; this E.5.2 workspace still performs no Preview execution.
+`PDF-EXPORT-REALDOC-E.5.4` now accepts temporary Editor Form state over the Core
+projection. E.5.5 next adds JSON/mapping state; this E.5.2 workspace still
+performs no Preview execution.
 Production remains NO-GO.

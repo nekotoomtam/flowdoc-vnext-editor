@@ -26,12 +26,15 @@ import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDi
 import { getCanvasKeyboardReorderFocusDecision } from "../editor/interaction/canvasKeyboardReorderFocus"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
+import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
+import { usePreviewTestInputForm } from "./usePreviewTestInputForm"
 
 export interface EditorAppProps {
   activeWorkspaceView?: DocumentWorkspaceView
   documentId?: string
   onBackToLibrary?: () => void
   onSelectWorkspaceView?: (view: DocumentWorkspaceView) => void
+  testInputProjection?: VNextPublishedStructureTestInputProjectionV1 | null
 }
 
 export function EditorApp({
@@ -39,6 +42,7 @@ export function EditorApp({
   documentId: requestedDocumentId,
   onBackToLibrary,
   onSelectWorkspaceView,
+  testInputProjection = null,
 }: EditorAppProps) {
   const backendBaseUrl = useMemo(
     () => resolveFlowDocBackendBaseUrl(import.meta.env.VITE_FLOWDOC_BACKEND_URL as string | undefined),
@@ -70,6 +74,7 @@ export function EditorApp({
     [],
   )
   const [editorState, setEditorState] = useState(initialState)
+  const previewTestInput = usePreviewTestInputForm(testInputProjection)
   const localPdfExport = useLocalPdfExport({
     client: localPdfExportClient,
     enabled: editorState.core.envelope.status === "fresh",
@@ -238,6 +243,8 @@ export function EditorApp({
       activeWorkspaceView={activeWorkspaceView}
       layoutQaEnabled={layoutQaEnabled}
       localPdfExport={localPdfExport}
+      previewTestInput={previewTestInput}
+      testInputProjection={testInputProjection}
       migrationEnabled={migrationEnabled}
       migrationStatus={migrationStatus}
       mutationStatus={mutationStatus}

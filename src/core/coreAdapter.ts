@@ -7,6 +7,11 @@ import {
   type VNextCoreVersionCapabilityContract,
   type VNextPackageVersionInspection,
   type InlineNodeV4Target,
+  type VNextPublishedStructureTestInputProjectionV1,
+  type VNextTestInputCollectionItemFieldProjectionV1,
+  type VNextTestInputDocumentFieldProjectionV1,
+  type VNextTestInputValueConstraintsV1,
+  type VNextTestInputValueTypeV1,
 } from "@flowdoc/vnext-core"
 import productReportMinimalFixture from "@flowdoc/vnext-core/fixtures/product-report-vnext-minimal.flowdoc.json"
 import type {
@@ -56,6 +61,11 @@ export {
   type LoadReadOnlyCoreSnapshotFromCoreFixtureTransportOptions,
   type LoadReadOnlyCoreSnapshotFromPackageOptions,
   type LoadReadOnlyCoreSnapshotOptions,
+  type VNextPublishedStructureTestInputProjectionV1,
+  type VNextTestInputCollectionItemFieldProjectionV1,
+  type VNextTestInputDocumentFieldProjectionV1,
+  type VNextTestInputValueConstraintsV1,
+  type VNextTestInputValueTypeV1,
 }
 
 export function loadReadOnlyCoreSnapshot(

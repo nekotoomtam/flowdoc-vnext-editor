@@ -3,8 +3,8 @@
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
 admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
-E.5.1 Library, E.5.2 workspace tabs, and E.5.3 Core test-input projection. No
-Editor-owned test values or Preview execution are active; production remains
+E.5.1 Library, E.5.2 workspace tabs, E.5.3 Core test-input projection, and E.5.4
+temporary generated Form. No Preview execution is active; production remains
 NO-GO.
 
 ## Product Role
@@ -240,9 +240,23 @@ The Editor has not consumed this projection yet. No temporary values, canonical
 snapshots, Backend admission, generation instance, Preview pages, or artifact
 lifecycle call are created in E.5.3.
 
+## E.5.4 Temporary Form Handoff
+
+Editor now owns one memory-only Form session over a ready Core projection. It
+generates scalar, boolean, image, collection, collection-item, and unplaced
+controls without guessing missing generation metadata. Collection absence and
+included-empty remain distinct, item keys are collection-local and unique, and
+selected image files remain outside pure state.
+
+The state pins exact Structure, data-contract, and projection identity. Any pin
+change clears all temporary values. Normal document Preview remains unavailable
+until a trusted projection transport exists. No canonical snapshot, validation,
+mapping, materialization, exact page, Backend call, or artifact is created.
+
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.3` now accepts the Core UI-neutral test-input
-projection. E.5.4 next adds Editor-owned temporary Form state without JSON
-mapping or Preview execution. No multi-user authorization is claimed.
+`PDF-EXPORT-REALDOC-E.5.4` now accepts Editor-owned temporary Form state and
+generated controls. E.5.5 next adds JSON and mapping-profile selection with
+content-free diagnostics, without Preview execution. No multi-user
+authorization is claimed.
 Production remains NO-GO.
