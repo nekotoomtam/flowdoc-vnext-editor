@@ -174,10 +174,9 @@ and verified-download lifecycle. This Editor transport remains intentionally
 unchanged; later E.5 phases own the separate test-data selection, admission
 diagnostics, stale gates, and artifact controls for the DocGen pre-test flow.
 
-REALDOC-E.5.0 now locks that product surface in
-`docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md` without changing this
-transport. A local Document Library opens one workspace with URL-backed Design
-and Preview views. Preview accepts a generated Form or mapped JSON, keeps test
-values separate from authored Structure state, and distinguishes Draft Preview
-from Published API-parity Preview. E.5.1 next adds only the bounded local
-Library read model and first Library view.
+REALDOC-E.5.0 locks that product surface in
+`docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md`. REALDOC-E.5.1 now adds
+the bounded content-free local Library transport and first Library route/view.
+It opens the existing Design runtime by URL, keeps Preview disabled, and makes
+no per-user authorization claim. E.5.2 next adds the shared workspace header
+and URL-backed Design/Preview tabs.

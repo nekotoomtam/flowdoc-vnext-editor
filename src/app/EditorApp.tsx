@@ -26,14 +26,21 @@ import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDi
 import { getCanvasKeyboardReorderFocusDecision } from "../editor/interaction/canvasKeyboardReorderFocus"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
 
-export function EditorApp() {
+export interface EditorAppProps {
+  documentId?: string
+  onBackToLibrary?: () => void
+}
+
+export function EditorApp({ documentId: requestedDocumentId, onBackToLibrary }: EditorAppProps) {
   const backendBaseUrl = useMemo(
     () => resolveFlowDocBackendBaseUrl(import.meta.env.VITE_FLOWDOC_BACKEND_URL as string | undefined),
     [],
   )
   const documentId = useMemo(
-    () => resolveFlowDocDocumentId(import.meta.env.VITE_FLOWDOC_DOCUMENT_ID as string | undefined),
-    [],
+    () => resolveFlowDocDocumentId(
+      requestedDocumentId ?? import.meta.env.VITE_FLOWDOC_DOCUMENT_ID as string | undefined,
+    ),
+    [requestedDocumentId],
   )
   const layoutQaEnabled = useMemo(
     () => resolveFlowDocLayoutQaEnabled(import.meta.env.VITE_FLOWDOC_LAYOUT_QA as string | undefined),
@@ -228,6 +235,7 @@ export function EditorApp() {
       onDeleteNode={deleteNode}
       onDuplicateNode={duplicateNode}
       onMigrateDocument={migrateDocument}
+      onBackToLibrary={onBackToLibrary}
       onCanvasFocusHandled={handleCanvasFocusHandled}
       onReorderNode={handleReorderNode}
       onSelectNode={handleSelectNode}

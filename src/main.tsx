@@ -1,9 +1,10 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { EditorApp } from "./app/EditorApp"
+import { FlowDocApp } from "./app/FlowDocApp"
 import "./styles/tokens.css"
 import "./styles/app.css"
 import "./styles/editor.css"
+import "./styles/library.css"
 
 const rootElement = document.getElementById("root")
 
@@ -13,6 +14,6 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <EditorApp />
+    <FlowDocApp />
   </StrictMode>,
 )

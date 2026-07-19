@@ -100,6 +100,51 @@ export interface BackendDocumentReadFoundResponse {
   updatedAt: string
 }
 
+export interface BackendDocumentLibraryItem {
+  authoring:
+    | { draft: null; status: "migration-required" | "unavailable" }
+    | {
+        draft: { draftId: string; revision: number; structureId: string }
+        status: "ready"
+      }
+  capabilities: {
+    design: { status: "available" }
+    preview: {
+      reason: "migration-required" | "preview-not-implemented"
+      status: "unavailable"
+    }
+  }
+  contractVersion: 1
+  documentId: string
+  kind: "local-document-library-item"
+  published: { latestVersion: null; status: "unavailable" }
+  revision: number
+  thumbnail: { status: "placeholder" }
+  title: string
+  updatedAt: string
+}
+
+export interface BackendDocumentLibraryPage {
+  contractVersion: 1
+  items: BackendDocumentLibraryItem[]
+  kind: "local-document-library-page"
+  nextCursor: string | null
+  scope: {
+    authorization: "not-configured"
+    kind: "local-workspace"
+    workspaceId: "local-development"
+  }
+  status: "ready"
+}
+
+export type BackendDocumentLibraryReadResult =
+  | { page: BackendDocumentLibraryPage; status: "ready" }
+  | {
+      issues: BackendTransportIssue[]
+      status: "invalid-response" | "unavailable"
+      statusCode?: number
+    }
+
 export type BackendDocumentReadResult =
   | {
       envelope: CoreReadTransportEnvelope
@@ -161,6 +206,7 @@ export interface FlowDocBackendClient {
   commitMutation(request: BackendMutationRequest): Promise<BackendMutationResultEnvelope>
   migrateDocument(request: BackendMigrationRequest): Promise<BackendMigrationResultEnvelope>
   readDocument(documentId: string): Promise<BackendDocumentReadResult>
+  readDocumentLibrary(options?: { cursor?: string; limit?: number }): Promise<BackendDocumentLibraryReadResult>
   readVersionCapabilities(): Promise<EditorBackendVersionCapabilityResult>
 }
 
@@ -176,6 +222,12 @@ function nonEmptyString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value : null
 }
 
+function hasExactKeys(record: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(record).sort()
+  const expected = [...keys].sort()
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index])
+}
+
 function issue(path: string, message: string, code = "invalid-response"): BackendTransportIssue {
   return {
     code,
@@ -189,6 +241,142 @@ function hasPackageValue(record: Record<string, unknown>): boolean {
   return Object.prototype.hasOwnProperty.call(record, "packageValue")
     && record.packageValue !== null
     && record.packageValue !== undefined
+}
+
+function parseLibraryItem(value: unknown, index: number): BackendDocumentLibraryItem | BackendTransportIssue {
+  const path = `items[${index}]`
+  if (!isRecord(value) || !hasExactKeys(value, [
+    "authoring",
+    "capabilities",
+    "contractVersion",
+    "documentId",
+    "kind",
+    "published",
+    "revision",
+    "thumbnail",
+    "title",
+    "updatedAt",
+  ])) return issue(path, "document library item has an invalid shape")
+
+  const documentId = nonEmptyString(value.documentId)
+  const title = nonEmptyString(value.title)
+  const updatedAt = nonEmptyString(value.updatedAt)
+  if (value.contractVersion !== 1 || value.kind !== "local-document-library-item") {
+    return issue(path, "document library item contract identity is invalid")
+  }
+  if (!documentId || !title || !updatedAt || !Number.isFinite(Date.parse(updatedAt)) || !isRevision(value.revision)) {
+    return issue(path, "document library item identity or revision is invalid")
+  }
+  if (!isRecord(value.thumbnail)
+    || !hasExactKeys(value.thumbnail, ["status"])
+    || value.thumbnail.status !== "placeholder") {
+    return issue(`${path}.thumbnail`, "document library thumbnail state is invalid")
+  }
+  if (!isRecord(value.published)
+    || !hasExactKeys(value.published, ["latestVersion", "status"])
+    || value.published.status !== "unavailable"
+    || value.published.latestVersion !== null) {
+    return issue(`${path}.published`, "document library published state is invalid")
+  }
+
+  const authoring = value.authoring
+  if (!isRecord(authoring) || !hasExactKeys(authoring, ["draft", "status"])) {
+    return issue(`${path}.authoring`, "document library authoring state is invalid")
+  }
+  if (authoring.status === "ready") {
+    if (!isRecord(authoring.draft)
+      || !hasExactKeys(authoring.draft, ["draftId", "revision", "structureId"])
+      || !nonEmptyString(authoring.draft.draftId)
+      || !nonEmptyString(authoring.draft.structureId)
+      || !isRevision(authoring.draft.revision)) {
+      return issue(`${path}.authoring.draft`, "document library draft identity is invalid")
+    }
+  } else if ((authoring.status !== "migration-required" && authoring.status !== "unavailable")
+    || authoring.draft !== null) {
+    return issue(`${path}.authoring`, "document library authoring state is invalid")
+  }
+
+  const capabilities = value.capabilities
+  if (!isRecord(capabilities) || !hasExactKeys(capabilities, ["design", "preview"])
+    || !isRecord(capabilities.design)
+    || !hasExactKeys(capabilities.design, ["status"])
+    || capabilities.design.status !== "available"
+    || !isRecord(capabilities.preview)
+    || !hasExactKeys(capabilities.preview, ["reason", "status"])
+    || capabilities.preview.status !== "unavailable"
+    || (capabilities.preview.reason !== "migration-required"
+      && capabilities.preview.reason !== "preview-not-implemented")) {
+    return issue(`${path}.capabilities`, "document library capability state is invalid")
+  }
+
+  return value as unknown as BackendDocumentLibraryItem
+}
+
+export function createBackendDocumentLibraryReadResult(
+  value: unknown,
+  statusCode?: number,
+): BackendDocumentLibraryReadResult {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    "contractVersion",
+    "items",
+    "kind",
+    "nextCursor",
+    "scope",
+    "status",
+  ])) {
+    return {
+      issues: [issue("", "backend document library response has an invalid shape")],
+      status: "invalid-response",
+      statusCode,
+    }
+  }
+  if (value.contractVersion !== 1
+    || value.kind !== "local-document-library-page"
+    || value.status !== "ready"
+    || !Array.isArray(value.items)
+    || (value.nextCursor !== null && !nonEmptyString(value.nextCursor))) {
+    return {
+      issues: [issue("", "backend document library response identity is invalid")],
+      status: "invalid-response",
+      statusCode,
+    }
+  }
+  if (!isRecord(value.scope)
+    || !hasExactKeys(value.scope, ["authorization", "kind", "workspaceId"])
+    || value.scope.authorization !== "not-configured"
+    || value.scope.kind !== "local-workspace"
+    || value.scope.workspaceId !== "local-development") {
+    return {
+      issues: [issue("scope", "backend document library scope is invalid")],
+      status: "invalid-response",
+      statusCode,
+    }
+  }
+
+  const items: BackendDocumentLibraryItem[] = []
+  for (const [index, candidate] of value.items.entries()) {
+    const parsed = parseLibraryItem(candidate, index)
+    if ("severity" in parsed) {
+      return { issues: [parsed], status: "invalid-response", statusCode }
+    }
+    items.push(parsed)
+  }
+
+  return {
+    page: {
+      contractVersion: 1,
+      items,
+      kind: "local-document-library-page",
+      nextCursor: value.nextCursor as string | null,
+      scope: {
+        authorization: "not-configured",
+        kind: "local-workspace",
+        workspaceId: "local-development",
+      },
+      status: "ready",
+    },
+    status: "ready",
+  }
 }
 
 export function createBackendDocumentReadResult(
@@ -356,6 +544,25 @@ export function createFlowDocBackendClient(options: FlowDocBackendClientOptions)
         requestedAt,
         statusCode: response.status,
       })
+    },
+
+    async readDocumentLibrary(input = {}) {
+      const query = new URLSearchParams()
+      if (input.limit !== undefined) query.set("limit", String(input.limit))
+      if (input.cursor !== undefined) query.set("cursor", input.cursor)
+      const suffix = query.size > 0 ? `?${query.toString()}` : ""
+      const response = await fetchImpl(`${baseUrl}/documents${suffix}`)
+      const body = await response.json()
+
+      if (!response.ok) {
+        return {
+          issues: [issue("", "backend document library is unavailable", "library-unavailable")],
+          status: "unavailable",
+          statusCode: response.status,
+        }
+      }
+
+      return createBackendDocumentLibraryReadResult(body, response.status)
     },
 
     async readVersionCapabilities() {

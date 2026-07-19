@@ -196,7 +196,7 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 ## Explicitly Not Changed
 
-- no Editor route, component, hook, state, proxy, parser, or command change;
+- no generated-input route, hook, state, proxy, parser, or command change;
 - no test-data import UI is activated;
 - no Structure publish or storage implementation is added;
 - no browser mapping or PDF generation is added;
@@ -219,8 +219,14 @@ Editor responsibilities; pagination truth remains Core/backend output.
 - Scalar generation constraints needed by an accessible generated Form.
 - Whether pre-test generation instances are temporary or reopenable.
 
+## E.5.1 Local Library
+
+`docs/REALDOC_DOCUMENT_LIBRARY.md` accepts the bounded content-free Backend
+list transport, `/documents` Library, and `/documents/:documentId/design`
+handoff. It stores no imported values and keeps Preview unavailable.
+
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.1` adds the bounded local Document Library read model,
-Backend list boundary, and Library view. No multi-user authorization is claimed.
-Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.2` adds the shared workspace header and URL-backed
+Design/Preview tabs. No multi-user authorization is claimed. Production
+remains NO-GO.

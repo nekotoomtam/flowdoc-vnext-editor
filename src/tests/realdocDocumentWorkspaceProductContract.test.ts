@@ -40,8 +40,8 @@ describe("PDF-EXPORT-REALDOC-E.5.0 Document Workspace product contract", () => {
     expect(doc).toMatch(/local-workspace only/)
     expect(doc).toMatch(/must not claim that its list is securely user-scoped/)
     expect(app).toContain("VITE_FLOWDOC_DOCUMENT_ID")
-    expect(main).toContain("<EditorApp />")
-    expect(packageJson.dependencies["react-router-dom"]).toBeUndefined()
+    expect(main).toContain("<FlowDocApp />")
+    expect(packageJson.dependencies["react-router-dom"]).toBeDefined()
   })
 
   it("separates authored Structure, generated Form data, and Preview identity", () => {

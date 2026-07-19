@@ -19,7 +19,8 @@
     "@flowdoc/vnext-core": "file:../flowdoc-vnext-core",
     "lucide-react": "^1.22.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

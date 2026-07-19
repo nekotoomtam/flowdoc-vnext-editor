@@ -29,6 +29,7 @@ export interface EditorShellProps {
   migrationStatus: RuntimeDocumentMigrationStatus
   mutationStatus: RuntimeNodeMutationStatus
   versionCapabilityStatus: EditorVersionCapabilityStatus
+  onBackToLibrary?: () => void
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
   onMigrateDocument: () => void
@@ -54,6 +55,7 @@ export function EditorShell({
   migrationStatus,
   mutationStatus,
   versionCapabilityStatus,
+  onBackToLibrary,
   onDeleteNode,
   onDuplicateNode,
   onMigrateDocument,
@@ -78,7 +80,11 @@ export function EditorShell({
 
   return (
     <div className="editor-shell">
-      <AppHeader document={document} diagnostics={diagnostics} />
+      <AppHeader
+        document={document}
+        diagnostics={diagnostics}
+        onBackToLibrary={onBackToLibrary}
+      />
       <EditorToolbar
         diagnostics={diagnostics}
         migrationEnabled={migrationEnabled}

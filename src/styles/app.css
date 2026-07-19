@@ -60,6 +60,17 @@ button:disabled {
   padding: 0 var(--space-4);
 }
 
+.app-header-leading {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.app-back-button {
+  flex: 0 0 auto;
+}
+
 .app-title {
   display: grid;
   gap: 1px;
