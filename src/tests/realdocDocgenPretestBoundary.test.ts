@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 
-describe("PDF-EXPORT-REALDOC-E.0 Editor pre-test boundary", () => {
+describe("PDF-EXPORT-REALDOC-E.0/E.1 Editor pre-test boundary", () => {
   it("keeps Structure authoring separate from imported test values", () => {
     const doc = read("../../docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md")
 
@@ -12,6 +12,7 @@ describe("PDF-EXPORT-REALDOC-E.0 Editor pre-test boundary", () => {
       "## Field And Presentation UX",
       "## Pre-Test Role",
       "## Shared DocGen Path",
+      "## E.1 Pre-Test Handoff",
       "## Existing Local PDF Controls",
       "## Book-Form UX Pressure",
       "## Explicitly Not Changed",
@@ -24,6 +25,10 @@ describe("PDF-EXPORT-REALDOC-E.0 Editor pre-test boundary", () => {
     expect(doc).toMatch(/Imported values must not be written into field definitions/)
     expect(doc).toMatch(/external API caller enters the same Backend boundary/)
     expect(doc).toMatch(/does not become the\s+canonical mapper, resolver, paginator, renderer/i)
+    expect(doc).toContain("`runtime-validation-required`")
+    expect(doc).toContain("`mapping-required`")
+    expect(doc).toMatch(/No E\.1 contract is stored in authored Structure state/)
+    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.2` runtime mapping")
   })
 
   it("does not reinterpret the LOCAL-F document pin as DocGen admission", () => {
@@ -36,6 +41,8 @@ describe("PDF-EXPORT-REALDOC-E.0 Editor pre-test boundary", () => {
     expect(localTransport).toContain("documentId")
     expect(localTransport).toContain("documentRevision")
     expect(localTransport).not.toContain("mappingProfile")
+    expect(localTransport).not.toContain("adapted-payload-input")
     expect(localIntegration).not.toContain("trusted product-readable document revision")
+    expect(localIntegration).toMatch(/REALDOC-E\.1 now accepts the pure Core input plan/)
   })
 })

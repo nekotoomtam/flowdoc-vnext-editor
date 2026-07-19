@@ -145,10 +145,12 @@ record is retained in
 - Canonical fixture substitution for the current product document.
 - Production proxy, credential, provider, renderer, deployment, or activation.
 
-LOCAL-A through LOCAL-G local qualification is complete. REALDOC-E.0 now locks
-the next product path as Structure authoring plus API-driven DocGen, not current
-Editor-document eligibility. Test-data import must remain separate from
-authored Structure truth and use the same Backend mapping/generation path as an
-external API-shaped caller. The current controls remain reusable lifecycle
-evidence only. See `docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md`. Production remains
-NO-GO.
+LOCAL-A through LOCAL-G local qualification is complete. REALDOC-E.0 locks the
+next product path as Structure authoring plus API-driven DocGen, not current
+Editor-document eligibility. REALDOC-E.1 now accepts the pure Core input plan
+for direct canonical snapshots or an adapted-payload descriptor and mapping
+profile, without changing this Editor transport. Test-data import must remain
+separate from authored Structure truth and use the same Backend
+mapping/generation path as an external API-shaped caller. The current controls
+remain reusable lifecycle evidence only. See
+`docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md`. Production remains NO-GO.

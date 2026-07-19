@@ -1,7 +1,8 @@
 # REALDOC DocGen Pre-Test Boundary
 
-Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock. No UI or runtime
-change; production remains NO-GO.
+Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock with
+`PDF-EXPORT-REALDOC-E.1` Core generation-input contract accepted. No Editor UI
+or runtime change; production remains NO-GO.
 
 ## Product Role
 
@@ -73,6 +74,25 @@ a file enough to support file selection and safe UX, but it does not become the
 canonical mapper, resolver, paginator, renderer, storage owner, or artifact
 authority.
 
+## E.1 Pre-Test Handoff
+
+Core now accepts one pure planning contract after trusted Backend admission:
+
+- direct canonical snapshots stop at `runtime-validation-required`; and
+- adapted JSON is represented by a content-free payload descriptor and exact
+  mapping profile, then stops at `mapping-required`.
+
+The future Editor pre-test may select a local JSON file, show its local name
+and size, choose an allowed mapping profile, and submit it through the
+same-origin development transport. Backend remains responsible for the exact
+payload-byte fingerprint, Published Structure/data-contract/instance pins,
+mapping execution, canonical snapshots, and redacted diagnostics.
+
+No E.1 contract is stored in authored Structure state. No raw payload, mapped
+value, layout fact, renderer fact, or browser-generated snapshot becomes
+authoritative. The current transport still sends only `documentId` and
+`documentRevision`; E.1 adds no UI, hook, parser, state, proxy, or route.
+
 ## Existing Local PDF Controls
 
 LOCAL-F and LOCAL-G remain a development-only canonical evidence workflow. The
@@ -120,5 +140,5 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.1` Published Structure generation input and mapping
-contract in Core/Backend before pre-test UI implementation.
+`PDF-EXPORT-REALDOC-E.2` runtime mapping, validation, content-free diagnostics,
+and direct/adapted parity in Core/Backend before pre-test UI implementation.
