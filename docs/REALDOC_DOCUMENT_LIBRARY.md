@@ -77,6 +77,6 @@ the shared Design/Preview tab strip or Preview state.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.2` adds the shared workspace header and URL-backed
-Design/Preview tabs while keeping Preview execution inactive until its later
-input and admission phases. Production remains NO-GO.
+Follow-up `PDF-EXPORT-REALDOC-E.5.2` now accepts the shared workspace header and
+URL-backed Design/Preview tabs while keeping Preview execution inactive. E.5.3
+next adds the Core UI-neutral test-input projection. Production remains NO-GO.

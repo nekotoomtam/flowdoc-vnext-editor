@@ -2,8 +2,9 @@
 
 Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
-admission, E.4 local artifact lifecycle, and E.5.0 workspace product contract.
-No Editor UI or runtime change; production remains NO-GO.
+admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
+E.5.1 Library, and E.5.2 workspace tabs. No test-input or Preview execution is
+active; production remains NO-GO.
 
 ## Product Role
 
@@ -227,6 +228,8 @@ handoff. It stores no imported values and keeps Preview unavailable.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.2` adds the shared workspace header and URL-backed
-Design/Preview tabs. No multi-user authorization is claimed. Production
+`PDF-EXPORT-REALDOC-E.5.2` now accepts the shared workspace header,
+document-keyed Design state retention, and URL-backed Design/Preview tabs. It
+adds no test input or Preview execution. E.5.3 next adds the Core UI-neutral
+test-input projection. No multi-user authorization is claimed. Production
 remains NO-GO.

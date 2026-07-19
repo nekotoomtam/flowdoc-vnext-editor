@@ -25,13 +25,21 @@ import {
 import { dispatchEditorRuntimeCommand } from "../editor/runtime/runtimeCommandDispatch"
 import { getCanvasKeyboardReorderFocusDecision } from "../editor/interaction/canvasKeyboardReorderFocus"
 import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasurement"
+import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
 
 export interface EditorAppProps {
+  activeWorkspaceView?: DocumentWorkspaceView
   documentId?: string
   onBackToLibrary?: () => void
+  onSelectWorkspaceView?: (view: DocumentWorkspaceView) => void
 }
 
-export function EditorApp({ documentId: requestedDocumentId, onBackToLibrary }: EditorAppProps) {
+export function EditorApp({
+  activeWorkspaceView = "design",
+  documentId: requestedDocumentId,
+  onBackToLibrary,
+  onSelectWorkspaceView,
+}: EditorAppProps) {
   const backendBaseUrl = useMemo(
     () => resolveFlowDocBackendBaseUrl(import.meta.env.VITE_FLOWDOC_BACKEND_URL as string | undefined),
     [],
@@ -227,6 +235,7 @@ export function EditorApp({ documentId: requestedDocumentId, onBackToLibrary }: 
       canvasFocusNodeId={canvasFocusNodeId}
       canvasReorderDrag={canvasReorderDrag}
       editorState={editorState}
+      activeWorkspaceView={activeWorkspaceView}
       layoutQaEnabled={layoutQaEnabled}
       localPdfExport={localPdfExport}
       migrationEnabled={migrationEnabled}
@@ -241,6 +250,7 @@ export function EditorApp({ documentId: requestedDocumentId, onBackToLibrary }: 
       onSelectNode={handleSelectNode}
       onSelectPaperPreset={handleSelectPaperPreset}
       onSelectPaperZoom={handleSelectPaperZoom}
+      onSelectWorkspaceView={onSelectWorkspaceView}
       onViewportFactsChange={handleViewportFactsChange}
       versionCapabilityStatus={versionCapabilityStatus}
     />

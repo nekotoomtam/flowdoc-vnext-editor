@@ -5,6 +5,7 @@ import "./styles/tokens.css"
 import "./styles/app.css"
 import "./styles/editor.css"
 import "./styles/library.css"
+import "./styles/workspace.css"
 
 const rootElement = document.getElementById("root")
 

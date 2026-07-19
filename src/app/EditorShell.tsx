@@ -18,8 +18,11 @@ import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasure
 import type { EditorVersionCapabilityStatus } from "../editor/backend/backendVersionCapability"
 import type { RuntimeDocumentMigrationStatus } from "../editor/runtime/runtimeMigrationStatus"
 import type { LocalPdfExportInteraction } from "./useLocalPdfExport"
+import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
+import { PreviewUnavailableView } from "../components/preview/PreviewUnavailableView"
 
 export interface EditorShellProps {
+  activeWorkspaceView: DocumentWorkspaceView
   canvasFocusNodeId: string | null
   canvasReorderDrag: CanvasReorderInteraction
   editorState: EditorRuntimeState
@@ -42,10 +45,12 @@ export interface EditorShellProps {
   onSelectNode: (nodeId: string, source: EditorCommandSource) => void
   onSelectPaperPreset: (preset: PaperPreset) => void
   onSelectPaperZoom: (zoom: number) => void
+  onSelectWorkspaceView?: (view: DocumentWorkspaceView) => void
   onViewportFactsChange: (facts: ViewportScrollRootFacts) => void
 }
 
 export function EditorShell({
+  activeWorkspaceView,
   canvasFocusNodeId,
   canvasReorderDrag,
   editorState,
@@ -64,6 +69,7 @@ export function EditorShell({
   onSelectNode,
   onSelectPaperPreset,
   onSelectPaperZoom,
+  onSelectWorkspaceView,
   onViewportFactsChange,
 }: EditorShellProps) {
   const { core, jobs, paper, selection, view } = editorState
@@ -81,61 +87,86 @@ export function EditorShell({
   return (
     <div className="editor-shell">
       <AppHeader
+        activeView={activeWorkspaceView}
         document={document}
         diagnostics={diagnostics}
         onBackToLibrary={onBackToLibrary}
+        onSelectView={onSelectWorkspaceView}
       />
-      <EditorToolbar
-        diagnostics={diagnostics}
-        migrationEnabled={migrationEnabled}
-        migrationStatus={migrationStatus}
-        localPdfExport={localPdfExport}
-        onMigrateDocument={onMigrateDocument}
-        paper={paper}
-        onSelectPaperPreset={onSelectPaperPreset}
-        onSelectPaperZoom={onSelectPaperZoom}
-      />
-      <main className="editor-workspace" aria-label="FlowDoc editor workspace">
-        <OutlinePanel items={outlineItems} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
-        <CanvasSurface
-          canvasFocusNodeId={canvasFocusNodeId}
-          canvasReorderDrag={canvasReorderDrag}
-          document={document}
-          onCanvasFocusHandled={onCanvasFocusHandled}
-          onKeyboardReorderNode={(nodeId, direction) => onReorderNode(nodeId, direction, "keyboard")}
-          pages={canvasRenderView.pages}
-          paper={paper}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={onSelectNode}
-          onViewportFactsChange={onViewportFactsChange}
-        />
-        <aside className="editor-side-panel" aria-label="Inspector and diagnostics">
-          <InspectorPanel
-            facts={inspectorFacts}
-            mutationStatus={mutationStatus}
-            onDeleteNode={onDeleteNode}
-            onDuplicateNode={onDuplicateNode}
-            onReorderNode={onReorderNode}
-          />
-          <DiagnosticsPanel
+      <div className="workspace-view-stack">
+        <div
+          aria-labelledby="workspace-tab-design"
+          className="editor-design-view"
+          hidden={activeWorkspaceView !== "design"}
+          id="workspace-panel-design"
+          role="tabpanel"
+        >
+          <EditorToolbar
             diagnostics={diagnostics}
+            migrationEnabled={migrationEnabled}
+            migrationStatus={migrationStatus}
+            localPdfExport={localPdfExport}
+            onMigrateDocument={onMigrateDocument}
+            paper={paper}
+            onSelectPaperPreset={onSelectPaperPreset}
+            onSelectPaperZoom={onSelectPaperZoom}
+          />
+          <main className="editor-workspace" aria-label="FlowDoc editor workspace">
+            <OutlinePanel items={outlineItems} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
+            <CanvasSurface
+              canvasFocusNodeId={canvasFocusNodeId}
+              canvasReorderDrag={canvasReorderDrag}
+              document={document}
+              onCanvasFocusHandled={onCanvasFocusHandled}
+              onKeyboardReorderNode={(nodeId, direction) => onReorderNode(nodeId, direction, "keyboard")}
+              pages={canvasRenderView.pages}
+              paper={paper}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={onSelectNode}
+              onViewportFactsChange={onViewportFactsChange}
+            />
+            <aside className="editor-side-panel" aria-label="Inspector and diagnostics">
+              <InspectorPanel
+                facts={inspectorFacts}
+                mutationStatus={mutationStatus}
+                onDeleteNode={onDeleteNode}
+                onDuplicateNode={onDuplicateNode}
+                onReorderNode={onReorderNode}
+              />
+              <DiagnosticsPanel
+                diagnostics={diagnostics}
+                selection={selection}
+                view={view}
+              />
+            </aside>
+          </main>
+          <StatusBar
+            core={core}
+            document={document}
+            history={editorState.history}
+            jobs={jobs}
+            layoutQaSummary={layoutQaSummary}
+            paper={paper}
+            previewPageCount={canvasRenderView.pages.length}
             selection={selection}
             view={view}
+            versionCapabilityStatus={versionCapabilityStatus}
           />
-        </aside>
-      </main>
-      <StatusBar
-        core={core}
-        document={document}
-        history={editorState.history}
-        jobs={jobs}
-        layoutQaSummary={layoutQaSummary}
-        paper={paper}
-        previewPageCount={canvasRenderView.pages.length}
-        selection={selection}
-        view={view}
-        versionCapabilityStatus={versionCapabilityStatus}
-      />
+        </div>
+        {activeWorkspaceView === "preview" ? (
+          <div
+            aria-labelledby="workspace-tab-preview"
+            className="preview-workspace-panel"
+            id="workspace-panel-preview"
+            role="tabpanel"
+          >
+            <PreviewUnavailableView
+              document={document}
+              onReturnToDesign={() => onSelectWorkspaceView?.("design")}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }

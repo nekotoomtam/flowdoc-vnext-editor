@@ -178,5 +178,7 @@ REALDOC-E.5.0 locks that product surface in
 `docs/REALDOC_DOCUMENT_WORKSPACE_PRODUCT_CONTRACT.md`. REALDOC-E.5.1 now adds
 the bounded content-free local Library transport and first Library route/view.
 It opens the existing Design runtime by URL, keeps Preview disabled, and makes
-no per-user authorization claim. E.5.2 next adds the shared workspace header
-and URL-backed Design/Preview tabs.
+no per-user authorization claim. REALDOC-E.5.2 now adds the shared workspace
+header and URL-backed Design/Preview tabs while preserving the Design runtime.
+The Preview route reports unavailable and does not call this PDF transport.
+E.5.3 next adds only the Core UI-neutral test-input projection.

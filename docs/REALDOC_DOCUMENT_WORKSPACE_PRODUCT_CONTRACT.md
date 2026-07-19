@@ -1,8 +1,8 @@
 # REALDOC Document Workspace Product Contract
 
 Status: `PDF-EXPORT-REALDOC-E.5.0` product contract accepted and
-`PDF-EXPORT-REALDOC-E.5.1` local Library implementation accepted. Production
-remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.1` local Library plus `E.5.2` shared workspace tabs
+accepted. Production remains NO-GO.
 
 ## Decision
 
@@ -32,12 +32,14 @@ The accepted Editor now:
 - receives a draft Structure authoring context only after the package V4
   migration;
 - renders one design shell with header, toolbar, outline, canvas, inspector,
-  diagnostics, and status bar; and
+  diagnostics, and status bar;
+- retains that Design runtime while URL-backed Design/Preview views switch;
+- reports an honest content-free Preview unavailable state; and
 - exposes LOCAL-F PDF controls for the current document/revision pin only.
 
 Backend has both `read(documentId)` and a bounded newest-first list query.
 Existing LOCAL-F PDF controls are reusable lifecycle evidence, not the DocGen
-Preview transport. The shared Design/Preview tab shell remains E.5.2.
+Preview transport. Generated input and Preview execution remain deferred.
 
 ## Navigation Contract
 
@@ -247,6 +249,7 @@ label it exact while the Backend result is pending.
 2. `E.5.1` adds the bounded local Library read model and Library route/view.
    Accepted.
 3. `E.5.2` adds the shared workspace shell and URL-backed Design/Preview tabs.
+   Accepted.
 4. `E.5.3` adds the Core UI-neutral test-input projection and missing generation
    value constraints without UI vocabulary.
 5. `E.5.4` adds Editor Form state and generated scalar/collection/image inputs.
@@ -259,7 +262,7 @@ label it exact while the Backend result is pending.
 
 ## Explicitly Not Changed
 
-- no Preview route, generated-input view, or Design/Preview tab shell;
+- no generated-input projection or Form/JSON editing view;
 - no generated Form or test-data persistence;
 - no draft or published Preview admission;
 - no Structure publish implementation;
@@ -272,6 +275,8 @@ label it exact while the Backend result is pending.
 - Library items are Structure projects rather than generated artifacts.
 - The bounded local response excludes raw package and generated content.
 - Library-to-Design navigation and Back-to-Library URL state are active.
+- Design/Preview tabs, direct URLs, and browser history share one view state.
+- Switching views preserves the document-keyed Design runtime.
 - Design and Preview are adjacent views with separate state authority.
 - Form and JSON input converge before canonical resolution.
 - Generated Form behavior is source-neutral and does not guess missing schema.
@@ -297,6 +302,6 @@ label it exact while the Backend result is pending.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.2` adds the shared workspace header and URL-backed
-Design/Preview tabs. Preview execution remains deferred. Production remains
+`PDF-EXPORT-REALDOC-E.5.3` adds the Core UI-neutral test-input projection and
+missing generation constraint facts without UI vocabulary. Production remains
 NO-GO.
