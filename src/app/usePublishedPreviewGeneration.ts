@@ -14,6 +14,7 @@ const TERMINAL = new Set<LocalPdfExportPublicStatus["state"]>([
 ])
 
 export interface PublishedPreviewGenerationInteraction {
+  target: "draft" | "published"
   phase: "idle" | "admitting" | "requesting" | "running" | "completed" | "failed"
   receipt: PublishedPreviewAdmissionReceipt | null
   operation: LocalPdfExportPublicStatus | null
@@ -36,9 +37,20 @@ function selectedProfile(interaction: PreviewTestInputInteraction) {
   return interaction.json.mappingProfiles.find((option) => testInputMappingProfileOptionKey(option) === key)?.profile ?? null
 }
 
-function inputIdentity(context: PublishedPreviewContext | null, interaction: PreviewTestInputInteraction): string | null {
+export interface ExactPreviewGenerationContext {
+  contextFingerprint: string
+  authoring: PublishedPreviewContext["authoring"]
+  projection: PublishedPreviewContext["projection"]
+}
+
+function inputIdentity(
+  target: "draft" | "published",
+  context: ExactPreviewGenerationContext | null,
+  interaction: PreviewTestInputInteraction,
+): string | null {
   if (context == null || interaction.mode !== "json" || interaction.json.state == null) return null
   return JSON.stringify([
+    target,
     context.contextFingerprint,
     context.authoring.documentId,
     context.authoring.documentRevision,
@@ -48,23 +60,28 @@ function inputIdentity(context: PublishedPreviewContext | null, interaction: Pre
   ])
 }
 
-function triggerDownload(blob: Blob): void {
+function triggerDownload(blob: Blob, target: "draft" | "published"): void {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
   anchor.href = url
-  anchor.download = "flowdoc-published-preview.pdf"
+  anchor.download = `flowdoc-${target}-preview.pdf`
   anchor.click()
   URL.revokeObjectURL(url)
 }
 
-export function usePublishedPreviewGeneration(options: {
-  context: PublishedPreviewContext | null
+export function useExactPreviewGeneration(options: {
+  target: "draft" | "published"
+  context: ExactPreviewGenerationContext | null
   input: PreviewTestInputInteraction
-  client: PublishedPreviewClient
+  admitAdaptedJson(input: {
+    profile: Parameters<PublishedPreviewClient["admitAdaptedJson"]>[0]["profile"]
+    payloadText: string
+    idempotencyKey: string
+  }): Promise<PublishedPreviewAdmissionReceipt>
   pdfClient: LocalPdfExportClient
   pollIntervalMs?: number
 }): PublishedPreviewGenerationInteraction {
-  const currentIdentity = inputIdentity(options.context, options.input)
+  const currentIdentity = inputIdentity(options.target, options.context, options.input)
   const [submittedIdentity, setSubmittedIdentity] = useState<string | null>(null)
   const [phase, setPhase] = useState<PublishedPreviewGenerationInteraction["phase"]>("idle")
   const [receipt, setReceipt] = useState<PublishedPreviewAdmissionReceipt | null>(null)
@@ -72,6 +89,7 @@ export function usePublishedPreviewGeneration(options: {
   const [error, setError] = useState<PublishedPreviewGenerationInteraction["error"]>(null)
   const run = useRef(0)
   const contextIdentity = options.context == null ? null : JSON.stringify([
+    options.target,
     options.context.contextFingerprint,
     options.context.authoring.documentId,
     options.context.authoring.documentRevision,
@@ -101,7 +119,7 @@ export function usePublishedPreviewGeneration(options: {
     const context = options.context
     const state = options.input.json.state
     const selected = selectedProfile(options.input)
-    const identity = inputIdentity(context, options.input)
+    const identity = inputIdentity(options.target, context, options.input)
     if (
       context == null
       || state == null
@@ -110,8 +128,8 @@ export function usePublishedPreviewGeneration(options: {
       || options.input.json.diagnostics?.status !== "ready-for-admission"
       || busy
     ) return
-    const admissionKey = `editor:published-preview:admission:${crypto.randomUUID()}`
-    const exportKey = `editor:published-preview:artifact:${crypto.randomUUID()}`
+    const admissionKey = `editor:${options.target}-preview:admission:${crypto.randomUUID()}`
+    const exportKey = `editor:${options.target}-preview:artifact:${crypto.randomUUID()}`
     const runId = run.current + 1
     run.current = runId
     setSubmittedIdentity(identity)
@@ -122,8 +140,7 @@ export function usePublishedPreviewGeneration(options: {
     void (async () => {
       let admitted = false
       try {
-        const admission = await options.client.admitAdaptedJson({
-          context,
+        const admission = await options.admitAdaptedJson({
           profile: selected,
           payloadText: state.payloadText,
           idempotencyKey: admissionKey,
@@ -147,7 +164,7 @@ export function usePublishedPreviewGeneration(options: {
         }
       }
     })()
-  }, [busy, options.client, options.context, options.input, options.pdfClient])
+  }, [busy, options.admitAdaptedJson, options.context, options.input, options.pdfClient, options.target])
 
   const operationId = operation?.operationId ?? null
   const operationState = operation?.state ?? null
@@ -184,13 +201,38 @@ export function usePublishedPreviewGeneration(options: {
   const download = useCallback(() => {
     if (operation?.state !== "completed" || stale) return
     void options.pdfClient.downloadExport(operation.operationId)
-      .then(triggerDownload)
+      .then((blob) => triggerDownload(blob, options.target))
       .catch(() => setError("download-failed"))
-  }, [operation, options.pdfClient, stale])
+  }, [operation, options.pdfClient, options.target, stale])
 
   const artifactUrl = useMemo(() => (
     operation?.state === "completed" && !stale ? publishedPreviewArtifactUrl(operation.operationId) : null
   ), [operation, stale])
 
-  return { phase, receipt, operation, stale, error, canGenerate, artifactUrl, generate, download }
+  return { target: options.target, phase, receipt, operation, stale, error, canGenerate, artifactUrl, generate, download }
+}
+
+export function usePublishedPreviewGeneration(options: {
+  context: PublishedPreviewContext | null
+  input: PreviewTestInputInteraction
+  client: PublishedPreviewClient
+  pdfClient: LocalPdfExportClient
+  pollIntervalMs?: number
+}): PublishedPreviewGenerationInteraction {
+  const admitAdaptedJson = useCallback((input: {
+    profile: Parameters<PublishedPreviewClient["admitAdaptedJson"]>[0]["profile"]
+    payloadText: string
+    idempotencyKey: string
+  }) => {
+    if (options.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
+    return options.client.admitAdaptedJson({ ...input, context: options.context })
+  }, [options.client, options.context])
+  return useExactPreviewGeneration({
+    target: "published",
+    context: options.context,
+    input: options.input,
+    admitAdaptedJson,
+    pdfClient: options.pdfClient,
+    ...(options.pollIntervalMs == null ? {} : { pollIntervalMs: options.pollIntervalMs }),
+  })
 }

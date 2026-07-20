@@ -60,6 +60,15 @@
   opacity: 0.45;
 }
 
+.preview-target-control {
+  flex: 0 0 auto;
+}
+
+.preview-target-control .segmented-button {
+  min-height: 30px;
+  min-width: 78px;
+}
+
 .test-input-workspace {
   display: grid;
   grid-template-columns: minmax(340px, 410px) minmax(0, 1fr);

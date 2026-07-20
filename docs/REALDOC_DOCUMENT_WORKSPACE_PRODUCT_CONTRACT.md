@@ -3,8 +3,8 @@
 Status: `PDF-EXPORT-REALDOC-E.5.0` product contract accepted and
 `PDF-EXPORT-REALDOC-E.5.1` local Library, `E.5.2` shared workspace tabs, and
 `E.5.3` Core test-input projection, `E.5.4` temporary generated Form, and
-`E.5.5` temporary JSON/mapping preparation, and `E.5.6` local Published Preview
-accepted.
+`E.5.5` temporary JSON/mapping preparation, `E.5.6` local Published Preview,
+and `E.5.7` local Draft Preview accepted.
 Production remains NO-GO.
 
 ## Decision
@@ -41,14 +41,14 @@ The accepted Editor now:
   projection is bound;
 - owns memory-only generated Form and JSON/mapping preparation state after
   accepted projection and profile-catalog facts are bound;
-- runs local Published Preview through E.3/E.4 only when a trusted Backend
-  context is bound; and
+- runs local Published or Draft Preview only when the corresponding trusted
+  Backend context is bound; and
 - exposes LOCAL-F PDF controls for the current document/revision pin only.
 
 Backend has both `read(documentId)` and a bounded newest-first list query.
 Existing LOCAL-F PDF controls are reusable lifecycle evidence, not the DocGen
-Preview transport. Documents without a trusted Published context remain
-fail-closed; Draft Preview remains deferred.
+Preview transport. Documents without a trusted Draft or Published context
+remain fail-closed.
 
 ## Navigation Contract
 
@@ -201,10 +201,10 @@ Preview has two explicit targets:
   Structure is ready to publish. It must be visibly labeled as Draft Preview.
 
 Draft Preview cannot call the Published admission route while pretending that a
-draft is a Published Structure Version. E.5.7 must define a separate local-only
+draft is a Published Structure Version. E.5.7 now defines a separate local-only
 draft snapshot identity and admission boundary that converges with shared Core
-resolution after ownership validation. A Draft artifact cannot be presented as
-API-parity evidence.
+generation and artifact execution after ownership validation.
+A Draft artifact cannot be presented as API-parity evidence.
 
 ## Staleness Contract
 
@@ -236,7 +236,8 @@ values are reported and never silently coerced.
 
 ## Preview Lifecycle
 
-The Published path reuses the accepted lifecycle in this order:
+Each target uses its own admission before reusing the accepted lifecycle in
+this order:
 
 ```text
 select target and input
@@ -267,6 +268,7 @@ label it exact while the Backend result is pending.
    Accepted.
 7. `E.5.6` binds Published Preview to E.3/E.4. Accepted for local development.
 8. `E.5.7` adds the separate local Draft Preview identity and admission path.
+   Accepted for local development.
 9. `E.5.8` completes stale, rerun, diagnostic navigation, empty, loading,
    failure, cancel, retry, and download states.
 10. `E.5.9` accepts Form/API parity and cross-repo identity evidence.
@@ -276,7 +278,7 @@ label it exact while the Backend result is pending.
 - no mapped canonical values in Editor state;
 - no Form or test-data persistence beyond the active memory session;
 - no Published Preview binding for documents without a trusted Backend context;
-- no draft Preview admission;
+- no durable Draft Preview repository or arbitrary live-draft compiler;
 - no Structure publish implementation;
 - no authentication, authorization, sharing, folders, or collaboration;
 - no production route, provider, deployment, cost, or activation; and
@@ -305,7 +307,8 @@ label it exact while the Backend result is pending.
   context; the Library read model must expose capability without leaking that
   storage shape.
 - Scalar generation metadata is insufficient for a complete accessible Form.
-- Draft Preview needs a new identity boundary and cannot be hidden inside E.3.
+- Draft Preview compilation from arbitrary live authoring packages remains
+  unimplemented after the accepted trusted local snapshot boundary.
 - Local test values need a privacy decision before refresh persistence.
 
 ## UNKNOWN
@@ -318,8 +321,8 @@ label it exact while the Backend result is pending.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.6` now accepts local Published Preview through E.3
-admission and E.4 artifact lifecycle. Mapping remains Backend-owned, Form data
-JSON remains an unvalidated local draft, and mapped canonical values do not
-enter Editor state. `PDF-EXPORT-REALDOC-E.5.7` next owns Draft Preview.
-Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.7` now accepts a separate immutable local Draft Preview
+identity and admission while reusing shared Backend generation validation and
+artifact lifecycle only after snapshot validation. Draft remains explicitly
+not Published/API-parity evidence. `PDF-EXPORT-REALDOC-E.5.8` next owns complete
+lifecycle and large-input UX. Production remains NO-GO.

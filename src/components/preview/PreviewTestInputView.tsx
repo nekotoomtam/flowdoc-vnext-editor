@@ -471,6 +471,9 @@ export interface PreviewTestInputViewProps {
   document: CoreEditorDocumentSummary
   interaction: PreviewTestInputInteraction
   publishedPreview?: PublishedPreviewGenerationInteraction | null
+  previewTarget?: "draft" | "published"
+  previewTargetAvailability?: { draft: boolean; published: boolean }
+  onSelectPreviewTarget?: (target: "draft" | "published") => void
   projection: VNextPublishedStructureTestInputProjectionV1
 }
 
@@ -489,6 +492,7 @@ function PublishedPreviewSurface({
     </div>
   )
   const receipt = interaction.receipt
+  const targetLabel = interaction.target === "draft" ? "Draft Preview" : "Published Preview"
   const status = interaction.stale
     ? "Stale result"
     : interaction.phase === "idle"
@@ -507,7 +511,7 @@ function PublishedPreviewSurface({
       <div className="published-preview-status-bar">
         <div>
           <strong>{status}</strong>
-          <span>{interaction.operation?.pageCount ? `${interaction.operation.pageCount} pages` : "Published Preview"}</span>
+          <span>{interaction.operation?.pageCount ? `${targetLabel} · ${interaction.operation.pageCount} pages` : targetLabel}</span>
         </div>
         {interaction.operation?.state === "completed" && !interaction.stale ? (
           <button className="tool-button" onClick={interaction.download} type="button">
@@ -530,7 +534,7 @@ function PublishedPreviewSurface({
         <iframe
           className="published-preview-pdf"
           src={interaction.artifactUrl}
-          title={`${document.title} exact Published Preview PDF`}
+          title={`${document.title} exact ${targetLabel} PDF`}
         />
       ) : (
         <div className="test-input-preview-paper published-preview-placeholder">
@@ -548,6 +552,9 @@ export function PreviewTestInputView({
   document,
   interaction,
   publishedPreview,
+  previewTarget = "published",
+  previewTargetAvailability = { draft: false, published: true },
+  onSelectPreviewTarget,
   projection,
 }: PreviewTestInputViewProps) {
   const formInteraction = interaction.form
@@ -567,6 +574,21 @@ export function PreviewTestInputView({
         <div>
           <strong>Test data</strong>
           <span>Memory only</span>
+        </div>
+        <div aria-label="Preview target" className="segmented-control preview-target-control" role="group">
+          {(["draft", "published"] as const).map((target) => (
+            <button
+              aria-pressed={previewTarget === target}
+              className="segmented-button"
+              data-active={previewTarget === target}
+              disabled={!previewTargetAvailability[target]}
+              key={target}
+              onClick={() => onSelectPreviewTarget?.(target)}
+              type="button"
+            >
+              {target === "draft" ? "Draft" : "Published"}
+            </button>
+          ))}
         </div>
         <div className="test-input-toolbar-actions">
           <span className="test-input-revision">Revision {activeRevision}</span>

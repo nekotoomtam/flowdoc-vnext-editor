@@ -30,7 +30,9 @@ import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreA
 import { usePreviewTestInput } from "./usePreviewTestInput"
 import { createPublishedPreviewClient } from "../editor/preview/publishedPreviewTransport"
 import { usePublishedPreviewContext } from "./usePublishedPreviewContext"
-import { usePublishedPreviewGeneration } from "./usePublishedPreviewGeneration"
+import { useExactPreviewGeneration } from "./usePublishedPreviewGeneration"
+import { createDraftPreviewClient } from "../editor/preview/draftPreviewTransport"
+import { useDraftPreviewContext } from "./useDraftPreviewContext"
 
 export interface EditorAppProps {
   activeWorkspaceView?: DocumentWorkspaceView
@@ -69,6 +71,8 @@ export function EditorApp({
   )
   const localPdfExportClient = useMemo(() => createLocalPdfExportClient(), [])
   const publishedPreviewClient = useMemo(() => createPublishedPreviewClient(), [])
+  const draftPreviewClient = useMemo(() => createDraftPreviewClient(), [])
+  const [previewTarget, setPreviewTarget] = useState<"draft" | "published">("draft")
   const initialState = useMemo(
     () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
       baseRevision: 3,
@@ -86,15 +90,44 @@ export function EditorApp({
       documentRevision: editorState.core.envelope.documentRevision,
     },
   })
-  const effectiveTestInputProjection = testInputProjection ?? publishedPreviewContext.context?.projection ?? null
+  const draftPreviewContext = useDraftPreviewContext({
+    client: draftPreviewClient,
+    enabled: activeWorkspaceView === "preview" && editorState.core.envelope.status === "fresh",
+    pin: {
+      documentId: editorState.core.envelope.documentId,
+      documentRevision: editorState.core.envelope.documentRevision,
+    },
+  })
+  useEffect(() => {
+    if (previewTarget === "draft"
+      && draftPreviewContext.status === "unavailable"
+      && publishedPreviewContext.status === "ready") setPreviewTarget("published")
+  }, [draftPreviewContext.status, previewTarget, publishedPreviewContext.status])
+  const activePreviewContext = previewTarget === "draft"
+    ? draftPreviewContext.context
+    : publishedPreviewContext.context
+  const effectiveTestInputProjection = testInputProjection ?? activePreviewContext?.projection ?? null
   const previewTestInput = usePreviewTestInput(
     effectiveTestInputProjection,
-    publishedPreviewContext.context?.mappingProfiles ?? [],
+    activePreviewContext?.mappingProfiles ?? [],
   )
-  const publishedPreview = usePublishedPreviewGeneration({
-    context: publishedPreviewContext.context,
+  const admitPreviewJson = useCallback((input: {
+    profile: Parameters<typeof publishedPreviewClient.admitAdaptedJson>[0]["profile"]
+    payloadText: string
+    idempotencyKey: string
+  }) => {
+    if (previewTarget === "draft") {
+      if (draftPreviewContext.context == null) return Promise.reject(new Error("Draft Preview context is unavailable"))
+      return draftPreviewClient.admitAdaptedJson({ ...input, context: draftPreviewContext.context })
+    }
+    if (publishedPreviewContext.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
+    return publishedPreviewClient.admitAdaptedJson({ ...input, context: publishedPreviewContext.context })
+  }, [draftPreviewClient, draftPreviewContext.context, previewTarget, publishedPreviewClient, publishedPreviewContext.context])
+  const exactPreview = useExactPreviewGeneration({
+    target: previewTarget,
+    context: activePreviewContext,
     input: previewTestInput,
-    client: publishedPreviewClient,
+    admitAdaptedJson: admitPreviewJson,
     pdfClient: localPdfExportClient,
   })
   const localPdfExport = useLocalPdfExport({
@@ -266,7 +299,13 @@ export function EditorApp({
       layoutQaEnabled={layoutQaEnabled}
       localPdfExport={localPdfExport}
       previewTestInput={previewTestInput}
-      publishedPreview={publishedPreviewContext.status === "ready" ? publishedPreview : null}
+      publishedPreview={activePreviewContext ? exactPreview : null}
+      previewTarget={previewTarget}
+      previewTargetAvailability={{
+        draft: draftPreviewContext.status === "ready",
+        published: publishedPreviewContext.status === "ready",
+      }}
+      onSelectPreviewTarget={setPreviewTarget}
       testInputProjection={effectiveTestInputProjection}
       migrationEnabled={migrationEnabled}
       migrationStatus={migrationStatus}

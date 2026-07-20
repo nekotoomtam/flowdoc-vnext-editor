@@ -4,8 +4,9 @@ Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
 admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
 E.5.1 Library, E.5.2 workspace tabs, E.5.3 Core test-input projection, E.5.4
-temporary generated Form, E.5.5 temporary JSON/mapping preparation, and E.5.6
-local Published Preview. Production remains NO-GO.
+temporary generated Form, E.5.5 temporary JSON/mapping preparation, E.5.6
+local Published Preview, and E.5.7 local Draft Preview. Production remains
+NO-GO.
 
 ## Product Role
 
@@ -202,7 +203,7 @@ Editor responsibilities; pagination truth remains Core/backend output.
 - no browser mapping, canonical-value exposure, pagination, or rendering;
 - no current LOCAL-F eligibility or request body changes;
 - no Form draft admission or mapped-value hydration into Form controls;
-- no Draft Preview identity; and
+- no arbitrary live-draft compiler or durable Draft snapshot repository; and
 - no production route, credential, provider, deployment, or activation.
 
 ## RISK
@@ -296,7 +297,7 @@ and mobile have no horizontal page overflow or console errors. The complete
 ## Next Phase
 
 `PDF-EXPORT-REALDOC-E.5.6` now accepts local Published Preview through E.3/E.4
-without making the browser mapper or artifact truth. E.5.7 next owns the
-separate immutable Draft Preview identity. No multi-user authorization is
-claimed.
+without making the browser mapper or artifact truth. E.5.7 now accepts the
+separate immutable Draft Preview identity and admission. E.5.8 next owns
+lifecycle UX. No multi-user authorization is claimed.
 Production remains NO-GO.

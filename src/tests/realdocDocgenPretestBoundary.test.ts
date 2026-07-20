@@ -46,7 +46,8 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.6 Editor pre-test boundary", () => {
     expect(doc).toMatch(/Backend now accepts the E\.3 `instanceId` and revision/)
     expect(doc).toContain("## E.5.5 Temporary JSON And Mapping Handoff")
     expect(doc).toMatch(/E\.5\.6` now accepts local Published Preview/)
-    expect(doc).toMatch(/E\.5\.7 next owns the\s+separate immutable Draft Preview identity/)
+    expect(doc).toMatch(/E\.5\.7 now accepts the\s+separate immutable Draft Preview identity/)
+    expect(doc).toMatch(/E\.5\.8 next owns\s+lifecycle UX/)
     expect(doc).toMatch(/never receives mapped canonical business values/)
   })
 

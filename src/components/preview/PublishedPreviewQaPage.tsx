@@ -1,17 +1,19 @@
-import { useMemo } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { AppHeader } from "../shell/AppHeader"
 import { PreviewTestInputView } from "./PreviewTestInputView"
 import { usePreviewTestInput } from "../../app/usePreviewTestInput"
 import { usePublishedPreviewContext } from "../../app/usePublishedPreviewContext"
-import { usePublishedPreviewGeneration } from "../../app/usePublishedPreviewGeneration"
+import { useExactPreviewGeneration } from "../../app/usePublishedPreviewGeneration"
 import { createPublishedPreviewClient } from "../../editor/preview/publishedPreviewTransport"
+import { createDraftPreviewClient } from "../../editor/preview/draftPreviewTransport"
+import { useDraftPreviewContext } from "../../app/useDraftPreviewContext"
 import { createLocalPdfExportClient } from "../../editor/pdfExport/localPdfExportTransport"
 
 const pin = { documentId: "realdoc-e5-6-published-preview", documentRevision: 0 }
 const document = {
   id: pin.documentId,
-  title: "69C UAT RC Published Preview",
+  title: "69C UAT RC Preview",
   packageVersion: 3,
   documentVersion: 4,
   runtimeMode: "active" as const,
@@ -27,13 +29,35 @@ const diagnostics = {
 export function PublishedPreviewQaPage() {
   const navigate = useNavigate()
   const client = useMemo(() => createPublishedPreviewClient(), [])
+  const draftClient = useMemo(() => createDraftPreviewClient(), [])
   const pdfClient = useMemo(() => createLocalPdfExportClient(), [])
-  const context = usePublishedPreviewContext({ client, pin })
+  const [target, setTarget] = useState<"draft" | "published">("draft")
+  const publishedContext = usePublishedPreviewContext({ client, pin })
+  const draftContext = useDraftPreviewContext({ client: draftClient, pin })
+  const context = target === "draft" ? draftContext : publishedContext
   const input = usePreviewTestInput(
     context.context?.projection ?? null,
     context.context?.mappingProfiles ?? [],
   )
-  const preview = usePublishedPreviewGeneration({ context: context.context, input, client, pdfClient })
+  const admitAdaptedJson = useCallback((admissionInput: {
+    profile: Parameters<typeof client.admitAdaptedJson>[0]["profile"]
+    payloadText: string
+    idempotencyKey: string
+  }) => {
+    if (target === "draft") {
+      if (draftContext.context == null) return Promise.reject(new Error("Draft Preview context is unavailable"))
+      return draftClient.admitAdaptedJson({ ...admissionInput, context: draftContext.context })
+    }
+    if (publishedContext.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
+    return client.admitAdaptedJson({ ...admissionInput, context: publishedContext.context })
+  }, [client, draftClient, draftContext.context, publishedContext.context, target])
+  const preview = useExactPreviewGeneration({
+    target,
+    context: context.context,
+    input,
+    admitAdaptedJson,
+    pdfClient,
+  })
 
   return (
     <div className="editor-shell">
@@ -54,10 +78,16 @@ export function PublishedPreviewQaPage() {
               interaction={input}
               projection={context.context.projection}
               publishedPreview={preview}
+              previewTarget={target}
+              previewTargetAvailability={{
+                draft: draftContext.status === "ready",
+                published: publishedContext.status === "ready",
+              }}
+              onSelectPreviewTarget={setTarget}
             />
           ) : (
             <main className="preview-unavailable" aria-live="polite">
-              <strong>{context.status === "checking" ? "Loading Published Preview" : "Published Preview unavailable"}</strong>
+              <strong>{context.status === "checking" ? "Loading Preview" : `${target === "draft" ? "Draft" : "Published"} Preview unavailable`}</strong>
               {context.status === "unavailable" ? (
                 <button className="tool-button" onClick={context.retry} type="button">Retry</button>
               ) : null}

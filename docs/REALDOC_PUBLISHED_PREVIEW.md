@@ -65,7 +65,7 @@ QA-specific strings.
 - no imported values written into Structure authoring state;
 - no browser mapping, resolving, pagination, or rendering;
 - no Form draft admission or mapped-value hydration into Form controls;
-- no Draft Preview;
+- no durable Draft Preview repository or arbitrary live-draft compiler;
 - no refresh persistence for test values;
 - no user authorization or collaboration claim; and
 - no production activation.
@@ -80,6 +80,6 @@ QA-specific strings.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.7` adds Draft Preview with a separate immutable draft
-identity. E.5.8 owns complete lifecycle/performance UX and E.5.9 owns Form/API
-parity. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.7` now accepts Draft Preview with a separate immutable
+draft identity and admission. E.5.8 next owns complete lifecycle/performance UX
+and E.5.9 owns Form/API parity. Production remains NO-GO.

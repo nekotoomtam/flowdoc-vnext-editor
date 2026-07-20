@@ -34,12 +34,15 @@ export interface EditorShellProps {
   localPdfExport: LocalPdfExportInteraction
   previewTestInput: PreviewTestInputInteraction
   publishedPreview: PublishedPreviewGenerationInteraction | null
+  previewTarget: "draft" | "published"
+  previewTargetAvailability: { draft: boolean; published: boolean }
   testInputProjection: VNextPublishedStructureTestInputProjectionV1 | null
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
   mutationStatus: RuntimeNodeMutationStatus
   versionCapabilityStatus: EditorVersionCapabilityStatus
   onBackToLibrary?: () => void
+  onSelectPreviewTarget: (target: "draft" | "published") => void
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
   onMigrateDocument: () => void
@@ -65,12 +68,15 @@ export function EditorShell({
   localPdfExport,
   previewTestInput,
   publishedPreview,
+  previewTarget,
+  previewTargetAvailability,
   testInputProjection,
   migrationEnabled,
   migrationStatus,
   mutationStatus,
   versionCapabilityStatus,
   onBackToLibrary,
+  onSelectPreviewTarget,
   onDeleteNode,
   onDuplicateNode,
   onMigrateDocument,
@@ -175,6 +181,9 @@ export function EditorShell({
                 document={document}
                 interaction={previewTestInput}
                 publishedPreview={publishedPreview}
+                previewTarget={previewTarget}
+                previewTargetAvailability={previewTargetAvailability}
+                onSelectPreviewTarget={onSelectPreviewTarget}
                 projection={testInputProjection}
               />
             ) : (

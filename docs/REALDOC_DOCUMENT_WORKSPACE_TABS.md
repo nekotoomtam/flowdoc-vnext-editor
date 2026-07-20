@@ -68,5 +68,5 @@ and Preview contracts are accepted.
 `PDF-EXPORT-REALDOC-E.5.4` accepts temporary Editor Form state over the Core
 projection and E.5.5 now accepts JSON/mapping preparation; this E.5.2 workspace
 phase itself performs no Preview execution. E.5.6 now binds Published Preview;
-E.5.7 next owns Draft Preview.
+E.5.7 now accepts Draft Preview and E.5.8 next owns lifecycle UX hardening.
 Production remains NO-GO.

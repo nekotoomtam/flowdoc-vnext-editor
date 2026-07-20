@@ -94,8 +94,12 @@ function input(mode: "form" | "json"): PreviewTestInputInteraction {
   }
 }
 
-function preview(stale = false): PublishedPreviewGenerationInteraction {
+function preview(
+  stale = false,
+  target: "draft" | "published" = "published",
+): PublishedPreviewGenerationInteraction {
   return {
+    target,
     phase: "completed",
     receipt: {
       admissionId: "admission:qa",
@@ -216,5 +220,21 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
     expect(formMarkup).toContain("Form data JSON")
     expect(formMarkup).toContain("Draft, not validated")
     expect(formMarkup).toContain("draft-not-validated")
+  })
+
+  it("keeps Draft and Published as explicit targets and labels Draft artifacts honestly", () => {
+    const markup = renderToStaticMarkup(createElement(PreviewTestInputView, {
+      document,
+      interaction: input("json"),
+      projection: REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+      publishedPreview: preview(false, "draft"),
+      previewTarget: "draft",
+      previewTargetAvailability: { draft: true, published: true },
+      onSelectPreviewTarget: vi.fn(),
+    }))
+    expect(markup).toContain('aria-label="Preview target"')
+    expect(markup).toContain("Draft Preview · 10 pages")
+    expect(markup).toContain('aria-pressed="true"')
+    expect(markup).toContain(">Published</button>")
   })
 })

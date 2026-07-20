@@ -186,4 +186,5 @@ now accepts temporary JSON/mapping preparation without relabeling this PDF
 transport as DocGen admission. E.5.6 now owns a separate Published Preview
 client that admits imported JSON through E.3 and reuses this E.4 lifecycle by
 its protected instance pin. The original LOCAL-F eligibility transport remains
-unchanged. E.5.7 next owns Draft Preview.
+unchanged. E.5.7 now accepts separate Draft Preview identity and admission;
+E.5.8 next owns lifecycle UX hardening.
