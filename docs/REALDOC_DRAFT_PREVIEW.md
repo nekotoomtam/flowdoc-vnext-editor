@@ -77,11 +77,11 @@ The current local Draft context comes from a trusted 69C registry. It proves the
 target identity, strict parser, separate admission, and shared lifecycle, but
 not generic authoring-package compilation.
 
-The 732 KiB JSON editor remains performance-sensitive. Large-input interaction
-and lifecycle recovery belong to E.5.8.
+E.5.8 now bounds the normal 732 KiB JSON DOM and accepts local lifecycle
+recovery. Complete 200-page scale still belongs to REALDOC-G.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.8` owns loading, failure, cancel, retry, diagnostic
-navigation, large-input performance, and download lifecycle UX. E.5.9 owns
-Form/API parity evidence. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.8` now accepts loading, failure, cancel, retry,
+diagnostic navigation, bounded large-input interaction, and download lifecycle
+UX. E.5.9 next owns Form/API parity evidence. Production remains NO-GO.

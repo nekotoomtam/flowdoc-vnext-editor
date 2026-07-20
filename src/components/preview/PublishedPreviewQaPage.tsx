@@ -9,6 +9,7 @@ import { createPublishedPreviewClient } from "../../editor/preview/publishedPrev
 import { createDraftPreviewClient } from "../../editor/preview/draftPreviewTransport"
 import { useDraftPreviewContext } from "../../app/useDraftPreviewContext"
 import { createLocalPdfExportClient } from "../../editor/pdfExport/localPdfExportTransport"
+import { PreviewContextStateView } from "./PreviewContextStateView"
 
 const pin = { documentId: "realdoc-e5-6-published-preview", documentRevision: 0 }
 const document = {
@@ -86,12 +87,19 @@ export function PublishedPreviewQaPage() {
               onSelectPreviewTarget={setTarget}
             />
           ) : (
-            <main className="preview-unavailable" aria-live="polite">
-              <strong>{context.status === "checking" ? "Loading Preview" : `${target === "draft" ? "Draft" : "Published"} Preview unavailable`}</strong>
-              {context.status === "unavailable" ? (
-                <button className="tool-button" onClick={context.retry} type="button">Retry</button>
-              ) : null}
-            </main>
+            <PreviewContextStateView
+              document={document}
+              onRetry={(retryTarget) => {
+                if (retryTarget === "draft") draftContext.retry()
+                else publishedContext.retry()
+              }}
+              onSelectTarget={setTarget}
+              statuses={{
+                draft: draftContext.status,
+                published: publishedContext.status,
+              }}
+              target={target}
+            />
           )}
         </div>
       </div>

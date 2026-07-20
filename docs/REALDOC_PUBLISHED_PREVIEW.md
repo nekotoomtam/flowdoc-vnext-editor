@@ -80,6 +80,6 @@ QA-specific strings.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.7` now accepts Draft Preview with a separate immutable
-draft identity and admission. E.5.8 next owns complete lifecycle/performance UX
-and E.5.9 owns Form/API parity. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.7` accepts Draft Preview with a separate immutable
+draft identity and admission. E.5.8 now accepts complete lifecycle and bounded
+large-input UX; E.5.9 next owns Form/API parity. Production remains NO-GO.

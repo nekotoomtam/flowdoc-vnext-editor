@@ -9,6 +9,11 @@ import {
 } from "./testInputFormState"
 
 export const REALDOC_E55_MAX_JSON_BYTES = 1024 * 1024
+export const REALDOC_E58_LARGE_JSON_EDITOR_BYTES = 256 * 1024
+
+export function usesDeferredLargeJsonEditor(byteLength: number): boolean {
+  return byteLength >= REALDOC_E58_LARGE_JSON_EDITOR_BYTES
+}
 
 export interface TestInputMappingProfileOption {
   label: string

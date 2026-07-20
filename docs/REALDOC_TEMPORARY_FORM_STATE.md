@@ -112,5 +112,6 @@ empty.
 `PDF-EXPORT-REALDOC-E.5.5` now accepts separate temporary JSON selection, exact
 mapping-profile selection, and content-free local preparation diagnostics. Form
 and JSON state survive mode switches independently. E.5.6 now binds Published
-Preview; E.5.7 accepts Draft Preview and E.5.8 next owns lifecycle UX.
+Preview; E.5.7 accepts Draft Preview and E.5.8 now accepts lifecycle UX.
+E.5.9 next owns Form/API parity.
 Production remains NO-GO.

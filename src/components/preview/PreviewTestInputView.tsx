@@ -1,13 +1,21 @@
+import { useEffect, useRef, useState } from "react"
 import {
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   CircleAlert,
   Download,
+  FilePenLine,
   FileJson,
   FileOutput,
   FileText,
   ImagePlus,
+  LoaderCircle,
   Plus,
+  RefreshCw,
   RotateCcw,
+  Save,
+  Square,
   Trash2,
   X,
 } from "lucide-react"
@@ -30,9 +38,11 @@ import type {
 import {
   testInputMappingProfileMatchesProjection,
   testInputMappingProfileOptionKey,
+  usesDeferredLargeJsonEditor,
 } from "../../editor/preview/testInputJsonState"
 import { stringifyTestInputFormDataJsonDraft } from "../../editor/preview/testInputFormDataJson"
 import type { PublishedPreviewGenerationInteraction } from "../../app/usePublishedPreviewGeneration"
+import type { PublishedPreviewAdmissionReceipt } from "../../editor/preview/publishedPreviewContracts"
 
 type EditableFieldProjection =
   | VNextTestInputDocumentFieldProjectionV1
@@ -331,6 +341,48 @@ function formatBytes(byteLength: number): string {
   return `${(byteLength / 1024).toFixed(byteLength < 10 * 1024 ? 1 : 0)} KiB`
 }
 
+function DeferredLargeJsonEditor({
+  onApply,
+  onCancel,
+  payloadText,
+  revision,
+}: {
+  onApply: (payloadText: string) => boolean
+  onCancel: () => void
+  payloadText: string
+  revision: number
+}) {
+  const editorRef = useRef<HTMLTextAreaElement>(null)
+  return (
+    <div className="test-input-large-json-editor" key={revision}>
+      <textarea
+        aria-label="JSON payload"
+        className="test-input-json-editor"
+        defaultValue={payloadText}
+        ref={editorRef}
+        spellCheck={false}
+      />
+      <div className="test-input-large-json-actions">
+        <button className="tool-button" onClick={onCancel} type="button">
+          <X aria-hidden="true" size={15} />
+          <span>Cancel</span>
+        </button>
+        <button
+          className="tool-button tool-button--primary"
+          onClick={() => {
+            const next = editorRef.current?.value ?? payloadText
+            if (onApply(next)) onCancel()
+          }}
+          type="button"
+        >
+          <Save aria-hidden="true" size={15} />
+          <span>Apply JSON</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function JsonInputPane({
   interaction,
   projection,
@@ -339,7 +391,9 @@ function JsonInputPane({
   projection: VNextPublishedStructureTestInputProjectionV1
 }) {
   const { diagnostics, state } = interaction
+  const [editingLargePayload, setEditingLargePayload] = useState(false)
   if (!state || !diagnostics) return null
+  const largePayload = usesDeferredLargeJsonEditor(diagnostics.summary.payloadByteLength)
   const selectionKey = state.mappingProfile == null
     ? ""
     : JSON.stringify([
@@ -391,14 +445,39 @@ function JsonInputPane({
             </button>
           </div>
         ) : null}
-        <textarea
-          aria-label="JSON payload"
-          className="test-input-json-editor"
-          onChange={(event) => interaction.setPayloadText(event.currentTarget.value)}
-          placeholder="{}"
-          spellCheck={false}
-          value={state.payloadText}
-        />
+        {largePayload && !editingLargePayload ? (
+          <div className="test-input-large-json-summary">
+            <FileJson aria-hidden="true" size={20} />
+            <div>
+              <strong>Large JSON loaded</strong>
+              <span>{formatBytes(diagnostics.summary.payloadByteLength)}</span>
+            </div>
+            <button
+              className="tool-button"
+              onClick={() => setEditingLargePayload(true)}
+              type="button"
+            >
+              <FilePenLine aria-hidden="true" size={15} />
+              <span>Edit JSON</span>
+            </button>
+          </div>
+        ) : largePayload ? (
+          <DeferredLargeJsonEditor
+            onApply={interaction.setPayloadText}
+            onCancel={() => setEditingLargePayload(false)}
+            payloadText={state.payloadText}
+            revision={state.revision}
+          />
+        ) : (
+          <textarea
+            aria-label="JSON payload"
+            className="test-input-json-editor"
+            onChange={(event) => interaction.setPayloadText(event.currentTarget.value)}
+            placeholder="{}"
+            spellCheck={false}
+            value={state.payloadText}
+          />
+        )}
       </section>
 
       <section className="test-input-json-section">
@@ -477,6 +556,64 @@ export interface PreviewTestInputViewProps {
   projection: VNextPublishedStructureTestInputProjectionV1
 }
 
+function PublishedPreviewDiagnostics({ receipt }: { receipt: PublishedPreviewAdmissionReceipt }) {
+  const diagnostics = [...receipt.diagnostics.issues, ...receipt.diagnostics.warnings]
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  useEffect(() => setSelectedIndex(0), [receipt.receiptFingerprint])
+  const safeIndex = diagnostics.length === 0 ? 0 : Math.min(selectedIndex, diagnostics.length - 1)
+  const selected = diagnostics[safeIndex]
+
+  return (
+    <section aria-label="Result diagnostics" className="published-preview-diagnostics">
+      <div className="published-preview-diagnostics-heading">
+        <div>
+          <strong>Result diagnostics</strong>
+          <span>{diagnostics.length === 0 ? "No issues" : `${safeIndex + 1} of ${diagnostics.length}`}</span>
+        </div>
+        {diagnostics.length > 1 ? (
+          <div className="published-preview-diagnostic-nav">
+            <button
+              aria-label="Previous result diagnostic"
+              className="icon-button"
+              disabled={safeIndex === 0}
+              onClick={() => setSelectedIndex((current) => Math.max(0, current - 1))}
+              title="Previous diagnostic"
+              type="button"
+            >
+              <ChevronLeft aria-hidden="true" size={15} />
+            </button>
+            <button
+              aria-label="Next result diagnostic"
+              className="icon-button"
+              disabled={safeIndex === diagnostics.length - 1}
+              onClick={() => setSelectedIndex((current) => Math.min(diagnostics.length - 1, current + 1))}
+              title="Next diagnostic"
+              type="button"
+            >
+              <ChevronRight aria-hidden="true" size={15} />
+            </button>
+          </div>
+        ) : null}
+      </div>
+      {selected ? (
+        <div className="published-preview-diagnostic" data-severity={selected.severity}>
+          <CircleAlert aria-hidden="true" size={16} />
+          <div>
+            <strong>{selected.code}</strong>
+            <span>{selected.path || "Document"}</span>
+            <p>{selected.message}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="published-preview-diagnostic" data-severity="ready">
+          <CheckCircle2 aria-hidden="true" size={16} />
+          <span>No result diagnostics.</span>
+        </div>
+      )}
+    </section>
+  )
+}
+
 function PublishedPreviewSurface({
   document,
   interaction,
@@ -493,42 +630,50 @@ function PublishedPreviewSurface({
   )
   const receipt = interaction.receipt
   const targetLabel = interaction.target === "draft" ? "Draft Preview" : "Published Preview"
-  const status = interaction.stale
-    ? "Stale result"
-    : interaction.phase === "idle"
-      ? "Exact preview not generated"
-      : interaction.phase === "admitting"
-        ? "Mapping and validating"
-        : interaction.phase === "requesting"
-          ? "Preparing PDF operation"
-          : interaction.phase === "running"
-            ? "Generating exact PDF"
-            : interaction.phase === "completed"
-              ? "Exact PDF ready"
-              : "Preview failed"
+  const status = interaction.lifecycle.statusLabel
   return (
     <div className="published-preview-result" data-phase={interaction.phase} data-stale={interaction.stale}>
-      <div className="published-preview-status-bar">
-        <div>
-          <strong>{status}</strong>
+      <div aria-live="polite" className="published-preview-status-bar" role="status">
+        <div className="published-preview-status-copy">
+          <div>
+            {interaction.lifecycle.busy ? <LoaderCircle aria-hidden="true" className="is-spinning" size={15} /> : null}
+            <strong>{status}</strong>
+          </div>
           <span>{interaction.operation?.pageCount ? `${targetLabel} · ${interaction.operation.pageCount} pages` : targetLabel}</span>
         </div>
-        {interaction.operation?.state === "completed" && !interaction.stale ? (
-          <button className="tool-button" onClick={interaction.download} type="button">
+        <div className="published-preview-status-actions">
+          {interaction.lifecycle.canCancel ? (
+            <button className="tool-button" onClick={interaction.cancel} type="button">
+              <Square aria-hidden="true" size={14} />
+              <span>Cancel</span>
+            </button>
+          ) : null}
+          {interaction.lifecycle.canRetry ? (
+            <button className="tool-button" onClick={interaction.retry} type="button">
+              <RefreshCw aria-hidden="true" size={15} />
+              <span>{interaction.lifecycle.retryLabel}</span>
+            </button>
+          ) : null}
+          {interaction.lifecycle.canDownload ? (
+            <button className="tool-button" onClick={interaction.download} type="button">
             <Download aria-hidden="true" size={15} />
-            <span>Download</span>
-          </button>
-        ) : null}
+              <span>{interaction.error === "download-failed" ? "Retry download" : "Download"}</span>
+            </button>
+          ) : null}
+        </div>
       </div>
       {receipt ? (
-        <dl className="published-preview-mapped-result">
-          <div><dt>Mapped result</dt><dd>{receipt.execution.mapping}</dd></div>
-          <div><dt>Validation</dt><dd>{receipt.execution.runtimeValidation}</dd></div>
-          <div><dt>Warnings</dt><dd>{receipt.diagnostics.summary.warningCount}</dd></div>
-          <div title={receipt.canonicalInputFingerprint}>
-            <dt>Canonical</dt><dd>{receipt.canonicalInputFingerprint.slice(7, 19)}</dd>
-          </div>
-        </dl>
+        <>
+          <dl className="published-preview-mapped-result">
+            <div><dt>Mapped result</dt><dd>{receipt.execution.mapping}</dd></div>
+            <div><dt>Validation</dt><dd>{receipt.execution.runtimeValidation}</dd></div>
+            <div><dt>Warnings</dt><dd>{receipt.diagnostics.summary.warningCount}</dd></div>
+            <div title={receipt.canonicalInputFingerprint}>
+              <dt>Canonical</dt><dd>{receipt.canonicalInputFingerprint.slice(7, 19)}</dd>
+            </div>
+          </dl>
+          <PublishedPreviewDiagnostics receipt={receipt} />
+        </>
       ) : null}
       {interaction.artifactUrl ? (
         <iframe
@@ -541,7 +686,6 @@ function PublishedPreviewSurface({
           <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
           <strong>{document.title}</strong>
           <span>{status}</span>
-          {interaction.error ? <span className="published-preview-error">{interaction.error}</span> : null}
         </div>
       )}
     </div>
@@ -581,7 +725,10 @@ export function PreviewTestInputView({
               aria-pressed={previewTarget === target}
               className="segmented-button"
               data-active={previewTarget === target}
-              disabled={!previewTargetAvailability[target]}
+              disabled={
+                !previewTargetAvailability[target]
+                || publishedPreview != null && !publishedPreview.lifecycle.canChangeTarget
+              }
               key={target}
               onClick={() => onSelectPreviewTarget?.(target)}
               type="button"

@@ -108,5 +108,5 @@ transport, so their Preview routes remain fail-closed in
 `PDF-EXPORT-REALDOC-E.5.6` now binds Published Preview to the accepted E.3
 admission and E.4 artifact lifecycle with trusted Structure/projection/profile
 facts and a sanitized content-free receipt. `PDF-EXPORT-REALDOC-E.5.7` now
-accepts the separate Draft Preview identity and admission. E.5.8 next owns
-lifecycle UX. Production remains NO-GO.
+accepts the separate Draft Preview identity and admission. E.5.8 now accepts
+lifecycle UX; E.5.9 next owns Form/API parity. Production remains NO-GO.

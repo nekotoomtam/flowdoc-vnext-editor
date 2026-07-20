@@ -1,7 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  isLocalPdfExportStatusForPin,
+  type LocalPdfExportPublicStatus,
+} from "../editor/pdfExport/localPdfExportContracts"
 import type { LocalPdfExportClient } from "../editor/pdfExport/localPdfExportTransport"
-import type { LocalPdfExportPublicStatus } from "../editor/pdfExport/localPdfExportContracts"
-import type { PublishedPreviewAdmissionReceipt, PublishedPreviewContext } from "../editor/preview/publishedPreviewContracts"
+import {
+  projectExactPreviewLifecycle,
+  type ExactPreviewActivity,
+  type ExactPreviewError,
+  type ExactPreviewLifecycleProjection,
+  type ExactPreviewPhase,
+} from "../editor/preview/exactPreviewLifecycle"
+import type {
+  PublishedPreviewAdmissionReceipt,
+  PublishedPreviewContext,
+} from "../editor/preview/publishedPreviewContracts"
 import {
   publishedPreviewArtifactUrl,
   type PublishedPreviewClient,
@@ -12,21 +25,41 @@ import type { PreviewTestInputInteraction } from "./usePreviewTestInput"
 const TERMINAL = new Set<LocalPdfExportPublicStatus["state"]>([
   "completed", "cancelled", "deadline-exceeded", "resource-rejected", "failed",
 ])
+const CANCELLABLE = new Set<LocalPdfExportPublicStatus["state"]>([
+  "accepted", "pending", "processing",
+])
+
+type PreviewTarget = "draft" | "published"
+type PreviewMappingProfile = Parameters<PublishedPreviewClient["admitAdaptedJson"]>[0]["profile"]
+
+interface PreviewAttempt {
+  admissionKey: string
+  cancelKey: string | null
+  exportKey: string
+  identity: string
+  payloadText: string
+  profile: PreviewMappingProfile
+  receipt: PublishedPreviewAdmissionReceipt | null
+}
 
 export interface PublishedPreviewGenerationInteraction {
   target: "draft" | "published"
-  phase: "idle" | "admitting" | "requesting" | "running" | "completed" | "failed"
+  phase: ExactPreviewPhase
+  activity: ExactPreviewActivity
   receipt: PublishedPreviewAdmissionReceipt | null
   operation: LocalPdfExportPublicStatus | null
   stale: boolean
-  error: "admission-failed" | "operation-failed" | "status-unavailable" | "download-failed" | null
+  error: ExactPreviewError | null
+  lifecycle: ExactPreviewLifecycleProjection
   canGenerate: boolean
   artifactUrl: string | null
   generate: () => void
+  cancel: () => void
+  retry: () => void
   download: () => void
 }
 
-function selectedProfile(interaction: PreviewTestInputInteraction) {
+function selectedProfile(interaction: PreviewTestInputInteraction): PreviewMappingProfile | null {
   const selection = interaction.json.state?.mappingProfile
   if (selection == null) return null
   const key = JSON.stringify([
@@ -34,7 +67,9 @@ function selectedProfile(interaction: PreviewTestInputInteraction) {
     selection.mappingProfileVersion,
     selection.profileFingerprint,
   ])
-  return interaction.json.mappingProfiles.find((option) => testInputMappingProfileOptionKey(option) === key)?.profile ?? null
+  return interaction.json.mappingProfiles.find((option) => (
+    testInputMappingProfileOptionKey(option) === key
+  ))?.profile ?? null
 }
 
 export interface ExactPreviewGenerationContext {
@@ -44,7 +79,7 @@ export interface ExactPreviewGenerationContext {
 }
 
 function inputIdentity(
-  target: "draft" | "published",
+  target: PreviewTarget,
   context: ExactPreviewGenerationContext | null,
   interaction: PreviewTestInputInteraction,
 ): string | null {
@@ -60,21 +95,28 @@ function inputIdentity(
   ])
 }
 
-function triggerDownload(blob: Blob, target: "draft" | "published"): void {
+function triggerDownload(blob: Blob, target: PreviewTarget): void {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
   anchor.href = url
   anchor.download = `flowdoc-${target}-preview.pdf`
   anchor.click()
-  URL.revokeObjectURL(url)
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+function phaseForOperation(status: LocalPdfExportPublicStatus): ExactPreviewPhase {
+  if (status.state === "completed") return "completed"
+  if (status.state === "cancelled") return "cancelled"
+  if (TERMINAL.has(status.state)) return "failed"
+  return "running"
 }
 
 export function useExactPreviewGeneration(options: {
-  target: "draft" | "published"
+  target: PreviewTarget
   context: ExactPreviewGenerationContext | null
   input: PreviewTestInputInteraction
   admitAdaptedJson(input: {
-    profile: Parameters<PublishedPreviewClient["admitAdaptedJson"]>[0]["profile"]
+    profile: PreviewMappingProfile
     payloadText: string
     idempotencyKey: string
   }): Promise<PublishedPreviewAdmissionReceipt>
@@ -83,11 +125,13 @@ export function useExactPreviewGeneration(options: {
 }): PublishedPreviewGenerationInteraction {
   const currentIdentity = inputIdentity(options.target, options.context, options.input)
   const [submittedIdentity, setSubmittedIdentity] = useState<string | null>(null)
-  const [phase, setPhase] = useState<PublishedPreviewGenerationInteraction["phase"]>("idle")
+  const [phase, setPhase] = useState<ExactPreviewPhase>("idle")
+  const [activity, setActivity] = useState<ExactPreviewActivity>("idle")
   const [receipt, setReceipt] = useState<PublishedPreviewAdmissionReceipt | null>(null)
   const [operation, setOperation] = useState<LocalPdfExportPublicStatus | null>(null)
-  const [error, setError] = useState<PublishedPreviewGenerationInteraction["error"]>(null)
+  const [error, setError] = useState<ExactPreviewError | null>(null)
   const run = useRef(0)
+  const attemptRef = useRef<PreviewAttempt | null>(null)
   const contextIdentity = options.context == null ? null : JSON.stringify([
     options.target,
     options.context.contextFingerprint,
@@ -98,22 +142,102 @@ export function useExactPreviewGeneration(options: {
 
   useEffect(() => {
     run.current += 1
+    attemptRef.current = null
     setSubmittedIdentity(null)
     setPhase("idle")
+    setActivity("idle")
     setReceipt(null)
     setOperation(null)
     setError(null)
   }, [contextIdentity])
 
   const stale = submittedIdentity != null && submittedIdentity !== currentIdentity
+  const lifecycle = useMemo(() => projectExactPreviewLifecycle({
+    activity,
+    error,
+    operationState: operation?.state ?? null,
+    phase,
+    stale,
+  }), [activity, error, operation?.state, phase, stale])
   const profile = selectedProfile(options.input)
   const diagnosticsReady = options.input.json.diagnostics?.status === "ready-for-admission"
-  const busy = phase === "admitting" || phase === "requesting" || phase === "running"
   const canGenerate = options.context != null
     && options.input.mode === "json"
     && profile != null
     && diagnosticsReady
-    && !busy
+    && lifecycle.canChangeTarget
+    && !lifecycle.canRetry
+
+  const applyStatus = useCallback((
+    status: LocalPdfExportPublicStatus,
+    runId: number,
+    expectedOperationId: string | null,
+  ): boolean => {
+    const attempt = attemptRef.current
+    if (run.current !== runId || attempt?.receipt == null) return false
+    const pin = {
+      documentId: attempt.receipt.instance.instanceId,
+      documentRevision: attempt.receipt.instance.revision,
+    }
+    if (
+      expectedOperationId != null && status.operationId !== expectedOperationId
+      || !isLocalPdfExportStatusForPin(status, pin)
+    ) {
+      setActivity("idle")
+      setError("operation-mismatch")
+      setPhase("failed")
+      return false
+    }
+    setOperation(status)
+    setActivity("idle")
+    setPhase(phaseForOperation(status))
+    setError(TERMINAL.has(status.state) && status.state !== "completed" && status.state !== "cancelled"
+      ? "operation-failed"
+      : null)
+    return true
+  }, [])
+
+  const requestAttempt = useCallback(async (attempt: PreviewAttempt, runId: number) => {
+    if (attempt.receipt == null || run.current !== runId) return
+    setPhase("requesting")
+    setActivity("requesting")
+    setError(null)
+    try {
+      const requested = await options.pdfClient.requestExport({
+        documentId: attempt.receipt.instance.instanceId,
+        documentRevision: attempt.receipt.instance.revision,
+      }, attempt.exportKey)
+      applyStatus(requested, runId, null)
+    } catch {
+      if (run.current !== runId) return
+      setActivity("idle")
+      setError("operation-failed")
+      setPhase("failed")
+    }
+  }, [applyStatus, options.pdfClient])
+
+  const admitAttempt = useCallback(async (attempt: PreviewAttempt, runId: number) => {
+    if (run.current !== runId) return
+    setPhase("admitting")
+    setActivity("admitting")
+    setError(null)
+    try {
+      const admission = await options.admitAdaptedJson({
+        profile: attempt.profile,
+        payloadText: attempt.payloadText,
+        idempotencyKey: attempt.admissionKey,
+      })
+      if (run.current !== runId || attemptRef.current !== attempt) return
+      attempt.receipt = admission
+      setReceipt(admission)
+      await requestAttempt(attempt, runId)
+    } catch {
+      if (run.current !== runId) return
+      setActivity("idle")
+      setError("admission-failed")
+      setPhase("failed")
+    }
+  }, [options.admitAdaptedJson, requestAttempt])
 
   const generate = useCallback(() => {
     const context = options.context
@@ -126,65 +250,46 @@ export function useExactPreviewGeneration(options: {
       || selected == null
       || identity == null
       || options.input.json.diagnostics?.status !== "ready-for-admission"
-      || busy
+      || !lifecycle.canChangeTarget
     ) return
-    const admissionKey = `editor:${options.target}-preview:admission:${crypto.randomUUID()}`
-    const exportKey = `editor:${options.target}-preview:artifact:${crypto.randomUUID()}`
+    const attempt: PreviewAttempt = {
+      admissionKey: `editor:${options.target}-preview:admission:${crypto.randomUUID()}`,
+      cancelKey: null,
+      exportKey: `editor:${options.target}-preview:artifact:${crypto.randomUUID()}`,
+      identity,
+      payloadText: state.payloadText,
+      profile: selected,
+      receipt: null,
+    }
     const runId = run.current + 1
     run.current = runId
+    attemptRef.current = attempt
     setSubmittedIdentity(identity)
     setReceipt(null)
     setOperation(null)
     setError(null)
-    setPhase("admitting")
-    void (async () => {
-      let admitted = false
-      try {
-        const admission = await options.admitAdaptedJson({
-          profile: selected,
-          payloadText: state.payloadText,
-          idempotencyKey: admissionKey,
-        })
-        if (run.current !== runId) return
-        admitted = true
-        setReceipt(admission)
-        setPhase("requesting")
-        const requested = await options.pdfClient.requestExport({
-          documentId: admission.instance.instanceId,
-          documentRevision: admission.instance.revision,
-        }, exportKey)
-        if (run.current !== runId) return
-        setOperation(requested)
-        setPhase(requested.state === "completed" ? "completed" : TERMINAL.has(requested.state) ? "failed" : "running")
-        if (requested.state !== "completed" && TERMINAL.has(requested.state)) setError("operation-failed")
-      } catch {
-        if (run.current === runId) {
-          setError(admitted ? "operation-failed" : "admission-failed")
-          setPhase("failed")
-        }
-      }
-    })()
-  }, [busy, options.admitAdaptedJson, options.context, options.input, options.pdfClient, options.target])
+    void admitAttempt(attempt, runId)
+  }, [admitAttempt, lifecycle.canChangeTarget, options.context, options.input, options.target])
 
   const operationId = operation?.operationId ?? null
   const operationState = operation?.state ?? null
   useEffect(() => {
-    if (operationId == null || operationState == null || TERMINAL.has(operationState)) return
+    if (
+      activity !== "idle"
+      || operationId == null
+      || operationState == null
+      || TERMINAL.has(operationState)
+    ) return
     let cancelled = false
     let timer: number | null = null
+    const runId = run.current
     const schedule = () => {
       timer = window.setTimeout(() => {
         void options.pdfClient.readStatus(operationId).then((status) => {
-          if (cancelled || status.operationId !== operationId) return
-          setOperation(status)
-          if (status.state === "completed") setPhase("completed")
-          else if (TERMINAL.has(status.state)) {
-            setPhase("failed")
-            setError("operation-failed")
-          }
-          else schedule()
+          if (cancelled) return
+          if (applyStatus(status, runId, operationId) && !TERMINAL.has(status.state)) schedule()
         }).catch(() => {
-          if (!cancelled) {
+          if (!cancelled && run.current === runId) {
             setError("status-unavailable")
             schedule()
           }
@@ -196,20 +301,112 @@ export function useExactPreviewGeneration(options: {
       cancelled = true
       if (timer != null) window.clearTimeout(timer)
     }
-  }, [operationId, operationState, options.pdfClient, options.pollIntervalMs])
+  }, [activity, applyStatus, operationId, operationState, options.pdfClient, options.pollIntervalMs])
+
+  const refreshStatus = useCallback(() => {
+    if (operation == null || activity !== "idle") return
+    const runId = run.current
+    setActivity("refreshing")
+    setError(null)
+    void options.pdfClient.readStatus(operation.operationId)
+      .then((status) => applyStatus(status, runId, operation.operationId))
+      .catch(() => {
+        if (run.current !== runId) return
+        setActivity("idle")
+        setError("status-unavailable")
+      })
+  }, [activity, applyStatus, operation, options.pdfClient])
+
+  const cancel = useCallback(() => {
+    const attempt = attemptRef.current
+    if (
+      operation == null
+      || attempt == null
+      || activity !== "idle"
+      || !CANCELLABLE.has(operation.state)
+    ) return
+    attempt.cancelKey ??= `editor:${options.target}-preview:cancel:${crypto.randomUUID()}`
+    const runId = run.current
+    setActivity("cancelling")
+    setError(null)
+    void options.pdfClient.cancelExport(operation.operationId, attempt.cancelKey)
+      .then((result) => {
+        if (run.current !== runId || result.operationId !== operation.operationId) return
+        setOperation((current) => current == null ? null : { ...current, state: result.state })
+        setActivity("idle")
+        setError(null)
+        setPhase(result.state === "cancelled" ? "cancelled" : "running")
+      })
+      .catch(() => {
+        if (run.current !== runId) return
+        setActivity("idle")
+        setError("cancel-failed")
+      })
+  }, [activity, operation, options.pdfClient, options.target])
 
   const download = useCallback(() => {
-    if (operation?.state !== "completed" || stale) return
+    if (operation?.state !== "completed" || stale || activity !== "idle") return
+    const runId = run.current
+    setActivity("downloading")
+    setError(null)
     void options.pdfClient.downloadExport(operation.operationId)
-      .then((blob) => triggerDownload(blob, options.target))
-      .catch(() => setError("download-failed"))
-  }, [operation, options.pdfClient, options.target, stale])
+      .then((blob) => {
+        if (run.current !== runId) return
+        triggerDownload(blob, options.target)
+        setActivity("idle")
+        setError(null)
+      })
+      .catch(() => {
+        if (run.current !== runId) return
+        setActivity("idle")
+        setError("download-failed")
+      })
+  }, [activity, operation, options.pdfClient, options.target, stale])
+
+  const retry = useCallback(() => {
+    const attempt = attemptRef.current
+    if (activity !== "idle" || stale || attempt == null) return
+    if (error === "cancel-failed") {
+      cancel()
+      return
+    }
+    if ((error === "status-unavailable" || error === "operation-mismatch") && operation != null) {
+      refreshStatus()
+      return
+    }
+    if (operation != null && TERMINAL.has(operation.state)) {
+      generate()
+      return
+    }
+    if (attempt.receipt == null) {
+      void admitAttempt(attempt, run.current)
+      return
+    }
+    if (operation == null) void requestAttempt(attempt, run.current)
+  }, [activity, admitAttempt, cancel, error, generate, operation, refreshStatus, requestAttempt, stale])
 
   const artifactUrl = useMemo(() => (
-    operation?.state === "completed" && !stale ? publishedPreviewArtifactUrl(operation.operationId) : null
+    operation?.state === "completed" && !stale
+      ? publishedPreviewArtifactUrl(operation.operationId)
+      : null
   ), [operation, stale])
 
-  return { target: options.target, phase, receipt, operation, stale, error, canGenerate, artifactUrl, generate, download }
+  return {
+    target: options.target,
+    phase,
+    activity,
+    receipt,
+    operation,
+    stale,
+    error,
+    lifecycle,
+    canGenerate,
+    artifactUrl,
+    generate,
+    cancel,
+    retry,
+    download,
+  }
 }
 
 export function usePublishedPreviewGeneration(options: {
@@ -220,7 +417,7 @@ export function usePublishedPreviewGeneration(options: {
   pollIntervalMs?: number
 }): PublishedPreviewGenerationInteraction {
   const admitAdaptedJson = useCallback((input: {
-    profile: Parameters<PublishedPreviewClient["admitAdaptedJson"]>[0]["profile"]
+    profile: PreviewMappingProfile
     payloadText: string
     idempotencyKey: string
   }) => {

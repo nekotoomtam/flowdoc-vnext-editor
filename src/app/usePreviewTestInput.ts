@@ -29,7 +29,7 @@ export interface PreviewTestInputJsonInteraction {
   reset: () => void
   selectFile: (file: File | null) => Promise<void>
   selectMappingProfile: (selectionKey: string | null) => void
-  setPayloadText: (payloadText: string) => void
+  setPayloadText: (payloadText: string) => boolean
 }
 
 export interface PreviewTestInputInteraction {
@@ -111,7 +111,7 @@ export function usePreviewTestInput(
 
   const setPayloadText = useCallback((payloadText: string) => {
     fileReadOrdinalRef.current += 1
-    dispatch({ kind: "json.text.set", payloadText })
+    return dispatch({ kind: "json.text.set", payloadText })
   }, [dispatch])
 
   const clearPayload = useCallback(() => {

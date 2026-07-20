@@ -86,4 +86,5 @@ must not silently survive.
 mapping-profile selection, and content-free local preparation diagnostics.
 Mapping and Preview execution remain `not-run` in this E.5.3 phase. E.5.6 now
 binds Published Preview and E.5.7 accepts separate Draft Preview identity and
-admission. E.5.8 next owns lifecycle UX. Production remains NO-GO.
+admission. E.5.8 now accepts lifecycle UX; E.5.9 next owns Form/API parity.
+Production remains NO-GO.

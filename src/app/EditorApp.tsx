@@ -130,6 +130,10 @@ export function EditorApp({
     admitAdaptedJson: admitPreviewJson,
     pdfClient: localPdfExportClient,
   })
+  const retryPreviewTarget = useCallback((target: "draft" | "published") => {
+    if (target === "draft") draftPreviewContext.retry()
+    else publishedPreviewContext.retry()
+  }, [draftPreviewContext.retry, publishedPreviewContext.retry])
   const localPdfExport = useLocalPdfExport({
     client: localPdfExportClient,
     enabled: editorState.core.envelope.status === "fresh",
@@ -301,11 +305,12 @@ export function EditorApp({
       previewTestInput={previewTestInput}
       publishedPreview={activePreviewContext ? exactPreview : null}
       previewTarget={previewTarget}
-      previewTargetAvailability={{
-        draft: draftPreviewContext.status === "ready",
-        published: publishedPreviewContext.status === "ready",
+      previewTargetStatus={{
+        draft: draftPreviewContext.status,
+        published: publishedPreviewContext.status,
       }}
       onSelectPreviewTarget={setPreviewTarget}
+      onRetryPreviewTarget={retryPreviewTarget}
       testInputProjection={effectiveTestInputProjection}
       migrationEnabled={migrationEnabled}
       migrationStatus={migrationStatus}

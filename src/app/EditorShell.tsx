@@ -24,6 +24,10 @@ import { PreviewTestInputView } from "../components/preview/PreviewTestInputView
 import type { PreviewTestInputInteraction } from "./usePreviewTestInput"
 import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
 import type { PublishedPreviewGenerationInteraction } from "./usePublishedPreviewGeneration"
+import {
+  PreviewContextStateView,
+  type PreviewTargetContextStatuses,
+} from "../components/preview/PreviewContextStateView"
 
 export interface EditorShellProps {
   activeWorkspaceView: DocumentWorkspaceView
@@ -35,7 +39,7 @@ export interface EditorShellProps {
   previewTestInput: PreviewTestInputInteraction
   publishedPreview: PublishedPreviewGenerationInteraction | null
   previewTarget: "draft" | "published"
-  previewTargetAvailability: { draft: boolean; published: boolean }
+  previewTargetStatus: PreviewTargetContextStatuses
   testInputProjection: VNextPublishedStructureTestInputProjectionV1 | null
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
@@ -43,6 +47,7 @@ export interface EditorShellProps {
   versionCapabilityStatus: EditorVersionCapabilityStatus
   onBackToLibrary?: () => void
   onSelectPreviewTarget: (target: "draft" | "published") => void
+  onRetryPreviewTarget: (target: "draft" | "published") => void
   onDeleteNode: (nodeId: string) => void
   onDuplicateNode: (nodeId: string) => void
   onMigrateDocument: () => void
@@ -69,7 +74,7 @@ export function EditorShell({
   previewTestInput,
   publishedPreview,
   previewTarget,
-  previewTargetAvailability,
+  previewTargetStatus,
   testInputProjection,
   migrationEnabled,
   migrationStatus,
@@ -77,6 +82,7 @@ export function EditorShell({
   versionCapabilityStatus,
   onBackToLibrary,
   onSelectPreviewTarget,
+  onRetryPreviewTarget,
   onDeleteNode,
   onDuplicateNode,
   onMigrateDocument,
@@ -176,20 +182,32 @@ export function EditorShell({
             id="workspace-panel-preview"
             role="tabpanel"
           >
-            {testInputProjection && previewTestInput.form.state && previewTestInput.json.state ? (
+            {testInputProjection && previewTestInput.form.state && previewTestInput.json.state
+              && previewTargetStatus[previewTarget] === "ready" ? (
               <PreviewTestInputView
                 document={document}
                 interaction={previewTestInput}
                 publishedPreview={publishedPreview}
                 previewTarget={previewTarget}
-                previewTargetAvailability={previewTargetAvailability}
+                previewTargetAvailability={{
+                  draft: previewTargetStatus.draft === "ready",
+                  published: previewTargetStatus.published === "ready",
+                }}
                 onSelectPreviewTarget={onSelectPreviewTarget}
                 projection={testInputProjection}
               />
-            ) : (
+            ) : document.packageVersion === 2 && document.documentVersion === 3 ? (
               <PreviewUnavailableView
                 document={document}
                 onReturnToDesign={() => onSelectWorkspaceView?.("design")}
+              />
+            ) : (
+              <PreviewContextStateView
+                document={document}
+                onRetry={onRetryPreviewTarget}
+                onSelectTarget={onSelectPreviewTarget}
+                statuses={previewTargetStatus}
+                target={previewTarget}
               />
             )}
           </div>

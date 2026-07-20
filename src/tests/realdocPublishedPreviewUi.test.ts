@@ -12,6 +12,7 @@ import {
   createTestInputJsonState,
 } from "../editor/preview/testInputJsonState"
 import { REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE } from "../fixtures/realdocE54TestInputProjectionFixture"
+import { projectExactPreviewLifecycle } from "../editor/preview/exactPreviewLifecycle"
 
 const hash = (seed: string) => `sha256:${seed.repeat(64).slice(0, 64)}`
 const profile = createVNextPublishedStructureMappingProfileV1({
@@ -98,9 +99,17 @@ function preview(
   stale = false,
   target: "draft" | "published" = "published",
 ): PublishedPreviewGenerationInteraction {
+  const lifecycle = projectExactPreviewLifecycle({
+    activity: "idle",
+    error: null,
+    operationState: "completed",
+    phase: "completed",
+    stale,
+  })
   return {
     target,
     phase: "completed",
+    activity: "idle",
     receipt: {
       admissionId: "admission:qa",
       status: "ready-with-warnings",
@@ -129,7 +138,20 @@ function preview(
       diagnostics: {
         contentFree: true,
         issues: [],
-        warnings: [],
+        warnings: [
+          {
+            severity: "warning",
+            code: "value-defaulted",
+            path: "document.wardName",
+            message: "A published default was applied.",
+          },
+          {
+            severity: "warning",
+            code: "empty-collection",
+            path: "collections.requirements",
+            message: "The collection did not contain any items.",
+          },
+        ],
         summary: {
           errorCount: 0,
           warningCount: 2,
@@ -173,9 +195,12 @@ function preview(
     },
     stale,
     error: null,
+    lifecycle,
     canGenerate: true,
     artifactUrl: stale ? null : "/api/pdf-export-local/pdf-exports/operation%3Aqa/download",
     generate: vi.fn(),
+    cancel: vi.fn(),
+    retry: vi.fn(),
     download: vi.fn(),
   }
 }
@@ -195,6 +220,9 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
     expect(markup).toContain("Exact PDF ready")
     expect(markup).toContain("10 pages")
     expect(markup).toContain("Mapped result")
+    expect(markup).toContain("Result diagnostics")
+    expect(markup).toContain("1 of 2")
+    expect(markup).toContain("value-defaulted")
     expect(markup).toContain("run-valid")
     expect(markup).toContain("operation%3Aqa/download")
     expect(markup).not.toContain("canonicalBusinessData")
@@ -236,5 +264,56 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
     expect(markup).toContain("Draft Preview · 10 pages")
     expect(markup).toContain('aria-pressed="true"')
     expect(markup).toContain(">Published</button>")
+  })
+
+  it("exposes cancellation while work is active and locks target switching", () => {
+    const interaction = preview()
+    interaction.phase = "running"
+    interaction.operation = { ...interaction.operation!, state: "processing", terminalStatus: null }
+    interaction.artifactUrl = null
+    interaction.lifecycle = projectExactPreviewLifecycle({
+      activity: "idle",
+      error: null,
+      operationState: "processing",
+      phase: "running",
+      stale: false,
+    })
+    const markup = renderToStaticMarkup(createElement(PreviewTestInputView, {
+      document,
+      interaction: input("json"),
+      projection: REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+      publishedPreview: interaction,
+      previewTargetAvailability: { draft: true, published: true },
+    }))
+
+    expect(markup).toContain("Generating exact PDF")
+    expect(markup).toContain(">Cancel<")
+    expect(markup).not.toContain(">Download<")
+    expect(markup).toContain('disabled=""')
+  })
+
+  it("renders a friendly retry action without leaking transport error codes", () => {
+    const interaction = preview()
+    interaction.phase = "failed"
+    interaction.operation = null
+    interaction.artifactUrl = null
+    interaction.error = "admission-failed"
+    interaction.lifecycle = projectExactPreviewLifecycle({
+      activity: "idle",
+      error: "admission-failed",
+      operationState: null,
+      phase: "failed",
+      stale: false,
+    })
+    const markup = renderToStaticMarkup(createElement(PreviewTestInputView, {
+      document,
+      interaction: input("json"),
+      projection: REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+      publishedPreview: interaction,
+    }))
+
+    expect(markup).toContain("Mapping or validation could not be completed")
+    expect(markup).toContain("Retry preview")
+    expect(markup).not.toContain("admission-failed")
   })
 })

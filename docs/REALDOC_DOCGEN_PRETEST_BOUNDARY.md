@@ -298,6 +298,6 @@ and mobile have no horizontal page overflow or console errors. The complete
 
 `PDF-EXPORT-REALDOC-E.5.6` now accepts local Published Preview through E.3/E.4
 without making the browser mapper or artifact truth. E.5.7 now accepts the
-separate immutable Draft Preview identity and admission. E.5.8 next owns
-lifecycle UX. No multi-user authorization is claimed.
+separate immutable Draft Preview identity and admission. E.5.8 now accepts
+lifecycle UX; E.5.9 next owns Form/API parity. No multi-user authorization is claimed.
 Production remains NO-GO.

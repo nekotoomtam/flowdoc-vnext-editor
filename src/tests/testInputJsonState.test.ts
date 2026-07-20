@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 import {
   REALDOC_E55_MAX_JSON_BYTES,
+  REALDOC_E58_LARGE_JSON_EDITOR_BYTES,
   applyTestInputJsonCommand,
   createTestInputJsonDiagnostics,
   createTestInputJsonState,
   reconcileTestInputJsonState,
   testInputMappingProfileOptionKey,
+  usesDeferredLargeJsonEditor,
   type TestInputJsonCommand,
   type TestInputJsonState,
 } from "../editor/preview/testInputJsonState"
@@ -24,6 +26,11 @@ function apply(state: TestInputJsonState, command: TestInputJsonCommand): TestIn
 }
 
 describe("PDF-EXPORT-REALDOC-E.5.5 temporary JSON state", () => {
+  it("defers editing once a JSON payload reaches the E.5.8 large-input threshold", () => {
+    expect(usesDeferredLargeJsonEditor(REALDOC_E58_LARGE_JSON_EDITOR_BYTES - 1)).toBe(false)
+    expect(usesDeferredLargeJsonEditor(REALDOC_E58_LARGE_JSON_EDITOR_BYTES)).toBe(true)
+  })
+
   it("starts memory-only with content-free incomplete diagnostics and no execution", () => {
     const state = createTestInputJsonState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
     const diagnostics = createTestInputJsonDiagnostics(
