@@ -168,8 +168,20 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview contracts", () => {
     expect(parsePublishedPreviewAdmissionEnvelope(admissionEnvelope(context), context, profile)).toMatchObject({
       lane: "adapted",
       execution: { mapping: "executed", runtimeValidation: "run-valid" },
-      contracts: { canonicalBusinessDataExposed: false, rawPayloadRetained: false },
+      contracts: {
+        canonicalBusinessDataExposed: false,
+        durablePersistence: false,
+        rawPayloadRetained: false,
+      },
     })
+    const durable = admissionEnvelope(context)
+    durable.admission.contracts.durablePersistence = true
+    expect(parsePublishedPreviewAdmissionEnvelope(durable, context, profile)).toMatchObject({
+      contracts: { durablePersistence: true },
+    })
+    const invalidDurability = admissionEnvelope(context)
+    Object.assign(invalidDurability.admission.contracts, { durablePersistence: "yes" })
+    expect(parsePublishedPreviewAdmissionEnvelope(invalidDurability, context, profile)).toBeNull()
     const leaked = admissionEnvelope(context)
     leaked.admission.contracts.canonicalBusinessDataExposed = true
     expect(parsePublishedPreviewAdmissionEnvelope(leaked, context, profile)).toBeNull()

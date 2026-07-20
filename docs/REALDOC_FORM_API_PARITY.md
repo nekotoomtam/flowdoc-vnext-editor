@@ -92,6 +92,8 @@ different input and PDF hashes, so the UI makes no byte-parity claim.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.6` owns end-to-end identity, restart, failure,
-cancellation, retry, and durable lifecycle acceptance across Editor, Backend,
-and Core. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.6.1` is now accepted in
+`docs/REALDOC_CROSS_REPO_LIFECYCLE.md`. Editor preserves the Backend durability
+fact without receiving canonical values. E.6.2 next owns durable Backend
+operation/artifact restart and E.6.3 owns Editor reconnect, failure,
+cancellation, and retry acceptance. Production remains NO-GO.

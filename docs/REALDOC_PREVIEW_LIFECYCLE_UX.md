@@ -92,13 +92,15 @@ operation on selection or Apply. The local real-document renderer still runs
 in the Backend listener process; its 10-second dispatch window is QA harness
 behavior, not a production worker promise.
 
-Failure and retry are accepted for the active local session. Durable restart
-and reconstruction remain E.6.
+Failure and retry are accepted for the active local session. E.6.1 now makes
+the protected Backend admission optionally durable, but operation/artifact
+restart remains E.6.2 and Editor reconnect remains E.6.3.
 
 ## Next Phase
 
 `PDF-EXPORT-REALDOC-E.5.9` is now accepted in
 `docs/REALDOC_FORM_API_PARITY.md`. Dynamic Form candidates use direct Backend
 admission and converge with adapted API input on canonical content while
-retaining separate instance identities. E.6 now proves cross-repo identity,
-restart, failure, and lifecycle behavior. Production remains NO-GO.
+retaining separate instance identities. E.6.1 durable admission is now
+accepted in `docs/REALDOC_CROSS_REPO_LIFECYCLE.md`; E.6.2 and E.6.3 remain.
+Production remains NO-GO.

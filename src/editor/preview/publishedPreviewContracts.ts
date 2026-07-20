@@ -92,6 +92,7 @@ export interface PublishedPreviewAdmissionReceipt {
   }
   contracts: {
     canonicalBusinessDataExposed: false
+    durablePersistence: boolean
     rawPayloadRetained: false
     productionBinding: false
   }
@@ -516,7 +517,7 @@ export function parsePublishedPreviewAdmissionEnvelope(
     || receipt.contracts.exactAssetBytesVerified !== true
     || receipt.contracts.canonicalBusinessDataExposed !== false
     || receipt.contracts.rawPayloadRetained !== false
-    || receipt.contracts.durablePersistence !== false
+    || typeof receipt.contracts.durablePersistence !== "boolean"
     || receipt.contracts.workerEnqueued !== false
     || receipt.contracts.productionBinding !== false
     || !SHA256.test(String(receipt.receiptFingerprint))
@@ -536,6 +537,7 @@ export function parsePublishedPreviewAdmissionEnvelope(
     execution: receipt.execution,
     contracts: {
       canonicalBusinessDataExposed: false,
+      durablePersistence: receipt.contracts.durablePersistence,
       rawPayloadRetained: false,
       productionBinding: false,
     },

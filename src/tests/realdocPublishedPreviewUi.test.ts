@@ -184,6 +184,7 @@ function preview(
       },
       contracts: {
         canonicalBusinessDataExposed: false,
+        durablePersistence: false,
         rawPayloadRetained: false,
         productionBinding: false,
       },
