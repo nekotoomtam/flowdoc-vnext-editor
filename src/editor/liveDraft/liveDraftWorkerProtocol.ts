@@ -62,6 +62,20 @@ export interface FlowDocLiveDraftLayoutRequestV1 {
   }
 }
 
+export interface FlowDocLiveDraftFormLayoutRequestV1 {
+  protocolVersion: typeof FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION
+  type: "live-draft.form-layout"
+  identity: FlowDocLiveDraftRequestIdentityV1
+  textBlock: {
+    textBlockId: string
+    fieldKey: string
+    text: string
+    fontId: string
+    fontSha256: string
+  }
+  coreLayout: NonNullable<FlowDocLiveDraftLayoutRequestV1["coreLayout"]>
+}
+
 export interface FlowDocLiveDraftCancelRequestV1 {
   protocolVersion: typeof FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION
   type: "live-draft.cancel"
@@ -72,6 +86,7 @@ export interface FlowDocLiveDraftCancelRequestV1 {
 export type FlowDocLiveDraftWorkerRequestV1 =
   | FlowDocLiveDraftInitializeRequestV1
   | FlowDocLiveDraftLayoutRequestV1
+  | FlowDocLiveDraftFormLayoutRequestV1
   | FlowDocLiveDraftCancelRequestV1
 
 export interface FlowDocLiveDraftWorkerResultV1 {
@@ -82,6 +97,16 @@ export interface FlowDocLiveDraftWorkerResultV1 {
   smokeRow: FlowDocLiveDraftLayoutRequestV1["smokeRow"]
   measurement: FlowDocTextEngineLiveDraftNormalizedResultV1
   coreLayout?: CoreLiveDraftOneBlockLayoutResultV1
+  durationMs: number
+}
+
+export interface FlowDocLiveDraftFormResultV1 {
+  protocolVersion: typeof FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION
+  type: "live-draft.form-result"
+  exactness: "draft-current"
+  identity: FlowDocLiveDraftRequestIdentityV1
+  textBlock: FlowDocLiveDraftFormLayoutRequestV1["textBlock"]
+  coreLayout: CoreLiveDraftOneBlockLayoutResultV1
   durationMs: number
 }
 
@@ -113,6 +138,7 @@ export interface FlowDocLiveDraftWorkerDiagnosticsV1 {
 
 export type FlowDocLiveDraftWorkerResponseV1 =
   | FlowDocLiveDraftWorkerResultV1
+  | FlowDocLiveDraftFormResultV1
   | FlowDocLiveDraftWorkerBlockedV1
   | FlowDocLiveDraftWorkerDiagnosticsV1
 
@@ -122,6 +148,32 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isPositiveFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0
+}
+
+function hasValidIdentity(value: unknown): value is FlowDocLiveDraftRequestIdentityV1 {
+  if (!isRecord(value)) return false
+  return typeof value.documentId === "string"
+    && Number.isSafeInteger(value.structureRevision)
+    && typeof value.draftSnapshotFingerprint === "string"
+    && typeof value.canonicalFormCandidateFingerprint === "string"
+    && typeof value.assetRegistryFingerprint === "string"
+    && typeof value.measurementProfileId === "string"
+    && typeof value.fontManifestFingerprint === "string"
+    && typeof value.wasmSha256 === "string"
+    && typeof value.layoutPipelineVersion === "string"
+    && typeof value.requestId === "string"
+    && Number.isSafeInteger(value.requestRevision)
+}
+
+function hasValidCoreLayout(value: unknown): value is NonNullable<FlowDocLiveDraftLayoutRequestV1["coreLayout"]> {
+  return isRecord(value)
+    && isPositiveFiniteNumber(value.availableWidthPt)
+    && isPositiveFiniteNumber(value.fontSizePt)
+    && isPositiveFiniteNumber(value.lineHeightPt)
+    && isPositiveFiniteNumber(value.pageBodyHeightPt)
+    && typeof value.styleKey === "string"
+    && value.styleKey.trim().length > 0
+    && (value.cacheAction === "retain" || value.cacheAction === "clear-before")
 }
 
 export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiveDraftWorkerRequestV1 | null {
@@ -139,45 +191,40 @@ export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiv
     if (typeof value.requestId !== "string" || !Number.isSafeInteger(value.requestRevision)) return null
     return value as unknown as FlowDocLiveDraftCancelRequestV1
   }
-  if (value.type !== "live-draft.layout" || !isRecord(value.identity) || !isRecord(value.smokeRow)) return null
+  if (value.type === "live-draft.form-layout") {
+    if (!hasValidIdentity(value.identity) || !isRecord(value.textBlock) || !hasValidCoreLayout(value.coreLayout)) return null
+    const textBlock = value.textBlock
+    if (
+      typeof textBlock.textBlockId !== "string"
+      || textBlock.textBlockId.trim().length === 0
+      || typeof textBlock.fieldKey !== "string"
+      || textBlock.fieldKey.trim().length === 0
+      || typeof textBlock.text !== "string"
+      || textBlock.text.length === 0
+      || typeof textBlock.fontId !== "string"
+      || typeof textBlock.fontSha256 !== "string"
+    ) return null
+    return value as unknown as FlowDocLiveDraftFormLayoutRequestV1
+  }
+  if (value.type !== "live-draft.layout" || !hasValidIdentity(value.identity) || !isRecord(value.smokeRow)) return null
   const identity = value.identity
   const row = value.smokeRow
   const coreLayout = value.coreLayout
   if (
-    typeof identity.documentId !== "string"
-    || !Number.isSafeInteger(identity.structureRevision)
-    || typeof identity.draftSnapshotFingerprint !== "string"
-    || typeof identity.canonicalFormCandidateFingerprint !== "string"
-    || typeof identity.assetRegistryFingerprint !== "string"
-    || typeof identity.measurementProfileId !== "string"
-    || typeof identity.fontManifestFingerprint !== "string"
-    || typeof identity.wasmSha256 !== "string"
-    || typeof identity.layoutPipelineVersion !== "string"
-    || typeof identity.requestId !== "string"
-    || !Number.isSafeInteger(identity.requestRevision)
-    || typeof row.rowId !== "string"
+    typeof row.rowId !== "string"
     || typeof row.fixtureId !== "string"
     || typeof row.scenarioId !== "string"
     || typeof row.text !== "string"
     || typeof row.fontId !== "string"
     || typeof row.fontSha256 !== "string"
   ) return null
-  if (coreLayout != null && (
-    !isRecord(coreLayout)
-    || !isPositiveFiniteNumber(coreLayout.availableWidthPt)
-    || !isPositiveFiniteNumber(coreLayout.fontSizePt)
-    || !isPositiveFiniteNumber(coreLayout.lineHeightPt)
-    || !isPositiveFiniteNumber(coreLayout.pageBodyHeightPt)
-    || typeof coreLayout.styleKey !== "string"
-    || coreLayout.styleKey.trim().length === 0
-    || (coreLayout.cacheAction !== "retain" && coreLayout.cacheAction !== "clear-before")
-  )) return null
+  if (coreLayout != null && !hasValidCoreLayout(coreLayout)) return null
   return value as unknown as FlowDocLiveDraftLayoutRequestV1
 }
 
 export function isFlowDocLiveDraftResultCurrentV1(input: {
   current: FlowDocLiveDraftRequestIdentityV1
-  result: FlowDocLiveDraftWorkerResultV1
+  result: FlowDocLiveDraftWorkerResultV1 | FlowDocLiveDraftFormResultV1
 }): boolean {
   const current = input.current
   const result = input.result.identity

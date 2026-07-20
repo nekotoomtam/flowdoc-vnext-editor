@@ -304,11 +304,13 @@ try {
       productionPerformanceClaim: false,
     },
   }
-  writeFileSync(
-    resolve(editorRoot, "src/fixtures/live-draft-xr2-one-block-performance-parity.v1.json"),
-    `${JSON.stringify(evidence, null, 2)}\n`,
-    "utf8",
-  )
+  if (process.env.FLOWDOC_EVIDENCE_WRITE !== "0") {
+    writeFileSync(
+      resolve(editorRoot, "src/fixtures/live-draft-xr2-one-block-performance-parity.v1.json"),
+      `${JSON.stringify(evidence, null, 2)}\n`,
+      "utf8",
+    )
+  }
   process.stdout.write(`${evidence.evidenceId}: ${rows.length} rows matched; timings retained without a budget\n`)
 } finally {
   await server.close()

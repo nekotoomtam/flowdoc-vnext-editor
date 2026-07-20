@@ -1095,3 +1095,42 @@
     gap: 5px;
   }
 }
+.live-draft-form-result {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.live-draft-form-paper {
+  align-content: start;
+  gap: 18px;
+  min-height: 360px;
+}
+
+.live-draft-form-paper-heading {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.live-draft-form-paper-heading span,
+.live-draft-form-paper small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.live-draft-form-lines {
+  display: grid;
+  font-family: "Sarabun", sans-serif;
+  font-size: 12pt;
+  line-height: 18pt;
+  text-align: left;
+  width: 180pt;
+}
+
+.live-draft-form-lines > span {
+  display: block;
+  min-height: 18pt;
+  white-space: pre;
+}

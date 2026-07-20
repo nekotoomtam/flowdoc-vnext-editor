@@ -44,6 +44,7 @@ import {
 import { stringifyTestInputFormCanonicalCandidate } from "../../editor/preview/testInputFormCanonicalCandidate"
 import type { PublishedPreviewGenerationInteraction } from "../../app/usePublishedPreviewGeneration"
 import type { PublishedPreviewAdmissionReceipt } from "../../editor/preview/publishedPreviewContracts"
+import type { LiveDraftFormPreviewInteractionV1 } from "../../app/useLiveDraftFormPreview"
 
 type EditableFieldProjection =
   | VNextTestInputDocumentFieldProjectionV1
@@ -550,6 +551,7 @@ function JsonInputPane({
 export interface PreviewTestInputViewProps {
   document: CoreEditorDocumentSummary
   interaction: PreviewTestInputInteraction
+  liveDraft?: LiveDraftFormPreviewInteractionV1 | null
   publishedPreview?: PublishedPreviewGenerationInteraction | null
   previewTarget?: "draft" | "published"
   previewTargetAvailability?: { draft: boolean; published: boolean }
@@ -615,13 +617,73 @@ function PublishedPreviewDiagnostics({ receipt }: { receipt: PublishedPreviewAdm
   )
 }
 
-function PublishedPreviewSurface({
+function LiveDraftFormSurface({
   document,
   interaction,
 }: {
   document: CoreEditorDocumentSummary
-  interaction: PublishedPreviewGenerationInteraction | null | undefined
+  interaction: LiveDraftFormPreviewInteractionV1
 }) {
+  const applied = interaction.lastValid
+  const layout = applied?.result.coreLayout
+  const firstPage = layout?.pagination.pages[0]
+  const firstPageLines = firstPage == null || layout == null
+    ? []
+    : layout.measurement.lineBoxes.slice(firstPage.lineStartIndex, firstPage.lineEndIndexExclusive)
+  return (
+    <div
+      className="live-draft-form-result"
+      data-applied-revision={interaction.appliedRevision ?? "none"}
+      data-pending-revision={interaction.pendingRevision ?? "none"}
+      data-phase={interaction.phase}
+    >
+      <div aria-live="polite" className="published-preview-status-bar" role="status">
+        <div className="published-preview-status-copy">
+          <div>
+            {interaction.phase === "draft-updating"
+              ? <LoaderCircle aria-hidden="true" className="is-spinning" size={15} />
+              : null}
+            <strong>{interaction.message}</strong>
+          </div>
+          <span>Bounded Form Live Draft · not Published</span>
+        </div>
+      </div>
+      {layout == null ? (
+        <div className="test-input-preview-paper published-preview-placeholder">
+          <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
+          <strong>{document.title}</strong>
+          <span>{interaction.message}</span>
+        </div>
+      ) : (
+        <div className="test-input-preview-paper live-draft-form-paper">
+          <div className="live-draft-form-paper-heading">
+            <strong>{document.title}</strong>
+            <span>
+              Page 1 of {layout.pagination.summary.pageCount} · {layout.acceptanceSummary.lineCount} lines
+            </span>
+          </div>
+          <div className="live-draft-form-lines" data-text-source="core-accepted-lines">
+            {firstPageLines.map((line) => <span key={`${line.index}:${line.startOffset}`}>{line.text}</span>)}
+          </div>
+          <small>
+            Form revision {interaction.appliedRevision} · {(applied?.endToEndDurationMs ?? 0).toFixed(1)} ms end-to-end
+          </small>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PublishedPreviewSurface({
+  document,
+  interaction,
+  liveDraft,
+}: {
+  document: CoreEditorDocumentSummary
+  interaction: PublishedPreviewGenerationInteraction | null | undefined
+  liveDraft: LiveDraftFormPreviewInteractionV1 | null | undefined
+}) {
+  if (!interaction && liveDraft?.enabled) return <LiveDraftFormSurface document={document} interaction={liveDraft} />
   if (!interaction) return (
     <div className="test-input-preview-paper">
       <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
@@ -696,6 +758,7 @@ function PublishedPreviewSurface({
 export function PreviewTestInputView({
   document,
   interaction,
+  liveDraft,
   publishedPreview,
   previewTarget = "published",
   previewTargetAvailability = { draft: false, published: true },
@@ -885,8 +948,11 @@ export function PreviewTestInputView({
             <JsonInputPane interaction={interaction.json} projection={projection} />
           )}
         </aside>
-        <section className="test-input-preview-surface" aria-label="Exact preview status">
-          <PublishedPreviewSurface document={document} interaction={publishedPreview} />
+        <section
+          className="test-input-preview-surface"
+          aria-label={!publishedPreview && liveDraft?.enabled ? "Live Draft preview status" : "Exact preview status"}
+        >
+          <PublishedPreviewSurface document={document} interaction={publishedPreview} liveDraft={liveDraft} />
         </section>
       </div>
     </main>

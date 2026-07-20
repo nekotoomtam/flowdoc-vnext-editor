@@ -56,7 +56,7 @@ async function run(): Promise<void> {
       if (response.type === "live-draft.diagnostics") {
         output.runtimeIdentity = response.engineIdentity
         output.initializationDurationMs = response.durationMs
-      } else {
+      } else if (response.type === "live-draft.result") {
         output.rows!.push({
           rowId: response.smokeRow.rowId,
           fixtureId: response.smokeRow.fixtureId,
@@ -65,6 +65,9 @@ async function run(): Promise<void> {
           result: response.measurement,
         })
         nextRowIndex += 1
+      } else {
+        reject(new Error(`unexpected Worker response: ${response.type}`))
+        return
       }
       const row = FLOWDOC_TEXT_ENGINE_LIVE_DRAFT_SMOKE_ROWS_V1[nextRowIndex]
       if (row == null) {

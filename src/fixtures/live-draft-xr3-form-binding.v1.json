@@ -1,0 +1,75 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-xr3-form-binding-v1",
+  "status": "observed-bounded-form-binding",
+  "generatedAt": "2026-07-20T16:59:41.495Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "realBrowser": true,
+    "realWorker": true,
+    "realCoreLayoutBoundary": true,
+    "realFormStateAndCanonicalCandidate": true,
+    "debounceMs": 75,
+    "selectedScalarFieldOnly": true
+  },
+  "observations": {
+    "firstEditCount": 15,
+    "secondEditCount": 8,
+    "expectedLatestRevision": 23,
+    "initialPhase": "idle",
+    "retainedPhase": "draft-updating",
+    "finalPhase": "draft-current",
+    "finalAppliedRevision": 23,
+    "finalPageCount": 1,
+    "finalLineCount": 1,
+    "firstEndToEndDurationMs": 128.89999997615814,
+    "finalEndToEndDurationMs": 79,
+    "finalWorkerDurationMs": 1.9000000357627869,
+    "totalBrowserRequestCount": 310,
+    "crossOriginRequestCount": 0,
+    "backendLikeRequestCount": 0,
+    "metrics": {
+      "first": {
+        "scheduledCount": 15,
+        "requestCount": 1,
+        "appliedCount": 1,
+        "staleResultCount": 0,
+        "cancellationCount": 0
+      },
+      "final": {
+        "scheduledCount": 23,
+        "requestCount": 2,
+        "appliedCount": 2,
+        "staleResultCount": 0,
+        "cancellationCount": 0
+      }
+    }
+  },
+  "assertions": {
+    "rapidEditsCoalesced": true,
+    "latestRevisionApplied": true,
+    "previousValidPreviewRetained": true,
+    "coreAcceptedLinesRendered": true,
+    "noBackendTransport": true
+  },
+  "interpretation": {
+    "performanceBudgetDefined": false,
+    "timingsAreObservational": true,
+    "staleResultRejectionCoveredDeterministicallyByControllerTest": true,
+    "requestPerKeystrokeAvoidedForObservedBurst": true
+  },
+  "scope": {
+    "qaRouteOnly": true,
+    "selectedFormScalarOnly": true,
+    "wholeDocumentIncrementalInvalidation": false,
+    "backendAdmission": false,
+    "publishedPreviewReplacement": false,
+    "exactPdfPreviewReplacement": false,
+    "productionPerformanceClaim": false
+  }
+}

@@ -82,6 +82,35 @@ describe("LIVE-DRAFT-XR-0 worker protocol", () => {
     })).toBeNull()
   })
 
+  it("parses the bounded XR-3 Form layout family without reusing the smoke row", () => {
+    const request = {
+      protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
+      type: "live-draft.form-layout",
+      identity: IDENTITY,
+      textBlock: {
+        textBlockId: "live-draft-form:documentTitle",
+        fieldKey: "documentTitle",
+        text: "สรุปรายงาน",
+        fontId: "sarabun-regular",
+        fontSha256: "b".repeat(64),
+      },
+      coreLayout: {
+        availableWidthPt: 180,
+        fontSizePt: 12,
+        lineHeightPt: 18,
+        pageBodyHeightPt: 252,
+        styleKey: "paragraph/body",
+        cacheAction: "clear-before",
+      },
+    }
+
+    expect(parseFlowDocLiveDraftWorkerRequestV1(request)).toEqual(request)
+    expect(parseFlowDocLiveDraftWorkerRequestV1({
+      ...request,
+      textBlock: { ...request.textBlock, text: "" },
+    })).toBeNull()
+  })
+
   it("rejects a stale result when any pinned identity changes", () => {
     const result = {
       protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,

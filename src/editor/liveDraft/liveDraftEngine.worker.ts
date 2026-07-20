@@ -22,6 +22,7 @@ let runtime: Awaited<ReturnType<typeof createFlowDocTextEngineWorkerRuntimeV1>> 
 let coreLayoutSession: ReturnType<typeof createCoreLiveDraftOneBlockLayoutSessionV1> | null = null
 const normalizedMeasurementByKey = new Map<string, FlowDocTextEngineLiveDraftNormalizedResultV1>()
 const cancelled = new Set<string>()
+const maxRetainedCancellationKeys = 128
 
 function cancellationKey(requestId: string, requestRevision: number): string {
   return `${requestRevision}:${requestId}`
@@ -46,6 +47,10 @@ workerScope.addEventListener("message", (event) => {
       return
     }
     if (request.type === "live-draft.cancel") {
+      if (cancelled.size >= maxRetainedCancellationKeys) {
+        const oldest = cancelled.values().next().value
+        if (oldest != null) cancelled.delete(oldest)
+      }
       cancelled.add(cancellationKey(request.requestId, request.requestRevision))
       return
     }
@@ -74,10 +79,11 @@ workerScope.addEventListener("message", (event) => {
       workerScope.postMessage(blocked("text engine is not initialized", request.identity.requestId, request.identity.requestRevision))
       return
     }
+    const textBlock = request.type === "live-draft.form-layout" ? request.textBlock : request.smokeRow
     if (
       request.identity.measurementProfileId !== runtime.identity.measurementProfileId
       || request.identity.wasmSha256 !== runtime.identity.wasmSha256
-      || request.smokeRow.fontSha256 !== runtime.identity.fontSha256ById[request.smokeRow.fontId]
+      || textBlock.fontSha256 !== runtime.identity.fontSha256ById[textBlock.fontId]
     ) {
       workerScope.postMessage(blocked("runtime/profile/font identity mismatch", request.identity.requestId, request.identity.requestRevision))
       return
@@ -85,18 +91,20 @@ workerScope.addEventListener("message", (event) => {
     const key = cancellationKey(request.identity.requestId, request.identity.requestRevision)
     if (cancelled.delete(key)) return
     const startedAt = performance.now()
-    const measurementKey = `${request.smokeRow.fontSha256}\u0000${request.smokeRow.text}`
+    const measurementKey = `${textBlock.fontSha256}\u0000${textBlock.text}`
+    const coreLayoutInput = request.coreLayout
     let measurement: FlowDocTextEngineLiveDraftNormalizedResultV1
     let coreLayout
-    if (request.coreLayout == null) {
+    if (request.type === "live-draft.layout" && request.coreLayout == null) {
       measurement = runtime.measure({
-        text: request.smokeRow.text,
-        fontId: request.smokeRow.fontId,
-        fontSha256: request.smokeRow.fontSha256,
+        text: textBlock.text,
+        fontId: textBlock.fontId,
+        fontSha256: textBlock.fontSha256,
       })
     } else {
       if (coreLayoutSession == null) throw new Error("Core layout session is not initialized")
-      if (request.coreLayout.cacheAction === "clear-before") {
+      if (coreLayoutInput == null) throw new Error("Core layout input is missing")
+      if (coreLayoutInput.cacheAction === "clear-before") {
         coreLayoutSession.clearCache()
         normalizedMeasurementByKey.clear()
       }
@@ -104,23 +112,25 @@ workerScope.addEventListener("message", (event) => {
         documentId: request.identity.documentId,
         instanceRevision: request.identity.structureRevision,
         sectionId: "live-draft-xr2-section",
-        textBlockId: `live-draft-xr2:${request.smokeRow.rowId}`,
-        text: request.smokeRow.text,
-        availableWidthPt: request.coreLayout.availableWidthPt,
-        pageBodyHeightPt: request.coreLayout.pageBodyHeightPt,
-        styleKey: request.coreLayout.styleKey,
+        textBlockId: request.type === "live-draft.form-layout"
+          ? request.textBlock.textBlockId
+          : `live-draft-xr2:${request.smokeRow.rowId}`,
+        text: textBlock.text,
+        availableWidthPt: coreLayoutInput.availableWidthPt,
+        pageBodyHeightPt: coreLayoutInput.pageBodyHeightPt,
+        styleKey: coreLayoutInput.styleKey,
       }, (engineInput) => {
         const normalized = runtime!.measure({
           text: engineInput.text,
-          fontId: request.smokeRow.fontId,
-          fontSha256: request.smokeRow.fontSha256,
+          fontId: textBlock.fontId,
+          fontSha256: textBlock.fontSha256,
         })
         normalizedMeasurementByKey.set(measurementKey, normalized)
         return createFlowDocTextEngineLiveDraftMeasurementV1({
           measurement: normalized,
           availableWidthPt: engineInput.availableWidthPt,
-          fontSizePt: request.coreLayout!.fontSizePt,
-          lineHeightPt: request.coreLayout!.lineHeightPt,
+          fontSizePt: coreLayoutInput.fontSizePt,
+          lineHeightPt: coreLayoutInput.lineHeightPt,
         })
       })
       const cachedMeasurement = normalizedMeasurementByKey.get(measurementKey)
@@ -128,6 +138,19 @@ workerScope.addEventListener("message", (event) => {
       measurement = cachedMeasurement
     }
     if (cancelled.delete(key)) return
+    if (request.type === "live-draft.form-layout") {
+      if (coreLayout == null) throw new Error("Core Form layout result is missing")
+      workerScope.postMessage({
+        protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
+        type: "live-draft.form-result",
+        exactness: "draft-current",
+        identity: request.identity,
+        textBlock: request.textBlock,
+        coreLayout,
+        durationMs: performance.now() - startedAt,
+      })
+      return
+    }
     workerScope.postMessage({
       protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
       type: "live-draft.result",

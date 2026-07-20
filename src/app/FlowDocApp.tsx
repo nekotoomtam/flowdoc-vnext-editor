@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams } from "
 import { DocumentLibraryPage } from "../components/library/DocumentLibraryPage"
 import { PreviewTestInputQaPage } from "../components/preview/PreviewTestInputQaPage"
 import { PublishedPreviewQaPage } from "../components/preview/PublishedPreviewQaPage"
+import { LiveDraftFormQaPage } from "../components/preview/LiveDraftFormQaPage"
 import { EditorApp } from "./EditorApp"
 import {
   createDocumentWorkspacePath,
@@ -53,6 +54,7 @@ export function FlowDocApp() {
             <Route element={<PublishedPreviewQaPage />} path="/__qa/realdoc-e5-7-draft-preview" />
             <Route element={<PublishedPreviewQaPage />} path="/__qa/realdoc-e5-8-preview-lifecycle" />
             <Route element={<PublishedPreviewQaPage />} path="/__qa/realdoc-e5-9-form-api-parity" />
+            <Route element={<LiveDraftFormQaPage />} path="/__qa/live-draft-xr3-form" />
           </>
         ) : null}
         <Route element={<Navigate replace to="/documents" />} path="*" />
