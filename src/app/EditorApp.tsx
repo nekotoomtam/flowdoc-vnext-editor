@@ -28,6 +28,9 @@ import type { ViewportScrollRootFacts } from "../editor/viewport/viewportMeasure
 import type { DocumentWorkspaceView } from "./documentWorkspaceRoute"
 import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
 import { usePreviewTestInput } from "./usePreviewTestInput"
+import { createPublishedPreviewClient } from "../editor/preview/publishedPreviewTransport"
+import { usePublishedPreviewContext } from "./usePublishedPreviewContext"
+import { usePublishedPreviewGeneration } from "./usePublishedPreviewGeneration"
 
 export interface EditorAppProps {
   activeWorkspaceView?: DocumentWorkspaceView
@@ -65,6 +68,7 @@ export function EditorApp({
     [backendBaseUrl],
   )
   const localPdfExportClient = useMemo(() => createLocalPdfExportClient(), [])
+  const publishedPreviewClient = useMemo(() => createPublishedPreviewClient(), [])
   const initialState = useMemo(
     () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
       baseRevision: 3,
@@ -74,7 +78,25 @@ export function EditorApp({
     [],
   )
   const [editorState, setEditorState] = useState(initialState)
-  const previewTestInput = usePreviewTestInput(testInputProjection)
+  const publishedPreviewContext = usePublishedPreviewContext({
+    client: publishedPreviewClient,
+    enabled: activeWorkspaceView === "preview" && editorState.core.envelope.status === "fresh",
+    pin: {
+      documentId: editorState.core.envelope.documentId,
+      documentRevision: editorState.core.envelope.documentRevision,
+    },
+  })
+  const effectiveTestInputProjection = testInputProjection ?? publishedPreviewContext.context?.projection ?? null
+  const previewTestInput = usePreviewTestInput(
+    effectiveTestInputProjection,
+    publishedPreviewContext.context?.mappingProfiles ?? [],
+  )
+  const publishedPreview = usePublishedPreviewGeneration({
+    context: publishedPreviewContext.context,
+    input: previewTestInput,
+    client: publishedPreviewClient,
+    pdfClient: localPdfExportClient,
+  })
   const localPdfExport = useLocalPdfExport({
     client: localPdfExportClient,
     enabled: editorState.core.envelope.status === "fresh",
@@ -244,7 +266,8 @@ export function EditorApp({
       layoutQaEnabled={layoutQaEnabled}
       localPdfExport={localPdfExport}
       previewTestInput={previewTestInput}
-      testInputProjection={testInputProjection}
+      publishedPreview={publishedPreviewContext.status === "ready" ? publishedPreview : null}
+      testInputProjection={effectiveTestInputProjection}
       migrationEnabled={migrationEnabled}
       migrationStatus={migrationStatus}
       mutationStatus={mutationStatus}

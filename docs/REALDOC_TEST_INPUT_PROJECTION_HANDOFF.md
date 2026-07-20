@@ -84,5 +84,6 @@ must not silently survive.
 
 `PDF-EXPORT-REALDOC-E.5.5` now accepts temporary JSON selection, exact
 mapping-profile selection, and content-free local preparation diagnostics.
-Mapping and Preview execution remain `not-run`. E.5.6 next binds Published
-Preview. Production remains NO-GO.
+Mapping and Preview execution remain `not-run` in this E.5.3 phase. E.5.6 now
+binds Published Preview; E.5.7 next owns Draft Preview. Production remains
+NO-GO.

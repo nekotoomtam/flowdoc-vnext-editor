@@ -23,6 +23,7 @@ import { PreviewUnavailableView } from "../components/preview/PreviewUnavailable
 import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
 import type { PreviewTestInputInteraction } from "./usePreviewTestInput"
 import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
+import type { PublishedPreviewGenerationInteraction } from "./usePublishedPreviewGeneration"
 
 export interface EditorShellProps {
   activeWorkspaceView: DocumentWorkspaceView
@@ -32,6 +33,7 @@ export interface EditorShellProps {
   layoutQaEnabled: boolean
   localPdfExport: LocalPdfExportInteraction
   previewTestInput: PreviewTestInputInteraction
+  publishedPreview: PublishedPreviewGenerationInteraction | null
   testInputProjection: VNextPublishedStructureTestInputProjectionV1 | null
   migrationEnabled: boolean
   migrationStatus: RuntimeDocumentMigrationStatus
@@ -62,6 +64,7 @@ export function EditorShell({
   layoutQaEnabled,
   localPdfExport,
   previewTestInput,
+  publishedPreview,
   testInputProjection,
   migrationEnabled,
   migrationStatus,
@@ -171,6 +174,7 @@ export function EditorShell({
               <PreviewTestInputView
                 document={document}
                 interaction={previewTestInput}
+                publishedPreview={publishedPreview}
                 projection={testInputProjection}
               />
             ) : (

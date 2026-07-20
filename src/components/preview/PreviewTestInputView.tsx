@@ -1,7 +1,9 @@
 import {
   CheckCircle2,
   CircleAlert,
+  Download,
   FileJson,
+  FileOutput,
   FileText,
   ImagePlus,
   Plus,
@@ -29,6 +31,8 @@ import {
   testInputMappingProfileMatchesProjection,
   testInputMappingProfileOptionKey,
 } from "../../editor/preview/testInputJsonState"
+import { stringifyTestInputFormDataJsonDraft } from "../../editor/preview/testInputFormDataJson"
+import type { PublishedPreviewGenerationInteraction } from "../../app/usePublishedPreviewGeneration"
 
 type EditableFieldProjection =
   | VNextTestInputDocumentFieldProjectionV1
@@ -466,12 +470,84 @@ function JsonInputPane({
 export interface PreviewTestInputViewProps {
   document: CoreEditorDocumentSummary
   interaction: PreviewTestInputInteraction
+  publishedPreview?: PublishedPreviewGenerationInteraction | null
   projection: VNextPublishedStructureTestInputProjectionV1
+}
+
+function PublishedPreviewSurface({
+  document,
+  interaction,
+}: {
+  document: CoreEditorDocumentSummary
+  interaction: PublishedPreviewGenerationInteraction | null | undefined
+}) {
+  if (!interaction) return (
+    <div className="test-input-preview-paper">
+      <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
+      <strong>{document.title}</strong>
+      <span>Exact preview not generated</span>
+    </div>
+  )
+  const receipt = interaction.receipt
+  const status = interaction.stale
+    ? "Stale result"
+    : interaction.phase === "idle"
+      ? "Exact preview not generated"
+      : interaction.phase === "admitting"
+        ? "Mapping and validating"
+        : interaction.phase === "requesting"
+          ? "Preparing PDF operation"
+          : interaction.phase === "running"
+            ? "Generating exact PDF"
+            : interaction.phase === "completed"
+              ? "Exact PDF ready"
+              : "Preview failed"
+  return (
+    <div className="published-preview-result" data-phase={interaction.phase} data-stale={interaction.stale}>
+      <div className="published-preview-status-bar">
+        <div>
+          <strong>{status}</strong>
+          <span>{interaction.operation?.pageCount ? `${interaction.operation.pageCount} pages` : "Published Preview"}</span>
+        </div>
+        {interaction.operation?.state === "completed" && !interaction.stale ? (
+          <button className="tool-button" onClick={interaction.download} type="button">
+            <Download aria-hidden="true" size={15} />
+            <span>Download</span>
+          </button>
+        ) : null}
+      </div>
+      {receipt ? (
+        <dl className="published-preview-mapped-result">
+          <div><dt>Mapped result</dt><dd>{receipt.execution.mapping}</dd></div>
+          <div><dt>Validation</dt><dd>{receipt.execution.runtimeValidation}</dd></div>
+          <div><dt>Warnings</dt><dd>{receipt.diagnostics.summary.warningCount}</dd></div>
+          <div title={receipt.canonicalInputFingerprint}>
+            <dt>Canonical</dt><dd>{receipt.canonicalInputFingerprint.slice(7, 19)}</dd>
+          </div>
+        </dl>
+      ) : null}
+      {interaction.artifactUrl ? (
+        <iframe
+          className="published-preview-pdf"
+          src={interaction.artifactUrl}
+          title={`${document.title} exact Published Preview PDF`}
+        />
+      ) : (
+        <div className="test-input-preview-paper published-preview-placeholder">
+          <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
+          <strong>{document.title}</strong>
+          <span>{status}</span>
+          {interaction.error ? <span className="published-preview-error">{interaction.error}</span> : null}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export function PreviewTestInputView({
   document,
   interaction,
+  publishedPreview,
   projection,
 }: PreviewTestInputViewProps) {
   const formInteraction = interaction.form
@@ -494,6 +570,17 @@ export function PreviewTestInputView({
         </div>
         <div className="test-input-toolbar-actions">
           <span className="test-input-revision">Revision {activeRevision}</span>
+          {publishedPreview ? (
+            <button
+              className="tool-button published-preview-generate"
+              disabled={!publishedPreview.canGenerate}
+              onClick={publishedPreview.generate}
+              type="button"
+            >
+              <FileOutput aria-hidden="true" size={15} />
+              <span>{publishedPreview.stale || publishedPreview.phase === "completed" ? "Generate again" : "Generate PDF"}</span>
+            </button>
+          ) : null}
           <button
             aria-label="Reset test data"
             className="icon-button"
@@ -545,16 +632,25 @@ export function PreviewTestInputView({
                 })}
               </section>
             ))}
+            <section className="test-input-form-json-draft">
+              <div className="test-input-group-heading">
+                <strong>Form data JSON</strong>
+                <span>Draft, not validated</span>
+              </div>
+              <textarea
+                aria-label="Form data JSON draft"
+                className="test-input-json-editor"
+                readOnly
+                spellCheck={false}
+                value={stringifyTestInputFormDataJsonDraft(formInteraction.state)}
+              />
+            </section>
           </div> : (
             <JsonInputPane interaction={interaction.json} projection={projection} />
           )}
         </aside>
         <section className="test-input-preview-surface" aria-label="Exact preview status">
-          <div className="test-input-preview-paper">
-            <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
-            <strong>{document.title}</strong>
-            <span>Exact preview not generated</span>
-          </div>
+          <PublishedPreviewSurface document={document} interaction={publishedPreview} />
         </section>
       </div>
     </main>

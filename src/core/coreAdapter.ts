@@ -1,12 +1,15 @@
 import {
   VNEXT_CORE_VERSION_CAPABILITY_CONTRACT,
+  ImageAssetRegistryV1Schema,
   InlineNodeV4TargetSchema,
+  VNextPublishedStructureMappingProfileV1Schema,
   inspectVNextPackageVersionCapability,
   safeCreateVNextReadOnlyRuntimeSessionV4,
   safeCreateVNextRuntimeSession,
   type VNextCoreVersionCapabilityContract,
   type VNextPackageVersionInspection,
   type InlineNodeV4Target,
+  type ImageAssetRegistryV1,
   type VNextPublishedStructureTestInputProjectionV1,
   type VNextPublishedStructureMappingProfileV1,
   type VNextTestInputCollectionItemFieldProjectionV1,
@@ -54,9 +57,12 @@ function cloneJson<T>(value: T): T {
 
 export {
   CORE_PRODUCT_REPORT_MINIMAL_DOCUMENT_ID,
+  ImageAssetRegistryV1Schema,
+  VNextPublishedStructureMappingProfileV1Schema,
   loadInitialEditorSeed,
   validateCoreReadTransportEnvelope,
   type CoreFixtureSource,
+  type ImageAssetRegistryV1,
   type CoreReadTransportEnvelopeValidation,
   type LoadInitialCoreSnapshotOptions,
   type LoadReadOnlyCoreSnapshotFromCoreFixtureTransportOptions,

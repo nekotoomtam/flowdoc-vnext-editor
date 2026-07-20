@@ -183,5 +183,7 @@ header and URL-backed Design/Preview tabs while preserving the Design runtime.
 The Preview route reports unavailable and does not call this PDF transport.
 E.5.4 accepts temporary Editor Form state over the E.5.3 Core projection. E.5.5
 now accepts temporary JSON/mapping preparation without relabeling this PDF
-transport as DocGen admission. E.5.6 next owns the separate Published Preview
-binding.
+transport as DocGen admission. E.5.6 now owns a separate Published Preview
+client that admits imported JSON through E.3 and reuses this E.4 lifecycle by
+its protected instance pin. The original LOCAL-F eligibility transport remains
+unchanged. E.5.7 next owns Draft Preview.

@@ -3,7 +3,8 @@
 Status: `PDF-EXPORT-REALDOC-E.5.0` product contract accepted and
 `PDF-EXPORT-REALDOC-E.5.1` local Library, `E.5.2` shared workspace tabs, and
 `E.5.3` Core test-input projection, `E.5.4` temporary generated Form, and
-`E.5.5` temporary JSON/mapping preparation accepted.
+`E.5.5` temporary JSON/mapping preparation, and `E.5.6` local Published Preview
+accepted.
 Production remains NO-GO.
 
 ## Decision
@@ -40,13 +41,14 @@ The accepted Editor now:
   projection is bound;
 - owns memory-only generated Form and JSON/mapping preparation state after
   accepted projection and profile-catalog facts are bound;
-  and
+- runs local Published Preview through E.3/E.4 only when a trusted Backend
+  context is bound; and
 - exposes LOCAL-F PDF controls for the current document/revision pin only.
 
 Backend has both `read(documentId)` and a bounded newest-first list query.
 Existing LOCAL-F PDF controls are reusable lifecycle evidence, not the DocGen
-Preview transport. Normal projection/profile transport and Preview execution
-remain deferred.
+Preview transport. Documents without a trusted Published context remain
+fail-closed; Draft Preview remains deferred.
 
 ## Navigation Contract
 
@@ -263,7 +265,7 @@ label it exact while the Backend result is pending.
    Accepted.
 6. `E.5.5` adds JSON selection, mapping-profile selection, and diagnostics.
    Accepted.
-7. `E.5.6` binds Published Preview to E.3/E.4.
+7. `E.5.6` binds Published Preview to E.3/E.4. Accepted for local development.
 8. `E.5.7` adds the separate local Draft Preview identity and admission path.
 9. `E.5.8` completes stale, rerun, diagnostic navigation, empty, loading,
    failure, cancel, retry, and download states.
@@ -271,10 +273,10 @@ label it exact while the Backend result is pending.
 
 ## Explicitly Not Changed
 
-- no mapped payload or Backend mapping result in Editor state;
+- no mapped canonical values in Editor state;
 - no Form or test-data persistence beyond the active memory session;
-- no normal document projection transport;
-- no draft or published Preview admission;
+- no Published Preview binding for documents without a trusted Backend context;
+- no draft Preview admission;
 - no Structure publish implementation;
 - no authentication, authorization, sharing, folders, or collaboration;
 - no production route, provider, deployment, cost, or activation; and
@@ -316,7 +318,8 @@ label it exact while the Backend result is pending.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.5` now accepts memory-only JSON text, exact
-mapping-profile selection, and content-free local preparation diagnostics while
-mapping remains `not-run`. `PDF-EXPORT-REALDOC-E.5.6` next binds Published
-Preview to E.3 admission and E.4 artifact lifecycle. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.6` now accepts local Published Preview through E.3
+admission and E.4 artifact lifecycle. Mapping remains Backend-owned, Form data
+JSON remains an unvalidated local draft, and mapped canonical values do not
+enter Editor state. `PDF-EXPORT-REALDOC-E.5.7` next owns Draft Preview.
+Production remains NO-GO.

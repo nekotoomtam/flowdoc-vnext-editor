@@ -4,8 +4,8 @@ Status: `PDF-EXPORT-REALDOC-E.0` Editor product-role lock retained through the
 accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
 admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
 E.5.1 Library, E.5.2 workspace tabs, E.5.3 Core test-input projection, E.5.4
-temporary generated Form, and E.5.5 temporary JSON/mapping preparation. No
-Preview execution is active; production remains NO-GO.
+temporary generated Form, E.5.5 temporary JSON/mapping preparation, and E.5.6
+local Published Preview. Production remains NO-GO.
 
 ## Product Role
 
@@ -198,11 +198,11 @@ Editor responsibilities; pagination truth remains Core/backend output.
 
 ## Explicitly Not Changed
 
-- no generated-input route, hook, state, proxy, parser, or command change;
-- no test-data import UI is activated;
 - no Structure publish or storage implementation is added;
-- no browser mapping or PDF generation is added;
-- no current LOCAL-F eligibility or request body changes; and
+- no browser mapping, canonical-value exposure, pagination, or rendering;
+- no current LOCAL-F eligibility or request body changes;
+- no Form draft admission or mapped-value hydration into Form controls;
+- no Draft Preview identity; and
 - no production route, credential, provider, deployment, or activation.
 
 ## RISK
@@ -271,10 +271,32 @@ runtime validation, materialization, exact pages, Backend admission, and
 artifact execution remain `not-run`. Normal Preview stays unavailable until
 trusted projection and profile discovery are connected.
 
+## E.5.6 Published Preview Handoff
+
+Editor now loads one exact value-free Published Preview context from Backend.
+The context carries the trusted E.5.3 projection, canonical mapping profiles,
+asset admission template, and existing 1 MiB payload limit. Its strict parser
+rejects owner/target/privacy drift and any unexpected receipt fields.
+
+JSON mode submits the imported payload to E.3, then submits the returned
+revision-zero instance pin to E.4. Mapping executes only in Backend. Editor keeps
+a sanitized content-free receipt, public operation state, and the exact PDF URL;
+it never receives mapped canonical business values.
+
+Form mode now exposes read-only `Form data JSON`, but that object remains
+memory-only with status `draft-not-validated` and is not admitted in E.5.6.
+Payload/profile/context changes mark the prior artifact stale and remove its
+iframe and Download action.
+
+The local 69C browser path imports 749,929 bytes, reports `executed`,
+`run-valid`, and 3 warnings, and displays the completed 10-page artifact. Desktop
+and mobile have no horizontal page overflow or console errors. The complete
+200-page export remains REALDOC-G.
+
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.5` now accepts temporary JSON and exact mapping-profile
-selection with content-free local diagnostics. E.5.6 next binds Published
-Preview through E.3/E.4 without making the browser mapper or artifact truth. No
-multi-user authorization is claimed.
+`PDF-EXPORT-REALDOC-E.5.6` now accepts local Published Preview through E.3/E.4
+without making the browser mapper or artifact truth. E.5.7 next owns the
+separate immutable Draft Preview identity. No multi-user authorization is
+claimed.
 Production remains NO-GO.

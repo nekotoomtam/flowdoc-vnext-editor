@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom"
 import { DocumentLibraryPage } from "../components/library/DocumentLibraryPage"
 import { PreviewTestInputQaPage } from "../components/preview/PreviewTestInputQaPage"
+import { PublishedPreviewQaPage } from "../components/preview/PublishedPreviewQaPage"
 import { EditorApp } from "./EditorApp"
 import {
   createDocumentWorkspacePath,
@@ -48,6 +49,7 @@ export function FlowDocApp() {
           <>
             <Route element={<PreviewTestInputQaPage />} path="/__qa/realdoc-e5-4-form" />
             <Route element={<PreviewTestInputQaPage />} path="/__qa/realdoc-e5-5-input" />
+            <Route element={<PublishedPreviewQaPage />} path="/__qa/realdoc-e5-6-published-preview" />
           </>
         ) : null}
         <Route element={<Navigate replace to="/documents" />} path="*" />

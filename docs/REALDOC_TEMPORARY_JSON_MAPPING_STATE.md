@@ -105,8 +105,7 @@ transport, so their Preview routes remain fail-closed in
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.6` binds Published Preview to the accepted E.3 admission
-and E.4 artifact lifecycle. It must obtain trusted Structure/projection/profile
-facts, send only the selected input through the local same-origin boundary, and
-retain content-free receipts without moving canonical values into Editor state.
-Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.6` now binds Published Preview to the accepted E.3
+admission and E.4 artifact lifecycle with trusted Structure/projection/profile
+facts and a sanitized content-free receipt. `PDF-EXPORT-REALDOC-E.5.7` next owns
+the separate Draft Preview identity. Production remains NO-GO.

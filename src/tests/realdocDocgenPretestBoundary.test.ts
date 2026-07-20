@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 
-describe("PDF-EXPORT-REALDOC-E.0-E.5.5 Editor pre-test boundary", () => {
+describe("PDF-EXPORT-REALDOC-E.0-E.5.6 Editor pre-test boundary", () => {
   it("keeps Structure authoring separate from imported test values", () => {
     const doc = read("../../docs/REALDOC_DOCGEN_PRETEST_BOUNDARY.md")
 
@@ -21,6 +21,7 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.5 Editor pre-test boundary", () => {
       "## E.5.3 Projection Handoff",
       "## E.5.4 Temporary Form Handoff",
       "## E.5.5 Temporary JSON And Mapping Handoff",
+      "## E.5.6 Published Preview Handoff",
       "## Existing Local PDF Controls",
       "## Book-Form UX Pressure",
       "## Explicitly Not Changed",
@@ -43,8 +44,10 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.5 Editor pre-test boundary", () => {
     expect(doc).toMatch(/Backend now accepts one strict local DocGen request/)
     expect(doc).toMatch(/This phase deliberately does not connect the Editor/)
     expect(doc).toMatch(/Backend now accepts the E\.3 `instanceId` and revision/)
-    expect(doc).toContain("`PDF-EXPORT-REALDOC-E.5.5` now accepts temporary JSON")
-    expect(doc).toMatch(/E\.5\.6 next binds Published\s+Preview/)
+    expect(doc).toContain("## E.5.5 Temporary JSON And Mapping Handoff")
+    expect(doc).toMatch(/E\.5\.6` now accepts local Published Preview/)
+    expect(doc).toMatch(/E\.5\.7 next owns the\s+separate immutable Draft Preview identity/)
+    expect(doc).toMatch(/never receives mapped canonical business values/)
   })
 
   it("does not reinterpret the LOCAL-F document pin as DocGen admission", () => {
@@ -67,5 +70,6 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.5 Editor pre-test boundary", () => {
     expect(localIntegration).toMatch(/REALDOC-E\.5\.0 locks that product surface/)
     expect(localIntegration).toMatch(/REALDOC-E\.5\.1 now adds/)
     expect(localIntegration).toMatch(/E\.5\.5\s+now accepts temporary JSON\/mapping preparation/)
+    expect(localIntegration).toMatch(/E\.5\.6 now owns a separate Published Preview/)
   })
 })
