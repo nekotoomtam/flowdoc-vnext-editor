@@ -59,9 +59,10 @@ revision counter.
 
 If input content is missing or changed after reload, the recovered operation
 and diagnostics remain visible but the result is marked `Stale result`.
-Artifact embedding and download stay unavailable until the user generates a
-new exact result from the current input. This is expected for imported JSON,
-which intentionally remains memory-only.
+The exact retained artifact remains visible as a read-only inspection surface,
+but download stays unavailable until the user generates a new exact result
+from the current input. This is expected for imported JSON, which intentionally
+remains memory-only.
 
 ## Cancellation Reconciliation
 
@@ -83,6 +84,8 @@ state or an exact idempotent replay without creating a second cancellation.
 - reload returns directly to Published, displays reconnect activity, restores
   diagnostics and page count, then rejects the result as stale because JSON
   was not retained; and
+- that stale result still renders the retained PDF pages for visual inspection
+  while keeping Download unavailable; and
 - after the exact JSON/profile is restored, PDF.js renders all 10 artifact
   pages to in-app canvases with bounded zoom instead of relying on the browser
   PDF iframe plugin; and

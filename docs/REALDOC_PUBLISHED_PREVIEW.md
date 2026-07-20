@@ -44,7 +44,8 @@ The right surface reports input lane, mapping, runtime validation, warning
 count, canonical-content fingerprint prefix, page count, and artifact state.
 It never displays or stores
 the mapped canonical values. Editing the JSON or changing profile/context marks
-the prior result `Stale result`, hides its PDF, and disables its download truth.
+the prior result `Stale result`, keeps its PDF visible for read-only inspection,
+and disables its download truth.
 
 ## Local QA
 
@@ -57,7 +58,8 @@ At 1280 x 720 and 390 x 844:
 - the Form/JSON and result surfaces remain usable;
 - the page has no horizontal overflow;
 - mapped result facts remain readable;
-- stale input removes the old iframe and Download action; and
+- stale input keeps the old PDF pages visible for read-only inspection while
+  removing the Download action; and
 - browser console warning/error count is zero.
 
 The QA route is development-only. Production builds must exclude it and all 69C

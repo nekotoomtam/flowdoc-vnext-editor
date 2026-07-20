@@ -208,7 +208,7 @@ function preview(
     error: null,
     lifecycle,
     canGenerate: true,
-    artifactUrl: stale ? null : "/api/pdf-export-local/pdf-exports/operation%3Aqa/download",
+    artifactUrl: "/api/pdf-export-local/pdf-exports/operation%3Aqa/download",
     generate: vi.fn(),
     cancel: vi.fn(),
     retry: vi.fn(),
@@ -240,7 +240,7 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
     expect(markup).not.toContain("canonicalBusinessData")
   })
 
-  it("hides the old artifact after edits and exposes the Form canonical candidate separately", () => {
+  it("keeps a stale artifact visible read-only and exposes the Form canonical candidate separately", () => {
     const staleMarkup = renderToStaticMarkup(createElement(PreviewTestInputView, {
       document,
       interaction: input("json"),
@@ -248,6 +248,7 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
       publishedPreview: preview(true),
     }))
     expect(staleMarkup).toContain("Stale result")
+    expect(staleMarkup).toContain("Rendering PDF pages")
     expect(staleMarkup).not.toContain("<iframe")
     expect(staleMarkup).not.toContain("Download")
 

@@ -286,8 +286,9 @@ it never receives mapped canonical business values.
 
 Form mode now exposes read-only `Form data JSON`, but that object remains
 memory-only with status `draft-not-validated` and is not admitted in E.5.6.
-Payload/profile/context changes mark the prior artifact stale and remove its
-iframe and Download action.
+Payload/profile/context changes mark the prior artifact stale. The exact prior
+PDF stays visible for read-only inspection, while its Download action remains
+unavailable until a fresh result is generated.
 
 The local 69C browser path imports 749,929 bytes, reports `executed`,
 `run-valid`, and 3 warnings, and displays the completed 10-page artifact. Desktop

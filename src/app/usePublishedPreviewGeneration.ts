@@ -508,10 +508,10 @@ export function useExactPreviewGeneration(options: {
   }, [activity, admitAttempt, cancel, error, generate, operation, refreshStatus, requestAttempt, stale])
 
   const artifactUrl = useMemo(() => (
-    operation?.state === "completed" && !stale
+    operation?.state === "completed"
       ? publishedPreviewArtifactUrl(operation.operationId)
       : null
-  ), [operation, stale])
+  ), [operation])
 
   return {
     target: options.target,
