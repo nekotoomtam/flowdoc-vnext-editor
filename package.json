@@ -14,6 +14,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:live-draft-worker-smoke": "node scripts/run-live-draft-worker-smoke.mjs",
+    "evidence:live-draft-xr2": "node scripts/run-live-draft-xr2-evidence.mjs",
     "check": "npm run type-check && npm run test && npm run build"
   },
   "dependencies": {

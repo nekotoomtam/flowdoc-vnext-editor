@@ -52,6 +52,7 @@ This slice does not bind Form state, does not call Backend per keystroke, does
 not create Canvas pages, does not replace Core's default measurer, and does not
 claim general cross-runtime exactness. `published-exact` remains Backend-owned.
 
-The next slice is XR-2: inject the accepted measurer into a public Core
-layout/pagination boundary for one text block and compare Node/Worker line
-boxes, geometry, page count, warnings, and deterministic fingerprints.
+XR-2 is now recorded separately in
+`docs/LIVE_DRAFT_XR2_ONE_BLOCK_EVIDENCE.md`. It injects the measurer into the
+public Core boundary for three bounded one-block workloads while keeping Form
+and production binding out of scope.

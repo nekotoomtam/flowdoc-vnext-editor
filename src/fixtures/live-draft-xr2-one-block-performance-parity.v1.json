@@ -1,0 +1,2136 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-xr2-one-block-performance-parity-v1",
+  "status": "observed-bounded-parity-no-budget",
+  "generatedAt": "2026-07-20T16:21:07.212Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "realBrowserWorker": true,
+    "nodeNativeRustybuzz": true,
+    "nodeNativeIcu4x": true,
+    "workerWasmRustybuzz": true,
+    "workerWasmIcu4x": true,
+    "injectedCoreRendererBackedMeasurer": true,
+    "coreMeasuredLineAcceptance": true,
+    "coreBoundedTextFlowPagination": true
+  },
+  "identity": {
+    "acceptedManifestId": "measurement-evidence-summary-manifest-accepted-minimal-v1",
+    "sourceAcceptedMeasurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+    "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+    "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+    "shaperRevision": "rustybuzz-0.20.1",
+    "segmenterRevision": "icu_segmenter-2.2.0",
+    "segmenterDataRevision": "icu_segmenter_data-2.2.0",
+    "lineBreakPolicy": "icu4x-uax14-thai-v1"
+  },
+  "workerRuntimeIdentity": {
+    "runtime": "browser-worker-wasm",
+    "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+    "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+    "boundaryVersion": "flowdoc-text-engine-wasm-live-draft-xr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d"
+    },
+    "importsWasm": true,
+    "executesRustybuzz": true,
+    "executesIcu4x": true
+  },
+  "samples": {
+    "coldPerRow": 5,
+    "warmPerRow": 25
+  },
+  "browserInitialization": {
+    "assetFetchDurationMs": 26.19999998807907,
+    "workerInitializationRoundTripMs": 1099.5,
+    "workerInitializationDurationMs": 6.300000011920929
+  },
+  "rows": [
+    {
+      "rowId": "live-draft-xr2-short-thai",
+      "fixtureId": "v1-measure-thai-line-break-core",
+      "scenarioId": "xr2-one-block-short",
+      "scale": "short",
+      "textLength": 13,
+      "geometry": {
+        "availableWidthPt": 144,
+        "fontSizePt": 12,
+        "lineHeightPt": 18,
+        "pageBodyHeightPt": 252
+      },
+      "status": "matched",
+      "parity": {
+        "normalizedEngineResultExact": true,
+        "coreLineGeometryAndPaginationExact": true,
+        "allRepeatedSamplesConsistent": true,
+        "coldCacheMissesExact": true,
+        "warmCacheHitsExact": true,
+        "normalizedResultSha256": "e781be93839e9490e1d27c16bcf1bd3c56361b8c2ceeddda0044c347999e6010",
+        "coreCorrectnessSha256": "af1765d31337f51c66ff275a780abcac700cde23b21bdb81950e5e1308b9acee"
+      },
+      "correctness": {
+        "contractVersion": "core-live-draft-one-block-xr2-v1",
+        "measurement": {
+          "widthPt": 62.604,
+          "heightPt": 18,
+          "lineHeightPt": 18,
+          "lineBoxes": [
+            {
+              "index": 0,
+              "startOffset": 0,
+              "endOffset": 13,
+              "widthPt": 62.604,
+              "heightPt": 18,
+              "yOffsetPt": 0
+            }
+          ]
+        },
+        "acceptanceSummary": {
+          "lineCount": 1,
+          "renderedLength": 13,
+          "totalHeightPt": 18
+        },
+        "pagination": {
+          "status": "complete",
+          "measurementFingerprint": "sha256:a4825662bc230a82e1f6d27684f292ff119543f91cf3abd77f5989c31c2faf2d",
+          "fingerprint": "sha256:cc5c1ce5bd67526707a55cd5f163960be623be9c1f8be3072764052cd08ae737",
+          "summary": {
+            "pageCount": 1,
+            "fragmentCount": 1,
+            "lineCount": 1,
+            "splitAcrossPages": false
+          },
+          "work": {
+            "pageAttemptCount": 1,
+            "lineVisitCount": 1,
+            "cursorCommitCount": 1
+          },
+          "pages": [
+            {
+              "familyPageIndex": 0,
+              "availableHeightPt": 252,
+              "usedHeightPt": 18,
+              "remainingHeightPt": 234,
+              "fragmentFingerprint": "sha256:5c01793bd7bded5547bfbe75ba6e56a9bc833d10b263798bd3443cde7239cbde",
+              "lineStartIndex": 0,
+              "lineEndIndexExclusive": 1,
+              "heightPt": 18
+            }
+          ]
+        }
+      },
+      "node": {
+        "runtimeIdentity": {
+          "runtime": "node-native",
+          "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+          "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+          "wasmExecution": false,
+          "executesRustybuzz": true,
+          "executesIcu4x": true
+        },
+        "cold": {
+          "total": {
+            "sampleCount": 5,
+            "minMs": 41.34130000000005,
+            "p50Ms": 43.129799999999705,
+            "p95Ms": 1415.8351000000002,
+            "maxMs": 1415.8351000000002
+          },
+          "provider": {
+            "sampleCount": 5,
+            "minMs": 39.9421999999995,
+            "p50Ms": 42.54650000000038,
+            "p95Ms": 1409.5744999999997,
+            "maxMs": 1409.5744999999997
+          },
+          "measurement": {
+            "sampleCount": 5,
+            "minMs": 40.02689999999984,
+            "p50Ms": 42.596299999999246,
+            "p95Ms": 1410.1057,
+            "maxMs": 1410.1057
+          },
+          "acceptance": {
+            "sampleCount": 5,
+            "minMs": 0.05239999999957945,
+            "p50Ms": 0.07949999999982538,
+            "p95Ms": 0.7458999999998923,
+            "maxMs": 0.7458999999998923
+          },
+          "pagination": {
+            "sampleCount": 5,
+            "minMs": 0.4151000000001659,
+            "p50Ms": 0.4940999999998894,
+            "p95Ms": 4.569399999999405,
+            "maxMs": 4.569399999999405
+          },
+          "coreBoundary": {
+            "sampleCount": 5,
+            "minMs": 41.306799999999384,
+            "p50Ms": 43.09529999999995,
+            "p95Ms": 1415.5333,
+            "maxMs": 1415.5333
+          },
+          "providerInvocationCount": 5
+        },
+        "warm": {
+          "total": {
+            "sampleCount": 25,
+            "minMs": 0.3352000000004409,
+            "p50Ms": 0.7427999999999884,
+            "p95Ms": 1.649399999999332,
+            "maxMs": 1.7203999999992448
+          },
+          "provider": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "measurement": {
+            "sampleCount": 25,
+            "minMs": 0.004199999999400461,
+            "p50Ms": 0.018799999999828287,
+            "p95Ms": 0.07799999999951979,
+            "maxMs": 0.09770000000025902
+          },
+          "acceptance": {
+            "sampleCount": 25,
+            "minMs": 0.006000000000312866,
+            "p50Ms": 0.026400000000649015,
+            "p95Ms": 0.12100000000009459,
+            "maxMs": 0.13549999999941065
+          },
+          "pagination": {
+            "sampleCount": 25,
+            "minMs": 0.31710000000020955,
+            "p50Ms": 0.6657999999997628,
+            "p95Ms": 1.3833000000004176,
+            "maxMs": 1.4489000000003216
+          },
+          "coreBoundary": {
+            "sampleCount": 25,
+            "minMs": 0.3329999999996289,
+            "p50Ms": 0.7321000000001732,
+            "p95Ms": 1.5740999999998166,
+            "maxMs": 1.6971000000003187
+          },
+          "providerInvocationCount": 0
+        }
+      },
+      "browserWorker": {
+        "cold": {
+          "roundTrip": {
+            "sampleCount": 5,
+            "minMs": 2.199999988079071,
+            "p50Ms": 3.099999964237213,
+            "p95Ms": 27.099999964237213,
+            "maxMs": 27.099999964237213
+          },
+          "worker": {
+            "sampleCount": 5,
+            "minMs": 1.300000011920929,
+            "p50Ms": 2,
+            "p95Ms": 26.600000023841858,
+            "maxMs": 26.600000023841858
+          },
+          "provider": {
+            "sampleCount": 5,
+            "minMs": 0.7000000476837158,
+            "p50Ms": 1.199999988079071,
+            "p95Ms": 19.900000035762787,
+            "maxMs": 19.900000035762787
+          },
+          "measurement": {
+            "sampleCount": 5,
+            "minMs": 0.800000011920929,
+            "p50Ms": 1.199999988079071,
+            "p95Ms": 20.100000023841858,
+            "maxMs": 20.100000023841858
+          },
+          "acceptance": {
+            "sampleCount": 5,
+            "minMs": 0,
+            "p50Ms": 0.09999996423721313,
+            "p95Ms": 0.30000001192092896,
+            "maxMs": 0.30000001192092896
+          },
+          "pagination": {
+            "sampleCount": 5,
+            "minMs": 0.40000003576278687,
+            "p50Ms": 0.7000000476837158,
+            "p95Ms": 5.899999976158142,
+            "maxMs": 5.899999976158142
+          },
+          "coreBoundary": {
+            "sampleCount": 5,
+            "minMs": 1.300000011920929,
+            "p50Ms": 1.9000000357627869,
+            "p95Ms": 26.400000035762787,
+            "maxMs": 26.400000035762787
+          },
+          "providerInvocationCount": 5
+        },
+        "warm": {
+          "roundTrip": {
+            "sampleCount": 25,
+            "minMs": 0.3999999761581421,
+            "p50Ms": 0.7000000476837158,
+            "p95Ms": 1.699999988079071,
+            "maxMs": 1.800000011920929
+          },
+          "worker": {
+            "sampleCount": 25,
+            "minMs": 0.30000001192092896,
+            "p50Ms": 0.5,
+            "p95Ms": 1.199999988079071,
+            "maxMs": 1.2000000476837158
+          },
+          "provider": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "measurement": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0.10000002384185791,
+            "maxMs": 0.10000002384185791
+          },
+          "acceptance": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0.10000002384185791,
+            "maxMs": 0.10000002384185791
+          },
+          "pagination": {
+            "sampleCount": 25,
+            "minMs": 0.2999999523162842,
+            "p50Ms": 0.40000003576278687,
+            "p95Ms": 1,
+            "maxMs": 1
+          },
+          "coreBoundary": {
+            "sampleCount": 25,
+            "minMs": 0.2999999523162842,
+            "p50Ms": 0.5,
+            "p95Ms": 1.0999999642372131,
+            "maxMs": 1.100000023841858
+          },
+          "providerInvocationCount": 0
+        }
+      }
+    },
+    {
+      "rowId": "live-draft-xr2-medium-mixed",
+      "fixtureId": "xr2-derived-accepted-smoke-rows",
+      "scenarioId": "xr2-one-block-medium",
+      "scale": "medium",
+      "textLength": 743,
+      "geometry": {
+        "availableWidthPt": 180,
+        "fontSizePt": 12,
+        "lineHeightPt": 18,
+        "pageBodyHeightPt": 252
+      },
+      "status": "matched",
+      "parity": {
+        "normalizedEngineResultExact": true,
+        "coreLineGeometryAndPaginationExact": true,
+        "allRepeatedSamplesConsistent": true,
+        "coldCacheMissesExact": true,
+        "warmCacheHitsExact": true,
+        "normalizedResultSha256": "ce6a645cee52b7057dfabeb85838d640d33a6f79ee87383a1bb4175d9ed6c94d",
+        "coreCorrectnessSha256": "9daaf953280e415c7c97fb841d7e7c6ef3d81d9b71c3f791b9abba3209846939"
+      },
+      "correctness": {
+        "contractVersion": "core-live-draft-one-block-xr2-v1",
+        "measurement": {
+          "widthPt": 165.936,
+          "heightPt": 432,
+          "lineHeightPt": 18,
+          "lineBoxes": [
+            {
+              "index": 0,
+              "startOffset": 0,
+              "endOffset": 31,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 0
+            },
+            {
+              "index": 1,
+              "startOffset": 31,
+              "endOffset": 62,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 18
+            },
+            {
+              "index": 2,
+              "startOffset": 62,
+              "endOffset": 93,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 36
+            },
+            {
+              "index": 3,
+              "startOffset": 93,
+              "endOffset": 124,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 54
+            },
+            {
+              "index": 4,
+              "startOffset": 124,
+              "endOffset": 155,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 72
+            },
+            {
+              "index": 5,
+              "startOffset": 155,
+              "endOffset": 186,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 90
+            },
+            {
+              "index": 6,
+              "startOffset": 186,
+              "endOffset": 217,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 108
+            },
+            {
+              "index": 7,
+              "startOffset": 217,
+              "endOffset": 248,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 126
+            },
+            {
+              "index": 8,
+              "startOffset": 248,
+              "endOffset": 279,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 144
+            },
+            {
+              "index": 9,
+              "startOffset": 279,
+              "endOffset": 310,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 162
+            },
+            {
+              "index": 10,
+              "startOffset": 310,
+              "endOffset": 341,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 180
+            },
+            {
+              "index": 11,
+              "startOffset": 341,
+              "endOffset": 372,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 198
+            },
+            {
+              "index": 12,
+              "startOffset": 372,
+              "endOffset": 403,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 216
+            },
+            {
+              "index": 13,
+              "startOffset": 403,
+              "endOffset": 434,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 234
+            },
+            {
+              "index": 14,
+              "startOffset": 434,
+              "endOffset": 465,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 252
+            },
+            {
+              "index": 15,
+              "startOffset": 465,
+              "endOffset": 496,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 270
+            },
+            {
+              "index": 16,
+              "startOffset": 496,
+              "endOffset": 527,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 288
+            },
+            {
+              "index": 17,
+              "startOffset": 527,
+              "endOffset": 558,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 306
+            },
+            {
+              "index": 18,
+              "startOffset": 558,
+              "endOffset": 589,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 324
+            },
+            {
+              "index": 19,
+              "startOffset": 589,
+              "endOffset": 620,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 342
+            },
+            {
+              "index": 20,
+              "startOffset": 620,
+              "endOffset": 651,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 360
+            },
+            {
+              "index": 21,
+              "startOffset": 651,
+              "endOffset": 682,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 378
+            },
+            {
+              "index": 22,
+              "startOffset": 682,
+              "endOffset": 713,
+              "widthPt": 165.936,
+              "heightPt": 18,
+              "yOffsetPt": 396
+            },
+            {
+              "index": 23,
+              "startOffset": 713,
+              "endOffset": 743,
+              "widthPt": 163.02,
+              "heightPt": 18,
+              "yOffsetPt": 414
+            }
+          ]
+        },
+        "acceptanceSummary": {
+          "lineCount": 24,
+          "renderedLength": 743,
+          "totalHeightPt": 432
+        },
+        "pagination": {
+          "status": "complete",
+          "measurementFingerprint": "sha256:e19e1f5d50c31d1bb4a8c6430a79afcda83a7a371a734263c042563ab3af45a9",
+          "fingerprint": "sha256:9dc484e964ed47150ccee9da3e2e4ea4ff9c14ce2a709263875ac35231bf853f",
+          "summary": {
+            "pageCount": 2,
+            "fragmentCount": 2,
+            "lineCount": 24,
+            "splitAcrossPages": true
+          },
+          "work": {
+            "pageAttemptCount": 2,
+            "lineVisitCount": 25,
+            "cursorCommitCount": 2
+          },
+          "pages": [
+            {
+              "familyPageIndex": 0,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:a7cc9cbcacf651241f3d9e494980681c58682590c427513febcc94b94e69cdeb",
+              "lineStartIndex": 0,
+              "lineEndIndexExclusive": 14,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 1,
+              "availableHeightPt": 252,
+              "usedHeightPt": 180,
+              "remainingHeightPt": 72,
+              "fragmentFingerprint": "sha256:9615c608feb68e3e7f5f9044d8e4e4ffd6ded168ff4fe2a8aa4760d9ec210903",
+              "lineStartIndex": 14,
+              "lineEndIndexExclusive": 24,
+              "heightPt": 180
+            }
+          ]
+        }
+      },
+      "node": {
+        "runtimeIdentity": {
+          "runtime": "node-native",
+          "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+          "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+          "wasmExecution": false,
+          "executesRustybuzz": true,
+          "executesIcu4x": true
+        },
+        "cold": {
+          "total": {
+            "sampleCount": 5,
+            "minMs": 148.90499999999975,
+            "p50Ms": 151.0592000000006,
+            "p95Ms": 188.6283000000003,
+            "maxMs": 188.6283000000003
+          },
+          "provider": {
+            "sampleCount": 5,
+            "minMs": 145.41480000000047,
+            "p50Ms": 147.78590000000077,
+            "p95Ms": 179.6217000000006,
+            "maxMs": 179.6217000000006
+          },
+          "measurement": {
+            "sampleCount": 5,
+            "minMs": 145.47450000000026,
+            "p50Ms": 147.95799999999963,
+            "p95Ms": 179.91959999999926,
+            "maxMs": 179.91959999999926
+          },
+          "acceptance": {
+            "sampleCount": 5,
+            "minMs": 0.08920000000034634,
+            "p50Ms": 0.09830000000056316,
+            "p95Ms": 0.1617999999998574,
+            "maxMs": 0.1617999999998574
+          },
+          "pagination": {
+            "sampleCount": 5,
+            "minMs": 2.7417999999997846,
+            "p50Ms": 3.3195000000005166,
+            "p95Ms": 8.565299999999297,
+            "maxMs": 8.565299999999297
+          },
+          "coreBoundary": {
+            "sampleCount": 5,
+            "minMs": 148.89289999999983,
+            "p50Ms": 151.0003999999999,
+            "p95Ms": 188.6148000000003,
+            "maxMs": 188.6148000000003
+          },
+          "providerInvocationCount": 5
+        },
+        "warm": {
+          "total": {
+            "sampleCount": 25,
+            "minMs": 2.300100000000384,
+            "p50Ms": 3.7163000000000466,
+            "p95Ms": 5.864999999999782,
+            "maxMs": 13.086900000000242
+          },
+          "provider": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "measurement": {
+            "sampleCount": 25,
+            "minMs": 0.011300000000119326,
+            "p50Ms": 0.024400000000241562,
+            "p95Ms": 0.06600000000071304,
+            "maxMs": 0.16570000000137952
+          },
+          "acceptance": {
+            "sampleCount": 25,
+            "minMs": 0.050900000000183354,
+            "p50Ms": 0.08830000000125438,
+            "p95Ms": 0.22860000000036962,
+            "maxMs": 0.30709999999999127
+          },
+          "pagination": {
+            "sampleCount": 25,
+            "minMs": 2.216899999999441,
+            "p50Ms": 3.4622999999992317,
+            "p95Ms": 5.5575000000008,
+            "maxMs": 12.8125
+          },
+          "coreBoundary": {
+            "sampleCount": 25,
+            "minMs": 2.29569999999876,
+            "p50Ms": 3.702900000000227,
+            "p95Ms": 5.847900000000664,
+            "maxMs": 13.071900000000824
+          },
+          "providerInvocationCount": 0
+        }
+      },
+      "browserWorker": {
+        "cold": {
+          "roundTrip": {
+            "sampleCount": 5,
+            "minMs": 15.099999964237213,
+            "p50Ms": 17.69999998807907,
+            "p95Ms": 21.899999976158142,
+            "maxMs": 21.899999976158142
+          },
+          "worker": {
+            "sampleCount": 5,
+            "minMs": 13.800000011920929,
+            "p50Ms": 16.100000023841858,
+            "p95Ms": 21,
+            "maxMs": 21
+          },
+          "provider": {
+            "sampleCount": 5,
+            "minMs": 7.899999976158142,
+            "p50Ms": 8.699999988079071,
+            "p95Ms": 14.599999964237213,
+            "maxMs": 14.599999964237213
+          },
+          "measurement": {
+            "sampleCount": 5,
+            "minMs": 8.099999964237213,
+            "p50Ms": 8.800000011920929,
+            "p95Ms": 14.599999964237213,
+            "maxMs": 14.599999964237213
+          },
+          "acceptance": {
+            "sampleCount": 5,
+            "minMs": 0,
+            "p50Ms": 0.10000002384185791,
+            "p95Ms": 0.19999998807907104,
+            "maxMs": 0.19999998807907104
+          },
+          "pagination": {
+            "sampleCount": 5,
+            "minMs": 4.300000011920929,
+            "p50Ms": 4.900000035762787,
+            "p95Ms": 12.900000035762787,
+            "maxMs": 12.900000035762787
+          },
+          "coreBoundary": {
+            "sampleCount": 5,
+            "minMs": 13.800000011920929,
+            "p50Ms": 16.100000023841858,
+            "p95Ms": 21,
+            "maxMs": 21
+          },
+          "providerInvocationCount": 5
+        },
+        "warm": {
+          "roundTrip": {
+            "sampleCount": 25,
+            "minMs": 4.599999964237213,
+            "p50Ms": 6.199999988079071,
+            "p95Ms": 8.399999976158142,
+            "maxMs": 8.5
+          },
+          "worker": {
+            "sampleCount": 25,
+            "minMs": 3,
+            "p50Ms": 4.600000023841858,
+            "p95Ms": 5.899999976158142,
+            "maxMs": 6.100000023841858
+          },
+          "provider": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "measurement": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0.10000002384185791,
+            "maxMs": 0.10000002384185791
+          },
+          "acceptance": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0.10000002384185791,
+            "p95Ms": 0.30000001192092896,
+            "maxMs": 0.3999999761581421
+          },
+          "pagination": {
+            "sampleCount": 25,
+            "minMs": 2.899999976158142,
+            "p50Ms": 4.5,
+            "p95Ms": 5.5,
+            "maxMs": 5.600000023841858
+          },
+          "coreBoundary": {
+            "sampleCount": 25,
+            "minMs": 2.899999976158142,
+            "p50Ms": 4.600000023841858,
+            "p95Ms": 5.899999976158142,
+            "maxMs": 6
+          },
+          "providerInvocationCount": 0
+        }
+      }
+    },
+    {
+      "rowId": "live-draft-xr2-long-mixed",
+      "fixtureId": "xr2-derived-accepted-smoke-rows",
+      "scenarioId": "xr2-one-block-long",
+      "scale": "long",
+      "textLength": 4959,
+      "geometry": {
+        "availableWidthPt": 240,
+        "fontSizePt": 12,
+        "lineHeightPt": 18,
+        "pageBodyHeightPt": 252
+      },
+      "status": "matched",
+      "parity": {
+        "normalizedEngineResultExact": true,
+        "coreLineGeometryAndPaginationExact": true,
+        "allRepeatedSamplesConsistent": true,
+        "coldCacheMissesExact": true,
+        "warmCacheHitsExact": true,
+        "normalizedResultSha256": "a196af9f84fa60014b015cbbee32b3c509543eb8d52c5e3207028e31197cf233",
+        "coreCorrectnessSha256": "e9cf46c10a253fa9690595a72de6b324169e1a1eb1a9b4a80e3eb6e26c49a722"
+      },
+      "correctness": {
+        "contractVersion": "core-live-draft-one-block-xr2-v1",
+        "measurement": {
+          "widthPt": 236.58,
+          "heightPt": 2160,
+          "lineHeightPt": 18,
+          "lineBoxes": [
+            {
+              "index": 0,
+              "startOffset": 0,
+              "endOffset": 45,
+              "widthPt": 231.456,
+              "heightPt": 18,
+              "yOffsetPt": 0
+            },
+            {
+              "index": 1,
+              "startOffset": 45,
+              "endOffset": 85,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 18
+            },
+            {
+              "index": 2,
+              "startOffset": 85,
+              "endOffset": 128,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 36
+            },
+            {
+              "index": 3,
+              "startOffset": 128,
+              "endOffset": 169,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 54
+            },
+            {
+              "index": 4,
+              "startOffset": 169,
+              "endOffset": 209,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 72
+            },
+            {
+              "index": 5,
+              "startOffset": 209,
+              "endOffset": 252,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 90
+            },
+            {
+              "index": 6,
+              "startOffset": 252,
+              "endOffset": 293,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 108
+            },
+            {
+              "index": 7,
+              "startOffset": 293,
+              "endOffset": 333,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 126
+            },
+            {
+              "index": 8,
+              "startOffset": 333,
+              "endOffset": 376,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 144
+            },
+            {
+              "index": 9,
+              "startOffset": 376,
+              "endOffset": 417,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 162
+            },
+            {
+              "index": 10,
+              "startOffset": 417,
+              "endOffset": 457,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 180
+            },
+            {
+              "index": 11,
+              "startOffset": 457,
+              "endOffset": 500,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 198
+            },
+            {
+              "index": 12,
+              "startOffset": 500,
+              "endOffset": 541,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 216
+            },
+            {
+              "index": 13,
+              "startOffset": 541,
+              "endOffset": 581,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 234
+            },
+            {
+              "index": 14,
+              "startOffset": 581,
+              "endOffset": 624,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 252
+            },
+            {
+              "index": 15,
+              "startOffset": 624,
+              "endOffset": 665,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 270
+            },
+            {
+              "index": 16,
+              "startOffset": 665,
+              "endOffset": 705,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 288
+            },
+            {
+              "index": 17,
+              "startOffset": 705,
+              "endOffset": 748,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 306
+            },
+            {
+              "index": 18,
+              "startOffset": 748,
+              "endOffset": 789,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 324
+            },
+            {
+              "index": 19,
+              "startOffset": 789,
+              "endOffset": 829,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 342
+            },
+            {
+              "index": 20,
+              "startOffset": 829,
+              "endOffset": 872,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 360
+            },
+            {
+              "index": 21,
+              "startOffset": 872,
+              "endOffset": 913,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 378
+            },
+            {
+              "index": 22,
+              "startOffset": 913,
+              "endOffset": 953,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 396
+            },
+            {
+              "index": 23,
+              "startOffset": 953,
+              "endOffset": 996,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 414
+            },
+            {
+              "index": 24,
+              "startOffset": 996,
+              "endOffset": 1037,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 432
+            },
+            {
+              "index": 25,
+              "startOffset": 1037,
+              "endOffset": 1077,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 450
+            },
+            {
+              "index": 26,
+              "startOffset": 1077,
+              "endOffset": 1120,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 468
+            },
+            {
+              "index": 27,
+              "startOffset": 1120,
+              "endOffset": 1161,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 486
+            },
+            {
+              "index": 28,
+              "startOffset": 1161,
+              "endOffset": 1201,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 504
+            },
+            {
+              "index": 29,
+              "startOffset": 1201,
+              "endOffset": 1244,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 522
+            },
+            {
+              "index": 30,
+              "startOffset": 1244,
+              "endOffset": 1285,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 540
+            },
+            {
+              "index": 31,
+              "startOffset": 1285,
+              "endOffset": 1325,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 558
+            },
+            {
+              "index": 32,
+              "startOffset": 1325,
+              "endOffset": 1368,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 576
+            },
+            {
+              "index": 33,
+              "startOffset": 1368,
+              "endOffset": 1409,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 594
+            },
+            {
+              "index": 34,
+              "startOffset": 1409,
+              "endOffset": 1449,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 612
+            },
+            {
+              "index": 35,
+              "startOffset": 1449,
+              "endOffset": 1492,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 630
+            },
+            {
+              "index": 36,
+              "startOffset": 1492,
+              "endOffset": 1533,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 648
+            },
+            {
+              "index": 37,
+              "startOffset": 1533,
+              "endOffset": 1573,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 666
+            },
+            {
+              "index": 38,
+              "startOffset": 1573,
+              "endOffset": 1616,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 684
+            },
+            {
+              "index": 39,
+              "startOffset": 1616,
+              "endOffset": 1657,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 702
+            },
+            {
+              "index": 40,
+              "startOffset": 1657,
+              "endOffset": 1697,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 720
+            },
+            {
+              "index": 41,
+              "startOffset": 1697,
+              "endOffset": 1740,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 738
+            },
+            {
+              "index": 42,
+              "startOffset": 1740,
+              "endOffset": 1781,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 756
+            },
+            {
+              "index": 43,
+              "startOffset": 1781,
+              "endOffset": 1821,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 774
+            },
+            {
+              "index": 44,
+              "startOffset": 1821,
+              "endOffset": 1864,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 792
+            },
+            {
+              "index": 45,
+              "startOffset": 1864,
+              "endOffset": 1905,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 810
+            },
+            {
+              "index": 46,
+              "startOffset": 1905,
+              "endOffset": 1945,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 828
+            },
+            {
+              "index": 47,
+              "startOffset": 1945,
+              "endOffset": 1988,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 846
+            },
+            {
+              "index": 48,
+              "startOffset": 1988,
+              "endOffset": 2029,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 864
+            },
+            {
+              "index": 49,
+              "startOffset": 2029,
+              "endOffset": 2069,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 882
+            },
+            {
+              "index": 50,
+              "startOffset": 2069,
+              "endOffset": 2112,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 900
+            },
+            {
+              "index": 51,
+              "startOffset": 2112,
+              "endOffset": 2153,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 918
+            },
+            {
+              "index": 52,
+              "startOffset": 2153,
+              "endOffset": 2193,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 936
+            },
+            {
+              "index": 53,
+              "startOffset": 2193,
+              "endOffset": 2236,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 954
+            },
+            {
+              "index": 54,
+              "startOffset": 2236,
+              "endOffset": 2277,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 972
+            },
+            {
+              "index": 55,
+              "startOffset": 2277,
+              "endOffset": 2317,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 990
+            },
+            {
+              "index": 56,
+              "startOffset": 2317,
+              "endOffset": 2360,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1008
+            },
+            {
+              "index": 57,
+              "startOffset": 2360,
+              "endOffset": 2401,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1026
+            },
+            {
+              "index": 58,
+              "startOffset": 2401,
+              "endOffset": 2441,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1044
+            },
+            {
+              "index": 59,
+              "startOffset": 2441,
+              "endOffset": 2484,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1062
+            },
+            {
+              "index": 60,
+              "startOffset": 2484,
+              "endOffset": 2525,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1080
+            },
+            {
+              "index": 61,
+              "startOffset": 2525,
+              "endOffset": 2565,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1098
+            },
+            {
+              "index": 62,
+              "startOffset": 2565,
+              "endOffset": 2608,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1116
+            },
+            {
+              "index": 63,
+              "startOffset": 2608,
+              "endOffset": 2649,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1134
+            },
+            {
+              "index": 64,
+              "startOffset": 2649,
+              "endOffset": 2689,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1152
+            },
+            {
+              "index": 65,
+              "startOffset": 2689,
+              "endOffset": 2732,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1170
+            },
+            {
+              "index": 66,
+              "startOffset": 2732,
+              "endOffset": 2773,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1188
+            },
+            {
+              "index": 67,
+              "startOffset": 2773,
+              "endOffset": 2813,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1206
+            },
+            {
+              "index": 68,
+              "startOffset": 2813,
+              "endOffset": 2856,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1224
+            },
+            {
+              "index": 69,
+              "startOffset": 2856,
+              "endOffset": 2897,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1242
+            },
+            {
+              "index": 70,
+              "startOffset": 2897,
+              "endOffset": 2937,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1260
+            },
+            {
+              "index": 71,
+              "startOffset": 2937,
+              "endOffset": 2980,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1278
+            },
+            {
+              "index": 72,
+              "startOffset": 2980,
+              "endOffset": 3021,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1296
+            },
+            {
+              "index": 73,
+              "startOffset": 3021,
+              "endOffset": 3061,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1314
+            },
+            {
+              "index": 74,
+              "startOffset": 3061,
+              "endOffset": 3104,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1332
+            },
+            {
+              "index": 75,
+              "startOffset": 3104,
+              "endOffset": 3145,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1350
+            },
+            {
+              "index": 76,
+              "startOffset": 3145,
+              "endOffset": 3185,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1368
+            },
+            {
+              "index": 77,
+              "startOffset": 3185,
+              "endOffset": 3228,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1386
+            },
+            {
+              "index": 78,
+              "startOffset": 3228,
+              "endOffset": 3269,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1404
+            },
+            {
+              "index": 79,
+              "startOffset": 3269,
+              "endOffset": 3309,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1422
+            },
+            {
+              "index": 80,
+              "startOffset": 3309,
+              "endOffset": 3352,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1440
+            },
+            {
+              "index": 81,
+              "startOffset": 3352,
+              "endOffset": 3393,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1458
+            },
+            {
+              "index": 82,
+              "startOffset": 3393,
+              "endOffset": 3433,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1476
+            },
+            {
+              "index": 83,
+              "startOffset": 3433,
+              "endOffset": 3476,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1494
+            },
+            {
+              "index": 84,
+              "startOffset": 3476,
+              "endOffset": 3517,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1512
+            },
+            {
+              "index": 85,
+              "startOffset": 3517,
+              "endOffset": 3557,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1530
+            },
+            {
+              "index": 86,
+              "startOffset": 3557,
+              "endOffset": 3600,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1548
+            },
+            {
+              "index": 87,
+              "startOffset": 3600,
+              "endOffset": 3641,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1566
+            },
+            {
+              "index": 88,
+              "startOffset": 3641,
+              "endOffset": 3681,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1584
+            },
+            {
+              "index": 89,
+              "startOffset": 3681,
+              "endOffset": 3724,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1602
+            },
+            {
+              "index": 90,
+              "startOffset": 3724,
+              "endOffset": 3765,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1620
+            },
+            {
+              "index": 91,
+              "startOffset": 3765,
+              "endOffset": 3805,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1638
+            },
+            {
+              "index": 92,
+              "startOffset": 3805,
+              "endOffset": 3848,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1656
+            },
+            {
+              "index": 93,
+              "startOffset": 3848,
+              "endOffset": 3889,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1674
+            },
+            {
+              "index": 94,
+              "startOffset": 3889,
+              "endOffset": 3929,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1692
+            },
+            {
+              "index": 95,
+              "startOffset": 3929,
+              "endOffset": 3972,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1710
+            },
+            {
+              "index": 96,
+              "startOffset": 3972,
+              "endOffset": 4013,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1728
+            },
+            {
+              "index": 97,
+              "startOffset": 4013,
+              "endOffset": 4053,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1746
+            },
+            {
+              "index": 98,
+              "startOffset": 4053,
+              "endOffset": 4096,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1764
+            },
+            {
+              "index": 99,
+              "startOffset": 4096,
+              "endOffset": 4137,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1782
+            },
+            {
+              "index": 100,
+              "startOffset": 4137,
+              "endOffset": 4177,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1800
+            },
+            {
+              "index": 101,
+              "startOffset": 4177,
+              "endOffset": 4220,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1818
+            },
+            {
+              "index": 102,
+              "startOffset": 4220,
+              "endOffset": 4261,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1836
+            },
+            {
+              "index": 103,
+              "startOffset": 4261,
+              "endOffset": 4301,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1854
+            },
+            {
+              "index": 104,
+              "startOffset": 4301,
+              "endOffset": 4344,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1872
+            },
+            {
+              "index": 105,
+              "startOffset": 4344,
+              "endOffset": 4385,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1890
+            },
+            {
+              "index": 106,
+              "startOffset": 4385,
+              "endOffset": 4425,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1908
+            },
+            {
+              "index": 107,
+              "startOffset": 4425,
+              "endOffset": 4468,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1926
+            },
+            {
+              "index": 108,
+              "startOffset": 4468,
+              "endOffset": 4509,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1944
+            },
+            {
+              "index": 109,
+              "startOffset": 4509,
+              "endOffset": 4549,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 1962
+            },
+            {
+              "index": 110,
+              "startOffset": 4549,
+              "endOffset": 4592,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 1980
+            },
+            {
+              "index": 111,
+              "startOffset": 4592,
+              "endOffset": 4633,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 1998
+            },
+            {
+              "index": 112,
+              "startOffset": 4633,
+              "endOffset": 4673,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 2016
+            },
+            {
+              "index": 113,
+              "startOffset": 4673,
+              "endOffset": 4716,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 2034
+            },
+            {
+              "index": 114,
+              "startOffset": 4716,
+              "endOffset": 4757,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 2052
+            },
+            {
+              "index": 115,
+              "startOffset": 4757,
+              "endOffset": 4797,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 2070
+            },
+            {
+              "index": 116,
+              "startOffset": 4797,
+              "endOffset": 4840,
+              "widthPt": 236.58,
+              "heightPt": 18,
+              "yOffsetPt": 2088
+            },
+            {
+              "index": 117,
+              "startOffset": 4840,
+              "endOffset": 4881,
+              "widthPt": 211.392,
+              "heightPt": 18,
+              "yOffsetPt": 2106
+            },
+            {
+              "index": 118,
+              "startOffset": 4881,
+              "endOffset": 4921,
+              "widthPt": 215.772,
+              "heightPt": 18,
+              "yOffsetPt": 2124
+            },
+            {
+              "index": 119,
+              "startOffset": 4921,
+              "endOffset": 4959,
+              "widthPt": 213.6,
+              "heightPt": 18,
+              "yOffsetPt": 2142
+            }
+          ]
+        },
+        "acceptanceSummary": {
+          "lineCount": 120,
+          "renderedLength": 4959,
+          "totalHeightPt": 2160
+        },
+        "pagination": {
+          "status": "complete",
+          "measurementFingerprint": "sha256:2bafe3f1ca59e857592d0266aa6e24b904dc2eb91fb9cfa2e772c38f89e26b97",
+          "fingerprint": "sha256:9dc91c47b67d2470c3b7b8fa2a1cbe0aeca8b8f177d34bb95582540ce80e5575",
+          "summary": {
+            "pageCount": 9,
+            "fragmentCount": 9,
+            "lineCount": 120,
+            "splitAcrossPages": true
+          },
+          "work": {
+            "pageAttemptCount": 9,
+            "lineVisitCount": 128,
+            "cursorCommitCount": 9
+          },
+          "pages": [
+            {
+              "familyPageIndex": 0,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:0cd898cd627452b647f9aa02026c575bfd0f30405eb6ec8bd8cd2167a53ae01f",
+              "lineStartIndex": 0,
+              "lineEndIndexExclusive": 14,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 1,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:3787fa6eb85cbc49a82f697686cf201a4c8a6cc41020b8714db36f606391bd12",
+              "lineStartIndex": 14,
+              "lineEndIndexExclusive": 28,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 2,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:6de3a351f0e13d89e0c199f5bd222dafef20fefb42a98834f5c0072173c4e4ad",
+              "lineStartIndex": 28,
+              "lineEndIndexExclusive": 42,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 3,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:c9f76f5baf5397120819c38be071927ceb98e40209bda7f6abd269231661108a",
+              "lineStartIndex": 42,
+              "lineEndIndexExclusive": 56,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 4,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:5d0cc78f36bcf821045e717cdc413179192cfcb66fa5d18f3d91c6fe9fe34ab5",
+              "lineStartIndex": 56,
+              "lineEndIndexExclusive": 70,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 5,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:fe6bcd6b8ed1f793644c4e182aac1f30653a71c39c17bfef0e38a2ad26cf596f",
+              "lineStartIndex": 70,
+              "lineEndIndexExclusive": 84,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 6,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:deb6e1982a41017c4e19758ca859fb0f3f9eb6e7384bf02b82690eab7a75241d",
+              "lineStartIndex": 84,
+              "lineEndIndexExclusive": 98,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 7,
+              "availableHeightPt": 252,
+              "usedHeightPt": 252,
+              "remainingHeightPt": 0,
+              "fragmentFingerprint": "sha256:fbb15ce39d5a1b2e2d5b516826d4a1f0e9e240672dda0e3eb4009c2f86e20dea",
+              "lineStartIndex": 98,
+              "lineEndIndexExclusive": 112,
+              "heightPt": 252
+            },
+            {
+              "familyPageIndex": 8,
+              "availableHeightPt": 252,
+              "usedHeightPt": 144,
+              "remainingHeightPt": 108,
+              "fragmentFingerprint": "sha256:e7d195edacca68a5e3dadb0bf37003bd9e683cbf52f621dee91453d7a29ffbff",
+              "lineStartIndex": 112,
+              "lineEndIndexExclusive": 120,
+              "heightPt": 144
+            }
+          ]
+        }
+      },
+      "node": {
+        "runtimeIdentity": {
+          "runtime": "node-native",
+          "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+          "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+          "wasmExecution": false,
+          "executesRustybuzz": true,
+          "executesIcu4x": true
+        },
+        "cold": {
+          "total": {
+            "sampleCount": 5,
+            "minMs": 833.4992000000002,
+            "p50Ms": 878.2771000000012,
+            "p95Ms": 891.1240999999991,
+            "maxMs": 891.1240999999991
+          },
+          "provider": {
+            "sampleCount": 5,
+            "minMs": 812.9957000000013,
+            "p50Ms": 863.5800999999992,
+            "p95Ms": 870.0681999999997,
+            "maxMs": 870.0681999999997
+          },
+          "measurement": {
+            "sampleCount": 5,
+            "minMs": 813.0830000000005,
+            "p50Ms": 863.7446,
+            "p95Ms": 870.2114000000001,
+            "maxMs": 870.2114000000001
+          },
+          "acceptance": {
+            "sampleCount": 5,
+            "minMs": 0.2665000000015425,
+            "p50Ms": 0.4827000000004773,
+            "p95Ms": 0.6620999999995547,
+            "maxMs": 0.6620999999995547
+          },
+          "pagination": {
+            "sampleCount": 5,
+            "minMs": 13.287100000001374,
+            "p50Ms": 13.823200000000725,
+            "p95Ms": 20.31289999999899,
+            "maxMs": 20.31289999999899
+          },
+          "coreBoundary": {
+            "sampleCount": 5,
+            "minMs": 833.485200000001,
+            "p50Ms": 878.2576000000008,
+            "p95Ms": 891.0745999999999,
+            "maxMs": 891.0745999999999
+          },
+          "providerInvocationCount": 5
+        },
+        "warm": {
+          "total": {
+            "sampleCount": 25,
+            "minMs": 13.834399999999732,
+            "p50Ms": 23.66319999999905,
+            "p95Ms": 29.797700000000987,
+            "maxMs": 31.726399999999558
+          },
+          "provider": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "measurement": {
+            "sampleCount": 25,
+            "minMs": 0.026199999998425483,
+            "p50Ms": 0.060499999999592546,
+            "p95Ms": 0.09439999999995052,
+            "maxMs": 0.11230000000068685
+          },
+          "acceptance": {
+            "sampleCount": 25,
+            "minMs": 0.21059999999852153,
+            "p50Ms": 0.4839000000010856,
+            "p95Ms": 0.8274999999994179,
+            "maxMs": 0.8420999999998457
+          },
+          "pagination": {
+            "sampleCount": 25,
+            "minMs": 13.535900000000765,
+            "p50Ms": 23.123199999999997,
+            "p95Ms": 29.12199999999939,
+            "maxMs": 30.77350000000115
+          },
+          "coreBoundary": {
+            "sampleCount": 25,
+            "minMs": 13.820600000000923,
+            "p50Ms": 23.64760000000024,
+            "p95Ms": 29.776899999998932,
+            "maxMs": 31.704100000000835
+          },
+          "providerInvocationCount": 0
+        }
+      },
+      "browserWorker": {
+        "cold": {
+          "roundTrip": {
+            "sampleCount": 5,
+            "minMs": 53.60000002384186,
+            "p50Ms": 62,
+            "p95Ms": 95.80000001192093,
+            "maxMs": 95.80000001192093
+          },
+          "worker": {
+            "sampleCount": 5,
+            "minMs": 48.39999997615814,
+            "p50Ms": 55.09999996423721,
+            "p95Ms": 90.80000001192093,
+            "maxMs": 90.80000001192093
+          },
+          "provider": {
+            "sampleCount": 5,
+            "minMs": 36.30000001192093,
+            "p50Ms": 42.10000002384186,
+            "p95Ms": 77.59999996423721,
+            "maxMs": 77.59999996423721
+          },
+          "measurement": {
+            "sampleCount": 5,
+            "minMs": 36.39999997615814,
+            "p50Ms": 42.19999998807907,
+            "p95Ms": 78,
+            "maxMs": 78
+          },
+          "acceptance": {
+            "sampleCount": 5,
+            "minMs": 0,
+            "p50Ms": 0.3999999761581421,
+            "p95Ms": 0.40000003576278687,
+            "maxMs": 0.40000003576278687
+          },
+          "pagination": {
+            "sampleCount": 5,
+            "minMs": 10.300000011920929,
+            "p50Ms": 11.899999976158142,
+            "p95Ms": 12.599999964237213,
+            "maxMs": 12.599999964237213
+          },
+          "coreBoundary": {
+            "sampleCount": 5,
+            "minMs": 48.39999997615814,
+            "p50Ms": 55,
+            "p95Ms": 90.80000001192093,
+            "maxMs": 90.80000001192093
+          },
+          "providerInvocationCount": 5
+        },
+        "warm": {
+          "roundTrip": {
+            "sampleCount": 25,
+            "minMs": 14,
+            "p50Ms": 17.30000001192093,
+            "p95Ms": 22.899999976158142,
+            "maxMs": 23.700000047683716
+          },
+          "worker": {
+            "sampleCount": 25,
+            "minMs": 9.5,
+            "p50Ms": 12.599999964237213,
+            "p95Ms": 15.600000023841858,
+            "maxMs": 16.399999976158142
+          },
+          "provider": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0,
+            "maxMs": 0
+          },
+          "measurement": {
+            "sampleCount": 25,
+            "minMs": 0,
+            "p50Ms": 0,
+            "p95Ms": 0.10000002384185791,
+            "maxMs": 0.19999998807907104
+          },
+          "acceptance": {
+            "sampleCount": 25,
+            "minMs": 0.10000002384185791,
+            "p50Ms": 0.20000004768371582,
+            "p95Ms": 0.40000003576278687,
+            "maxMs": 0.40000003576278687
+          },
+          "pagination": {
+            "sampleCount": 25,
+            "minMs": 9.300000011920929,
+            "p50Ms": 12.100000023841858,
+            "p95Ms": 15.200000047683716,
+            "maxMs": 16
+          },
+          "coreBoundary": {
+            "sampleCount": 25,
+            "minMs": 9.400000035762787,
+            "p50Ms": 12.400000035762787,
+            "p95Ms": 15.5,
+            "maxMs": 16.299999952316284
+          },
+          "providerInvocationCount": 0
+        }
+      }
+    }
+  ],
+  "interpretation": {
+    "performanceBudgetDefined": false,
+    "measurementsAreObservational": true,
+    "cacheHitAvoidsEngineProvider": true,
+    "boundedWorkloadParityOnly": true
+  },
+  "scope": {
+    "productionBinding": false,
+    "defaultMeasurerReplacement": false,
+    "formBinding": false,
+    "editorUiBinding": false,
+    "backendRequestPerKeystroke": false,
+    "wholeDocumentIncrementalInvalidation": false,
+    "productionPerformanceClaim": false
+  }
+}

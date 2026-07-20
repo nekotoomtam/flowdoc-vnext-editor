@@ -1,4 +1,5 @@
 import type { FlowDocTextEngineLiveDraftNormalizedResultV1 } from "@flowdoc/text-engine-rust-wasm/worker"
+import type { CoreLiveDraftOneBlockLayoutResultV1 } from "../../core/coreAdapter"
 
 export const FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION = 1 as const
 export const FLOWDOC_LIVE_DRAFT_EXACTNESS_STATES = [
@@ -51,6 +52,14 @@ export interface FlowDocLiveDraftLayoutRequestV1 {
     fontId: string
     fontSha256: string
   }
+  coreLayout?: {
+    availableWidthPt: number
+    fontSizePt: number
+    lineHeightPt: number
+    pageBodyHeightPt: number
+    styleKey: string
+    cacheAction: "retain" | "clear-before"
+  }
 }
 
 export interface FlowDocLiveDraftCancelRequestV1 {
@@ -72,6 +81,7 @@ export interface FlowDocLiveDraftWorkerResultV1 {
   identity: FlowDocLiveDraftRequestIdentityV1
   smokeRow: FlowDocLiveDraftLayoutRequestV1["smokeRow"]
   measurement: FlowDocTextEngineLiveDraftNormalizedResultV1
+  coreLayout?: CoreLiveDraftOneBlockLayoutResultV1
   durationMs: number
 }
 
@@ -110,6 +120,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value != null && typeof value === "object" && !Array.isArray(value)
 }
 
+function isPositiveFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+}
+
 export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiveDraftWorkerRequestV1 | null {
   if (!isRecord(value) || value.protocolVersion !== FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION) return null
   if (value.type === "live-draft.initialize") {
@@ -128,6 +142,7 @@ export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiv
   if (value.type !== "live-draft.layout" || !isRecord(value.identity) || !isRecord(value.smokeRow)) return null
   const identity = value.identity
   const row = value.smokeRow
+  const coreLayout = value.coreLayout
   if (
     typeof identity.documentId !== "string"
     || !Number.isSafeInteger(identity.structureRevision)
@@ -147,6 +162,16 @@ export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiv
     || typeof row.fontId !== "string"
     || typeof row.fontSha256 !== "string"
   ) return null
+  if (coreLayout != null && (
+    !isRecord(coreLayout)
+    || !isPositiveFiniteNumber(coreLayout.availableWidthPt)
+    || !isPositiveFiniteNumber(coreLayout.fontSizePt)
+    || !isPositiveFiniteNumber(coreLayout.lineHeightPt)
+    || !isPositiveFiniteNumber(coreLayout.pageBodyHeightPt)
+    || typeof coreLayout.styleKey !== "string"
+    || coreLayout.styleKey.trim().length === 0
+    || (coreLayout.cacheAction !== "retain" && coreLayout.cacheAction !== "clear-before")
+  )) return null
   return value as unknown as FlowDocLiveDraftLayoutRequestV1
 }
 

@@ -52,6 +52,36 @@ describe("LIVE-DRAFT-XR-0 worker protocol", () => {
     expect(parseFlowDocLiveDraftWorkerRequestV1({ ...request, identity: { ...IDENTITY, wasmSha256: null } })).toBeNull()
   })
 
+  it("accepts only bounded XR-2 Core layout options", () => {
+    const request = {
+      protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
+      type: "live-draft.layout",
+      identity: IDENTITY,
+      smokeRow: {
+        rowId: "row-1", fixtureId: "fixture-1", scenarioId: "scenario-1", text: "Prepared summary",
+        fontId: "sarabun-regular", fontSha256: "b".repeat(64),
+      },
+      coreLayout: {
+        availableWidthPt: 180,
+        fontSizePt: 12,
+        lineHeightPt: 18,
+        pageBodyHeightPt: 252,
+        styleKey: "paragraph/body",
+        cacheAction: "clear-before",
+      },
+    }
+
+    expect(parseFlowDocLiveDraftWorkerRequestV1(request)).toEqual(request)
+    expect(parseFlowDocLiveDraftWorkerRequestV1({
+      ...request,
+      coreLayout: { ...request.coreLayout, cacheAction: "unknown" },
+    })).toBeNull()
+    expect(parseFlowDocLiveDraftWorkerRequestV1({
+      ...request,
+      coreLayout: { ...request.coreLayout, availableWidthPt: -1 },
+    })).toBeNull()
+  })
+
   it("rejects a stale result when any pinned identity changes", () => {
     const result = {
       protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,

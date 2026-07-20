@@ -9,6 +9,11 @@ import {
   createVNextDraftStructurePreviewSnapshotV1,
   createVNextCompactFingerprint,
   createVNextPublishedStructureMappingProfileV1,
+  createVNextRendererBackedTextMeasurer,
+  createVNextTextMeasurementCache,
+  measureVNextText,
+  acceptVNextTextBlockV4MeasuredLines,
+  paginateVNextTextFlowV4,
   inspectVNextPackageVersionCapability,
   safeCreateVNextReadOnlyRuntimeSessionV4,
   safeCreateVNextRuntimeSession,
@@ -22,6 +27,8 @@ import {
   type VNextPublishedStructureTestInputProjectionV1,
   type VNextPublishedStructureMappingProfileV1,
   type VNextDraftStructurePreviewSnapshotV1,
+  type VNextRendererTextMeasurementProvider,
+  type VNextTextBlockV4MeasurementRequest,
   type VNextTestInputCollectionItemFieldProjectionV1,
   type VNextTestInputDocumentFieldProjectionV1,
   type VNextTestInputValueConstraintsV1,
@@ -158,4 +165,210 @@ export function parseCoreInlineNodeV4TargetList(
     children.push(parsed.data)
   }
   return { children, status: "valid" }
+}
+
+export const CORE_LIVE_DRAFT_ONE_BLOCK_LAYOUT_VERSION = "core-live-draft-one-block-xr2-v1" as const
+
+export type CoreLiveDraftExternalMeasurementV1 = ReturnType<VNextRendererTextMeasurementProvider["measure"]>
+
+export interface CoreLiveDraftOneBlockLayoutInputV1 {
+  documentId: string
+  instanceRevision: number
+  sectionId: string
+  textBlockId: string
+  text: string
+  availableWidthPt: number
+  pageBodyHeightPt: number
+  styleKey: string
+}
+
+export interface CoreLiveDraftOneBlockLayoutResultV1 {
+  contractVersion: typeof CORE_LIVE_DRAFT_ONE_BLOCK_LAYOUT_VERSION
+  measurement: {
+    cacheStatus: "hit" | "miss" | "uncached"
+    widthPt: number
+    heightPt: number
+    lineHeightPt: number
+    lineBoxes: Array<{
+      index: number
+      text: string
+      startOffset: number
+      endOffset: number
+      widthPt: number
+      heightPt: number
+      yOffsetPt: number
+    }>
+  }
+  acceptanceSummary: { lineCount: number; renderedLength: number; totalHeightPt: number }
+  pagination: {
+    status: "complete"
+    measurementFingerprint: string
+    fingerprint: string
+    summary: { pageCount: number; fragmentCount: number; lineCount: number; splitAcrossPages: boolean }
+    work: { pageAttemptCount: number; lineVisitCount: number; cursorCommitCount: number }
+    pages: Array<{
+      familyPageIndex: number
+      availableHeightPt: number
+      usedHeightPt: number
+      remainingHeightPt: number
+      fragmentFingerprint: string
+      lineStartIndex: number
+      lineEndIndexExclusive: number
+      heightPt: number
+    }>
+  }
+  timings: {
+    providerInvoked: boolean
+    providerMs: number
+    measurementMs: number
+    acceptanceMs: number
+    paginationMs: number
+    coreBoundaryMs: number
+  }
+}
+
+function coreLiveDraftNow(): number {
+  return globalThis.performance.now()
+}
+
+export function createCoreLiveDraftOneBlockLayoutSessionV1(input: {
+  measurementProfileId: string
+  profileRevision: string
+}): {
+  clearCache(): void
+  layout(
+    layoutInput: CoreLiveDraftOneBlockLayoutInputV1,
+    measureExternal: (input: {
+      text: string
+      availableWidthPt: number
+      styleKey: string
+    }) => CoreLiveDraftExternalMeasurementV1,
+  ): CoreLiveDraftOneBlockLayoutResultV1
+} {
+  const cache = createVNextTextMeasurementCache()
+  const profile = {
+    profileId: input.measurementProfileId,
+    availability: "ready" as const,
+    engine: "custom" as const,
+    revision: input.profileRevision,
+    units: "pt",
+    deterministic: true,
+    capabilities: { lineBoxes: true, styleKey: true, availableWidth: true },
+  }
+
+  return {
+    clearCache() {
+      cache.clear()
+    },
+    layout(layoutInput, measureExternal) {
+      let providerInvoked = false
+      let providerMs = 0
+      const measurer = createVNextRendererBackedTextMeasurer(profile, {
+        measure(request) {
+          providerInvoked = true
+          const startedAt = coreLiveDraftNow()
+          const draft = measureExternal({
+            text: request.text,
+            availableWidthPt: request.availableWidthPt,
+            styleKey: request.styleKey,
+          })
+          providerMs = coreLiveDraftNow() - startedAt
+          return draft
+        },
+      })
+      const boundaryStartedAt = coreLiveDraftNow()
+      const measurementStartedAt = coreLiveDraftNow()
+      const measurement = measureVNextText({
+        documentId: layoutInput.documentId,
+        sectionId: layoutInput.sectionId,
+        nodeId: layoutInput.textBlockId,
+        text: layoutInput.text,
+        availableWidthPt: layoutInput.availableWidthPt,
+        styleKey: layoutInput.styleKey,
+        measurementProfileId: input.measurementProfileId,
+      }, measurer, cache)
+      const measurementMs = coreLiveDraftNow() - measurementStartedAt
+
+      const request: VNextTextBlockV4MeasurementRequest = {
+        documentId: layoutInput.documentId,
+        instanceRevision: layoutInput.instanceRevision,
+        sectionId: layoutInput.sectionId,
+        textBlockId: layoutInput.textBlockId,
+        availableWidthPt: layoutInput.availableWidthPt,
+        measurementProfileId: input.measurementProfileId,
+        styleKey: layoutInput.styleKey,
+        renderedText: layoutInput.text,
+        runs: [{
+          inlineId: `${layoutInput.textBlockId}:text`,
+          kind: "text",
+          renderStartOffset: 0,
+          renderEndOffset: layoutInput.text.length,
+          renderedText: layoutInput.text,
+          styleKey: layoutInput.styleKey,
+        }],
+      }
+      const acceptanceStartedAt = coreLiveDraftNow()
+      const accepted = acceptVNextTextBlockV4MeasuredLines(request, measurement.lineBoxes.map((line) => ({
+        index: line.index,
+        startOffset: line.startOffset,
+        endOffset: line.endOffset,
+        text: line.text,
+        widthPt: line.widthPt,
+        heightPt: line.heightPt,
+      })))
+      const acceptanceMs = coreLiveDraftNow() - acceptanceStartedAt
+      if (accepted.status !== "accepted") {
+        throw new Error(`Core measured-line acceptance blocked: ${accepted.issues.map((issue) => issue.code).join(", ")}`)
+      }
+
+      const paginationStartedAt = coreLiveDraftNow()
+      const pagination = paginateVNextTextFlowV4({
+        accepted,
+        pageBodyHeightPt: layoutInput.pageBodyHeightPt,
+        maximumPageCount: 10_000,
+      })
+      const paginationMs = coreLiveDraftNow() - paginationStartedAt
+      if (pagination.status !== "complete") {
+        const codes = pagination.status === "blocked" ? pagination.issues.map((issue) => issue.code).join(", ") : pagination.status
+        throw new Error(`Core one-block pagination did not complete: ${codes}`)
+      }
+
+      return {
+        contractVersion: CORE_LIVE_DRAFT_ONE_BLOCK_LAYOUT_VERSION,
+        measurement: {
+          cacheStatus: measurement.cacheStatus,
+          widthPt: measurement.widthPt,
+          heightPt: measurement.heightPt,
+          lineHeightPt: measurement.lineHeightPt,
+          lineBoxes: measurement.lineBoxes.map((line) => ({ ...line })),
+        },
+        acceptanceSummary: { ...accepted.summary },
+        pagination: {
+          status: "complete",
+          measurementFingerprint: pagination.measurementFingerprint,
+          fingerprint: pagination.fingerprint,
+          summary: { ...pagination.summary },
+          work: { ...pagination.work },
+          pages: pagination.pages.map((page) => ({
+            familyPageIndex: page.familyPageIndex,
+            availableHeightPt: page.availableHeightPt,
+            usedHeightPt: page.usedHeightPt,
+            remainingHeightPt: page.remainingHeightPt,
+            fragmentFingerprint: page.fragment.fingerprint,
+            lineStartIndex: page.fragment.lineStartIndex,
+            lineEndIndexExclusive: page.fragment.lineEndIndexExclusive,
+            heightPt: page.fragment.heightPt,
+          })),
+        },
+        timings: {
+          providerInvoked,
+          providerMs,
+          measurementMs,
+          acceptanceMs,
+          paginationMs,
+          coreBoundaryMs: coreLiveDraftNow() - boundaryStartedAt,
+        },
+      }
+    },
+  }
 }

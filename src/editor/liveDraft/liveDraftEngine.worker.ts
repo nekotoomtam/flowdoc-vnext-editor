@@ -1,4 +1,9 @@
-import { createFlowDocTextEngineWorkerRuntimeV1 } from "@flowdoc/text-engine-rust-wasm/worker"
+import {
+  createFlowDocTextEngineLiveDraftMeasurementV1,
+  createFlowDocTextEngineWorkerRuntimeV1,
+  type FlowDocTextEngineLiveDraftNormalizedResultV1,
+} from "@flowdoc/text-engine-rust-wasm/worker"
+import { createCoreLiveDraftOneBlockLayoutSessionV1 } from "../../core/coreAdapter"
 import {
   FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
   parseFlowDocLiveDraftWorkerRequestV1,
@@ -14,6 +19,8 @@ interface WorkerScopeV1 {
 
 const workerScope = self as unknown as WorkerScopeV1
 let runtime: Awaited<ReturnType<typeof createFlowDocTextEngineWorkerRuntimeV1>> | null = null
+let coreLayoutSession: ReturnType<typeof createCoreLiveDraftOneBlockLayoutSessionV1> | null = null
+const normalizedMeasurementByKey = new Map<string, FlowDocTextEngineLiveDraftNormalizedResultV1>()
 const cancelled = new Set<string>()
 
 function cancellationKey(requestId: string, requestRevision: number): string {
@@ -49,6 +56,10 @@ workerScope.addEventListener("message", (event) => {
       }
       const startedAt = performance.now()
       runtime = await createFlowDocTextEngineWorkerRuntimeV1(request)
+      coreLayoutSession = createCoreLiveDraftOneBlockLayoutSessionV1({
+        measurementProfileId: runtime.identity.measurementProfileId,
+        profileRevision: runtime.identity.boundaryVersion,
+      })
       const diagnostics: FlowDocLiveDraftWorkerDiagnosticsV1 = {
         protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
         type: "live-draft.diagnostics",
@@ -74,11 +85,48 @@ workerScope.addEventListener("message", (event) => {
     const key = cancellationKey(request.identity.requestId, request.identity.requestRevision)
     if (cancelled.delete(key)) return
     const startedAt = performance.now()
-    const measurement = runtime.measure({
-      text: request.smokeRow.text,
-      fontId: request.smokeRow.fontId,
-      fontSha256: request.smokeRow.fontSha256,
-    })
+    const measurementKey = `${request.smokeRow.fontSha256}\u0000${request.smokeRow.text}`
+    let measurement: FlowDocTextEngineLiveDraftNormalizedResultV1
+    let coreLayout
+    if (request.coreLayout == null) {
+      measurement = runtime.measure({
+        text: request.smokeRow.text,
+        fontId: request.smokeRow.fontId,
+        fontSha256: request.smokeRow.fontSha256,
+      })
+    } else {
+      if (coreLayoutSession == null) throw new Error("Core layout session is not initialized")
+      if (request.coreLayout.cacheAction === "clear-before") {
+        coreLayoutSession.clearCache()
+        normalizedMeasurementByKey.clear()
+      }
+      coreLayout = coreLayoutSession.layout({
+        documentId: request.identity.documentId,
+        instanceRevision: request.identity.structureRevision,
+        sectionId: "live-draft-xr2-section",
+        textBlockId: `live-draft-xr2:${request.smokeRow.rowId}`,
+        text: request.smokeRow.text,
+        availableWidthPt: request.coreLayout.availableWidthPt,
+        pageBodyHeightPt: request.coreLayout.pageBodyHeightPt,
+        styleKey: request.coreLayout.styleKey,
+      }, (engineInput) => {
+        const normalized = runtime!.measure({
+          text: engineInput.text,
+          fontId: request.smokeRow.fontId,
+          fontSha256: request.smokeRow.fontSha256,
+        })
+        normalizedMeasurementByKey.set(measurementKey, normalized)
+        return createFlowDocTextEngineLiveDraftMeasurementV1({
+          measurement: normalized,
+          availableWidthPt: engineInput.availableWidthPt,
+          fontSizePt: request.coreLayout!.fontSizePt,
+          lineHeightPt: request.coreLayout!.lineHeightPt,
+        })
+      })
+      const cachedMeasurement = normalizedMeasurementByKey.get(measurementKey)
+      if (cachedMeasurement == null) throw new Error("normalized measurement cache is missing")
+      measurement = cachedMeasurement
+    }
     if (cancelled.delete(key)) return
     workerScope.postMessage({
       protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
@@ -87,6 +135,7 @@ workerScope.addEventListener("message", (event) => {
       identity: request.identity,
       smokeRow: request.smokeRow,
       measurement,
+      ...(coreLayout == null ? {} : { coreLayout }),
       durationMs: performance.now() - startedAt,
     })
   })().catch((error: unknown) => {
