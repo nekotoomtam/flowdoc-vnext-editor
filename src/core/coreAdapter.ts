@@ -14,6 +14,7 @@ import {
   measureVNextText,
   acceptVNextTextBlockV4MeasuredLines,
   paginateVNextTextFlowV4,
+  projectVNextTextFlowDisplayListV1,
   inspectVNextPackageVersionCapability,
   safeCreateVNextReadOnlyRuntimeSessionV4,
   safeCreateVNextRuntimeSession,
@@ -170,6 +171,23 @@ export function parseCoreInlineNodeV4TargetList(
 export const CORE_LIVE_DRAFT_ONE_BLOCK_LAYOUT_VERSION = "core-live-draft-one-block-xr2-v1" as const
 
 export type CoreLiveDraftExternalMeasurementV1 = ReturnType<VNextRendererTextMeasurementProvider["measure"]>
+export type CoreLiveDraftTextFlowDisplayListV1 = Extract<
+  ReturnType<typeof projectVNextTextFlowDisplayListV1>,
+  { status: "ready" }
+>
+
+export interface CoreLiveDraftTextFlowDisplayListInputV1 {
+  projectionId: string
+  pageWidthPt: number
+  pageHeightPt: number
+  bodyXPt: number
+  bodyYPt: number
+  fontId: string
+  fontFamily: string
+  fontSizePt: number
+  baselineOffsetPt: number
+  color: string
+}
 
 export interface CoreLiveDraftOneBlockLayoutInputV1 {
   documentId: string
@@ -180,6 +198,7 @@ export interface CoreLiveDraftOneBlockLayoutInputV1 {
   availableWidthPt: number
   pageBodyHeightPt: number
   styleKey: string
+  displayList?: CoreLiveDraftTextFlowDisplayListInputV1
 }
 
 export interface CoreLiveDraftOneBlockLayoutResultV1 {
@@ -217,6 +236,7 @@ export interface CoreLiveDraftOneBlockLayoutResultV1 {
       heightPt: number
     }>
   }
+  displayList?: CoreLiveDraftTextFlowDisplayListV1
   timings: {
     providerInvoked: boolean
     providerMs: number
@@ -333,6 +353,34 @@ export function createCoreLiveDraftOneBlockLayoutSessionV1(input: {
         throw new Error(`Core one-block pagination did not complete: ${codes}`)
       }
 
+      const displayList = layoutInput.displayList == null
+        ? null
+        : projectVNextTextFlowDisplayListV1({
+            projectionId: layoutInput.displayList.projectionId,
+            pagination,
+            pageBox: {
+              widthPt: layoutInput.displayList.pageWidthPt,
+              heightPt: layoutInput.displayList.pageHeightPt,
+              body: {
+                xPt: layoutInput.displayList.bodyXPt,
+                yPt: layoutInput.displayList.bodyYPt,
+                widthPt: layoutInput.availableWidthPt,
+                heightPt: layoutInput.pageBodyHeightPt,
+              },
+            },
+            style: {
+              styleKey: layoutInput.styleKey,
+              fontId: layoutInput.displayList.fontId,
+              fontFamily: layoutInput.displayList.fontFamily,
+              fontSizePt: layoutInput.displayList.fontSizePt,
+              baselineOffsetPt: layoutInput.displayList.baselineOffsetPt,
+              color: layoutInput.displayList.color,
+            },
+          })
+      if (displayList?.status === "blocked") {
+        throw new Error(`Core text-flow display list blocked: ${displayList.issues.map((issue) => issue.code).join(", ")}`)
+      }
+
       return {
         contractVersion: CORE_LIVE_DRAFT_ONE_BLOCK_LAYOUT_VERSION,
         measurement: {
@@ -360,6 +408,7 @@ export function createCoreLiveDraftOneBlockLayoutSessionV1(input: {
             heightPt: page.fragment.heightPt,
           })),
         },
+        ...(displayList == null ? {} : { displayList }),
         timings: {
           providerInvoked,
           providerMs,

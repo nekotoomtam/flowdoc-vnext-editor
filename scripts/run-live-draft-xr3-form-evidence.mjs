@@ -107,7 +107,7 @@ async function readState(cdp) {
         phase: surface.dataset.phase,
         pendingRevision: surface.dataset.pendingRevision,
         appliedRevision: surface.dataset.appliedRevision,
-        lineSource: surface.querySelector('.live-draft-form-lines')?.dataset.textSource ?? null,
+        lineSource: surface.querySelector('.live-draft-canvas-page-stack')?.dataset.paintSource ?? null,
       },
     };
   })()`)
@@ -117,6 +117,9 @@ async function waitFor(cdp, description, predicate, timeoutMs = 120_000) {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
     const state = await readState(cdp)
+    if (state?.output.phase === "draft-blocked") {
+      throw new Error(`blocked while waiting for ${description}: ${state.output.message}`)
+    }
     if (state != null && predicate(state)) return state
     await new Promise((resolveWait) => setTimeout(resolveWait, 20))
   }
@@ -209,8 +212,8 @@ async function runBrowser(chromePath, profileRoot) {
       const assertions = {
         rapidEditsCoalesced: firstMetrics.scheduledCount === firstText.length && firstMetrics.requestCount === 1,
         latestRevisionApplied: finalCurrent.output.appliedRevision === expectedLatestRevision,
-        previousValidPreviewRetained: retainedDuringUpdate.surface?.lineSource === "core-accepted-lines",
-        coreAcceptedLinesRendered: finalCurrent.surface?.lineSource === "core-accepted-lines",
+        previousValidPreviewRetained: retainedDuringUpdate.surface?.lineSource === "core-text-flow-display-list",
+        coreAcceptedLinesRendered: finalCurrent.surface?.lineSource === "core-text-flow-display-list",
         noBackendTransport: crossOriginRequests.length === 0 && backendLikeRequests.length === 0,
       }
       if (Object.values(assertions).some((value) => !value)) {

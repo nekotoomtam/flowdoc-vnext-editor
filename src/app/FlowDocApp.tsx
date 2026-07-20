@@ -55,6 +55,7 @@ export function FlowDocApp() {
             <Route element={<PublishedPreviewQaPage />} path="/__qa/realdoc-e5-8-preview-lifecycle" />
             <Route element={<PublishedPreviewQaPage />} path="/__qa/realdoc-e5-9-form-api-parity" />
             <Route element={<LiveDraftFormQaPage />} path="/__qa/live-draft-xr3-form" />
+            <Route element={<LiveDraftFormQaPage />} path="/__qa/live-draft-xr4-canvas" />
           </>
         ) : null}
         <Route element={<Navigate replace to="/documents" />} path="*" />

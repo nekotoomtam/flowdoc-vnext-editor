@@ -32,8 +32,10 @@ export function LiveDraftFormQaPage() {
     form: interaction.form,
   })
   const layout = liveDraft.lastValid?.result.coreLayout
+  const displayList = layout?.displayList
   const evidenceState = {
     phase: liveDraft.phase,
+    message: liveDraft.message,
     pendingRevision: liveDraft.pendingRevision,
     appliedRevision: liveDraft.appliedRevision,
     metrics: liveDraft.metrics,
@@ -42,6 +44,11 @@ export function LiveDraftFormQaPage() {
     pageCount: layout?.pagination.summary.pageCount ?? null,
     lineCount: layout?.acceptanceSummary.lineCount ?? null,
     paginationFingerprint: layout?.pagination.fingerprint ?? null,
+    displayListFingerprint: displayList?.fingerprint ?? null,
+    displayListPageCount: displayList?.summary.pageCount ?? null,
+    displayListCommandCount: displayList?.summary.commandCount ?? null,
+    rendererMayMeasureText: displayList?.contracts.rendererMayMeasureText ?? null,
+    rendererMayRelayout: displayList?.contracts.rendererMayRelayout ?? null,
   }
 
   return (
@@ -60,6 +67,9 @@ export function LiveDraftFormQaPage() {
         hidden
         id="flowdoc-live-draft-xr3-evidence-state"
       >
+        {JSON.stringify(evidenceState)}
+      </output>
+      <output hidden id="flowdoc-live-draft-xr4-evidence-state">
         {JSON.stringify(evidenceState)}
       </output>
       <div className="workspace-view-stack">

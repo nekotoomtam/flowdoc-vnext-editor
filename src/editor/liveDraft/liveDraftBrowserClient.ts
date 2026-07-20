@@ -5,6 +5,7 @@ import {
 import { FLOWDOC_TEXT_ENGINE_LIVE_DRAFT_SMOKE_IDENTITY_V1 } from "@flowdoc/text-engine-rust-wasm/live-draft-smoke"
 import { createVNextCompactFingerprint } from "../../core/coreAdapter"
 import type { FlowDocLiveDraftFormProjectionResultV1 } from "./liveDraftFormProjection"
+import { FLOWDOC_LIVE_DRAFT_CANVAS_FONT_FAMILY } from "./liveDraftCanvasFont"
 import {
   FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
   type FlowDocLiveDraftFormResultV1,
@@ -13,7 +14,7 @@ import {
 
 type ReadyProjection = Extract<FlowDocLiveDraftFormProjectionResultV1, { status: "ready" }>
 
-export const FLOWDOC_LIVE_DRAFT_FORM_LAYOUT_PIPELINE_VERSION = "live-draft-xr3-form-one-block-v1" as const
+export const FLOWDOC_LIVE_DRAFT_FORM_LAYOUT_PIPELINE_VERSION = "live-draft-xr4-form-canvas-one-block-v1" as const
 
 export interface FlowDocLiveDraftFormClientV1 {
   layout(input: { projection: ReadyProjection; requestId: string }): Promise<FlowDocLiveDraftFormResultV1>
@@ -167,6 +168,18 @@ export function createFlowDocLiveDraftBrowserClientV1(
           pageBodyHeightPt: options.pageBodyHeightPt ?? 252,
           styleKey: "paragraph/sarabun-regular-12-18",
           cacheAction: "clear-before",
+          displayList: {
+            projectionId: `live-draft-form:${projection.documentId}:${projection.formRevision}`,
+            pageWidthPt: 595.28,
+            pageHeightPt: 841.89,
+            bodyXPt: 72,
+            bodyYPt: 72,
+            fontId,
+            fontFamily: FLOWDOC_LIVE_DRAFT_CANVAS_FONT_FAMILY,
+            fontSizePt: options.fontSizePt ?? 12,
+            baselineOffsetPt: 13.5,
+            color: "172033",
+          },
         },
       })
       return result

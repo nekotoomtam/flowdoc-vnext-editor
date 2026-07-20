@@ -1,0 +1,261 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-xr4-canvas-page-renderer-v1",
+  "status": "observed-bounded-canvas-renderer",
+  "generatedAt": "2026-07-20T18:01:24.975Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "realBrowser": true,
+    "realWorker": true,
+    "realCoreDisplayListProjection": true,
+    "realCanvas2d": true,
+    "pinnedCanvasFontAsset": true,
+    "selectedScalarFieldOnly": true
+  },
+  "observations": {
+    "first": {
+      "phase": "draft-current",
+      "message": "Draft current · 1 pages",
+      "pendingRevision": null,
+      "appliedRevision": 15,
+      "metrics": {
+        "scheduledCount": 15,
+        "requestCount": 1,
+        "appliedCount": 1,
+        "staleResultCount": 0,
+        "cancellationCount": 0
+      },
+      "endToEndDurationMs": 149,
+      "workerDurationMs": 25,
+      "pageCount": 1,
+      "lineCount": 1,
+      "paginationFingerprint": "sha256:763b7499d1c8ace8cdd59a2b020f6a8142839e34f92e1bef7856dfa8211ce76e",
+      "displayListFingerprint": "sha256:f000c94806102ad644430083e8981f7acc659c53e0fe25496d25843e74ab72f8",
+      "displayListPageCount": 1,
+      "displayListCommandCount": 1,
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false
+    },
+    "second": {
+      "phase": "draft-current",
+      "message": "Draft current · 1 pages",
+      "pendingRevision": null,
+      "appliedRevision": 23,
+      "metrics": {
+        "scheduledCount": 23,
+        "requestCount": 2,
+        "appliedCount": 2,
+        "staleResultCount": 0,
+        "cancellationCount": 0
+      },
+      "endToEndDurationMs": 81,
+      "workerDurationMs": 3.200000047683716,
+      "pageCount": 1,
+      "lineCount": 1,
+      "paginationFingerprint": "sha256:1b44e614aaf3e1238fa3e22a511378635b396a5839c02da41462e1be88f88810",
+      "displayListFingerprint": "sha256:4a644aa9a114a0e2736baa4e6ed1121690ee8d8786c8b06142795e256755ee47",
+      "displayListPageCount": 1,
+      "displayListCommandCount": 1,
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false
+    },
+    "multiPage": {
+      "phase": "draft-current",
+      "message": "Draft current · 4 pages",
+      "pendingRevision": null,
+      "appliedRevision": 24,
+      "metrics": {
+        "scheduledCount": 24,
+        "requestCount": 3,
+        "appliedCount": 3,
+        "staleResultCount": 0,
+        "cancellationCount": 0
+      },
+      "endToEndDurationMs": 100,
+      "workerDurationMs": 18.80000001192093,
+      "pageCount": 4,
+      "lineCount": 44,
+      "paginationFingerprint": "sha256:0cc8ab09533fd05156fa9f7443a56be63a3fd3c87ef7860f7193fa664b9a81be",
+      "displayListFingerprint": "sha256:04363150cc26eb1de676399e2ffccc5709ffd79fe9accd028a91a7aee7693a66",
+      "displayListPageCount": 4,
+      "displayListCommandCount": 44,
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false
+    },
+    "retained": {
+      "phase": "draft-updating",
+      "message": "Updating Live Draft…",
+      "pendingRevision": 16,
+      "appliedRevision": 15,
+      "metrics": {
+        "scheduledCount": 16,
+        "requestCount": 1,
+        "appliedCount": 1,
+        "staleResultCount": 0,
+        "cancellationCount": 0
+      },
+      "endToEndDurationMs": 149,
+      "workerDurationMs": 25,
+      "pageCount": 1,
+      "lineCount": 1,
+      "paginationFingerprint": "sha256:763b7499d1c8ace8cdd59a2b020f6a8142839e34f92e1bef7856dfa8211ce76e",
+      "displayListFingerprint": "sha256:f000c94806102ad644430083e8981f7acc659c53e0fe25496d25843e74ab72f8",
+      "displayListPageCount": 1,
+      "displayListCommandCount": 1,
+      "rendererMayMeasureText": false,
+      "rendererMayRelayout": false
+    },
+    "firstCanvas": {
+      "pageCount": 1,
+      "totalCommandCount": 1,
+      "totalNonBlankCommandCount": 1,
+      "totalPaintDurationMs": 2.600000023841858,
+      "intrinsicPageSizes": [
+        [
+          794,
+          1123
+        ]
+      ],
+      "cssPageSizes": [
+        [
+          793.703125,
+          1122.5
+        ]
+      ]
+    },
+    "multiPageCanvas": {
+      "pageCount": 4,
+      "totalCommandCount": 44,
+      "totalNonBlankCommandCount": 44,
+      "totalPaintDurationMs": 4.899999976158142,
+      "intrinsicPageSizes": [
+        [
+          794,
+          1123
+        ],
+        [
+          794,
+          1123
+        ],
+        [
+          794,
+          1123
+        ],
+        [
+          794,
+          1123
+        ]
+      ],
+      "cssPageSizes": [
+        [
+          793.703125,
+          1122.5
+        ],
+        [
+          793.703125,
+          1122.5
+        ],
+        [
+          793.703125,
+          1122.5
+        ],
+        [
+          793.703125,
+          1122.5
+        ]
+      ]
+    },
+    "mobileCanvas": {
+      "pageCount": 4,
+      "totalCommandCount": 44,
+      "totalNonBlankCommandCount": 44,
+      "totalPaintDurationMs": 4.899999976158142,
+      "intrinsicPageSizes": [
+        [
+          794,
+          1123
+        ],
+        [
+          794,
+          1123
+        ],
+        [
+          794,
+          1123
+        ],
+        [
+          794,
+          1123
+        ]
+      ],
+      "cssPageSizes": [
+        [
+          358,
+          506.296875
+        ],
+        [
+          358,
+          506.296875
+        ],
+        [
+          358,
+          506.296875
+        ],
+        [
+          358,
+          506.296875
+        ]
+      ]
+    },
+    "desktopViewport": {
+      "innerWidth": 1280,
+      "documentScrollWidth": 1280,
+      "stackClientWidth": 794,
+      "stackScrollWidth": 794
+    },
+    "mobileViewport": {
+      "innerWidth": 390,
+      "documentScrollWidth": 390,
+      "stackClientWidth": 358,
+      "stackScrollWidth": 358
+    },
+    "firstNonWhitePixelCount": 3035,
+    "firstCanvasPngSha256": "04ddd01ffcbb4bdba93fd469993747cc491b088fec9abbe2d601ad81f8cc4ad1",
+    "totalBrowserRequestCount": 315,
+    "crossOriginRequestCount": 0,
+    "backendLikeRequestCount": 0
+  },
+  "assertions": {
+    "coreDisplayListConsumed": true,
+    "browserMeasurementForbidden": true,
+    "browserRelayoutForbidden": true,
+    "nonBlankPixelsPainted": true,
+    "pageAndCommandCountsMatch": true,
+    "previousCanvasRetained": true,
+    "intrinsicGeometryStable": true,
+    "responsiveAspectStable": true,
+    "noHorizontalOverflow": true,
+    "noBackendTransport": true
+  },
+  "interpretation": {
+    "performanceBudgetDefined": false,
+    "timingsAreObservational": true,
+    "lineBreakAndBoundsComeFromCore": true,
+    "canvasGlyphRasterizationRemainsRendererOwned": true,
+    "crossRuntimeGlyphPixelParityClaimed": false
+  },
+  "scope": {
+    "qaRouteOnly": true,
+    "selectedFormScalarOnly": true,
+    "wholeDocumentRenderer": false,
+    "imagesTablesAndStyledRuns": false,
+    "backendAdmission": false,
+    "publishedPreviewReplacement": false,
+    "productionPerformanceClaim": false
+  }
+}

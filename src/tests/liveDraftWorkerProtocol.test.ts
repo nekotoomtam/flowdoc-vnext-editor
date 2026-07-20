@@ -101,6 +101,18 @@ describe("LIVE-DRAFT-XR-0 worker protocol", () => {
         pageBodyHeightPt: 252,
         styleKey: "paragraph/body",
         cacheAction: "clear-before",
+        displayList: {
+          projectionId: "live-draft-form:document-1:3",
+          pageWidthPt: 595.28,
+          pageHeightPt: 841.89,
+          bodyXPt: 72,
+          bodyYPt: 72,
+          fontId: "sarabun-regular",
+          fontFamily: "FlowDoc Live Draft Sarabun",
+          fontSizePt: 12,
+          baselineOffsetPt: 13.5,
+          color: "172033",
+        },
       },
     }
 

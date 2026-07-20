@@ -1,5 +1,8 @@
 import type { FlowDocTextEngineLiveDraftNormalizedResultV1 } from "@flowdoc/text-engine-rust-wasm/worker"
-import type { CoreLiveDraftOneBlockLayoutResultV1 } from "../../core/coreAdapter"
+import type {
+  CoreLiveDraftOneBlockLayoutResultV1,
+  CoreLiveDraftTextFlowDisplayListInputV1,
+} from "../../core/coreAdapter"
 
 export const FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION = 1 as const
 export const FLOWDOC_LIVE_DRAFT_EXACTNESS_STATES = [
@@ -73,7 +76,9 @@ export interface FlowDocLiveDraftFormLayoutRequestV1 {
     fontId: string
     fontSha256: string
   }
-  coreLayout: NonNullable<FlowDocLiveDraftLayoutRequestV1["coreLayout"]>
+  coreLayout: NonNullable<FlowDocLiveDraftLayoutRequestV1["coreLayout"]> & {
+    displayList: CoreLiveDraftTextFlowDisplayListInputV1
+  }
 }
 
 export interface FlowDocLiveDraftCancelRequestV1 {
@@ -176,6 +181,28 @@ function hasValidCoreLayout(value: unknown): value is NonNullable<FlowDocLiveDra
     && (value.cacheAction === "retain" || value.cacheAction === "clear-before")
 }
 
+function hasValidDisplayListInput(value: unknown): value is CoreLiveDraftTextFlowDisplayListInputV1 {
+  if (!isRecord(value)) return false
+  return typeof value.projectionId === "string"
+    && value.projectionId.trim().length > 0
+    && isPositiveFiniteNumber(value.pageWidthPt)
+    && isPositiveFiniteNumber(value.pageHeightPt)
+    && typeof value.bodyXPt === "number"
+    && Number.isFinite(value.bodyXPt)
+    && value.bodyXPt >= 0
+    && typeof value.bodyYPt === "number"
+    && Number.isFinite(value.bodyYPt)
+    && value.bodyYPt >= 0
+    && typeof value.fontId === "string"
+    && value.fontId.trim().length > 0
+    && typeof value.fontFamily === "string"
+    && value.fontFamily.trim().length > 0
+    && isPositiveFiniteNumber(value.fontSizePt)
+    && isPositiveFiniteNumber(value.baselineOffsetPt)
+    && typeof value.color === "string"
+    && /^[0-9A-Fa-f]{6}$/u.test(value.color)
+}
+
 export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiveDraftWorkerRequestV1 | null {
   if (!isRecord(value) || value.protocolVersion !== FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION) return null
   if (value.type === "live-draft.initialize") {
@@ -192,7 +219,9 @@ export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiv
     return value as unknown as FlowDocLiveDraftCancelRequestV1
   }
   if (value.type === "live-draft.form-layout") {
-    if (!hasValidIdentity(value.identity) || !isRecord(value.textBlock) || !hasValidCoreLayout(value.coreLayout)) return null
+    if (!hasValidIdentity(value.identity) || !isRecord(value.textBlock) || !isRecord(value.coreLayout)) return null
+    const displayListInput = value.coreLayout.displayList
+    if (!hasValidCoreLayout(value.coreLayout) || !hasValidDisplayListInput(displayListInput)) return null
     const textBlock = value.textBlock
     if (
       typeof textBlock.textBlockId !== "string"

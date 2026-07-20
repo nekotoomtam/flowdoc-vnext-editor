@@ -1101,12 +1101,6 @@
   min-width: 0;
 }
 
-.live-draft-form-paper {
-  align-content: start;
-  gap: 18px;
-  min-height: 360px;
-}
-
 .live-draft-form-paper-heading {
   align-items: baseline;
   display: flex;
@@ -1115,22 +1109,52 @@
 }
 
 .live-draft-form-paper-heading span,
-.live-draft-form-paper small {
+.live-draft-canvas-result small {
   color: var(--text-muted);
   font-size: 12px;
 }
 
-.live-draft-form-lines {
+.live-draft-canvas-result {
   display: grid;
-  font-family: "Sarabun", sans-serif;
-  font-size: 12pt;
-  line-height: 18pt;
-  text-align: left;
-  width: 180pt;
+  gap: 12px;
+  min-width: 0;
 }
 
-.live-draft-form-lines > span {
+.live-draft-canvas-result-meta {
+  padding: 0 4px;
+}
+
+.live-draft-canvas-page-stack {
+  display: grid;
+  gap: 20px;
+  justify-items: center;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.live-draft-canvas-page-frame {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  margin: 0;
+  max-width: 793.71px;
+  min-width: 0;
+  width: 100%;
+}
+
+.live-draft-canvas-page {
+  aspect-ratio: 595.28 / 841.89;
+  background: #fff;
+  border: 1px solid var(--color-border-soft);
+  box-shadow: 0 10px 28px rgb(17 32 51 / 12%);
   display: block;
-  min-height: 18pt;
-  white-space: pre;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+.live-draft-canvas-page-frame figcaption {
+  color: var(--text-muted);
+  font-size: 11px;
 }

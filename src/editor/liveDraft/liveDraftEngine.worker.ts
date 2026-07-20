@@ -119,6 +119,7 @@ workerScope.addEventListener("message", (event) => {
         availableWidthPt: coreLayoutInput.availableWidthPt,
         pageBodyHeightPt: coreLayoutInput.pageBodyHeightPt,
         styleKey: coreLayoutInput.styleKey,
+        ...(request.type === "live-draft.form-layout" ? { displayList: request.coreLayout.displayList } : {}),
       }, (engineInput) => {
         const normalized = runtime!.measure({
           text: engineInput.text,
@@ -140,6 +141,7 @@ workerScope.addEventListener("message", (event) => {
     if (cancelled.delete(key)) return
     if (request.type === "live-draft.form-layout") {
       if (coreLayout == null) throw new Error("Core Form layout result is missing")
+      if (coreLayout.displayList == null) throw new Error("Core Form display list is missing")
       workerScope.postMessage({
         protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
         type: "live-draft.form-result",

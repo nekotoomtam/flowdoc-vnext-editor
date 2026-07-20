@@ -107,7 +107,17 @@ describe("LIVE-DRAFT-XR-3 browser client cancellation", () => {
     client.cancel({ requestId: "request:1", requestRevision: 1 })
 
     await expect(layout).rejects.toThrow("request cancelled")
-    expect(worker.posted[1]).toMatchObject({ type: "live-draft.form-layout" })
+    expect(worker.posted[1]).toMatchObject({
+      type: "live-draft.form-layout",
+      identity: { layoutPipelineVersion: "live-draft-xr4-form-canvas-one-block-v1" },
+      coreLayout: {
+        displayList: {
+          pageWidthPt: 595.28,
+          pageHeightPt: 841.89,
+          fontFamily: "FlowDoc Live Draft Sarabun",
+        },
+      },
+    })
     expect(worker.posted[2]).toMatchObject({ type: "live-draft.cancel" })
     client.dispose()
   })

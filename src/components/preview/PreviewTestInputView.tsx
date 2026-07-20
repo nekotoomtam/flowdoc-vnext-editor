@@ -45,6 +45,7 @@ import { stringifyTestInputFormCanonicalCandidate } from "../../editor/preview/t
 import type { PublishedPreviewGenerationInteraction } from "../../app/usePublishedPreviewGeneration"
 import type { PublishedPreviewAdmissionReceipt } from "../../editor/preview/publishedPreviewContracts"
 import type { LiveDraftFormPreviewInteractionV1 } from "../../app/useLiveDraftFormPreview"
+import { LiveDraftCanvasPage } from "./LiveDraftCanvasPage"
 
 type EditableFieldProjection =
   | VNextTestInputDocumentFieldProjectionV1
@@ -626,10 +627,7 @@ function LiveDraftFormSurface({
 }) {
   const applied = interaction.lastValid
   const layout = applied?.result.coreLayout
-  const firstPage = layout?.pagination.pages[0]
-  const firstPageLines = firstPage == null || layout == null
-    ? []
-    : layout.measurement.lineBoxes.slice(firstPage.lineStartIndex, firstPage.lineEndIndexExclusive)
+  const displayList = layout?.displayList
   return (
     <div
       className="live-draft-form-result"
@@ -648,22 +646,32 @@ function LiveDraftFormSurface({
           <span>Bounded Form Live Draft · not Published</span>
         </div>
       </div>
-      {layout == null ? (
+      {layout == null || displayList == null ? (
         <div className="test-input-preview-paper published-preview-placeholder">
           <FileText aria-hidden="true" size={30} strokeWidth={1.5} />
           <strong>{document.title}</strong>
           <span>{interaction.message}</span>
         </div>
       ) : (
-        <div className="test-input-preview-paper live-draft-form-paper">
-          <div className="live-draft-form-paper-heading">
+        <div className="live-draft-canvas-result">
+          <div className="live-draft-form-paper-heading live-draft-canvas-result-meta">
             <strong>{document.title}</strong>
             <span>
-              Page 1 of {layout.pagination.summary.pageCount} · {layout.acceptanceSummary.lineCount} lines
+              {displayList.summary.pageCount} pages · {displayList.summary.commandCount} Core paint commands
             </span>
           </div>
-          <div className="live-draft-form-lines" data-text-source="core-accepted-lines">
-            {firstPageLines.map((line) => <span key={`${line.index}:${line.startOffset}`}>{line.text}</span>)}
+          <div
+            className="live-draft-canvas-page-stack"
+            data-display-list-fingerprint={displayList.fingerprint}
+            data-paint-source="core-text-flow-display-list"
+          >
+            {displayList.pages.map((page) => (
+              <LiveDraftCanvasPage
+                displayListFingerprint={displayList.fingerprint}
+                key={`${displayList.fingerprint}:${page.pageIndex}`}
+                page={page}
+              />
+            ))}
           </div>
           <small>
             Form revision {interaction.appliedRevision} · {(applied?.endToEndDurationMs ?? 0).toFixed(1)} ms end-to-end
