@@ -92,9 +92,10 @@ operation on selection or Apply. The local real-document renderer still runs
 in the Backend listener process; its 10-second dispatch window is QA harness
 behavior, not a production worker promise.
 
-Failure and retry are accepted for the active local session. E.6.1 now makes
-the protected Backend admission optionally durable. E.6.2 now accepts durable
-operation/artifact restart; Editor reconnect remains E.6.3.
+Failure and retry are accepted for the active local session. E.6.1 makes the
+protected Backend admission optionally durable, E.6.2 accepts durable
+operation/artifact restart, and E.6.3 now accepts strict content-free Editor
+reconnect and stale-result rejection.
 
 ## Next Phase
 
@@ -103,5 +104,5 @@ operation/artifact restart; Editor reconnect remains E.6.3.
 admission and converge with adapted API input on canonical content while
 retaining separate instance identities. E.6.1 durable admission and E.6.2
 durable Backend lifecycle are accepted in
-`docs/REALDOC_CROSS_REPO_LIFECYCLE.md`; E.6.3 remains. Production remains
-NO-GO.
+`docs/REALDOC_CROSS_REPO_LIFECYCLE.md`; complete E.6 is now accepted for local
+development. Production remains NO-GO.

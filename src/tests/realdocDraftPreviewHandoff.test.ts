@@ -33,7 +33,7 @@ describe("PDF-EXPORT-REALDOC-E.5.7 Editor handoff", () => {
 
     expect(routes).toContain("import.meta.env.DEV")
     expect(routes).toContain('path="/__qa/realdoc-e5-7-draft-preview"')
-    expect(qa).toContain('useState<"draft" | "published">("draft")')
+    expect(qa).toContain('readExactPreviewReconnectTargetV1() ?? "draft"')
     expect(transport).toContain("/docgen-local/draft-preview-admissions")
     expect(transport).not.toContain('path: "/docgen-local/admissions"')
     expect(generation).toContain('target: "draft" | "published"')

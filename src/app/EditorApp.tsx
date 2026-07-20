@@ -33,6 +33,7 @@ import { usePublishedPreviewContext } from "./usePublishedPreviewContext"
 import { useExactPreviewGeneration } from "./usePublishedPreviewGeneration"
 import { createDraftPreviewClient } from "../editor/preview/draftPreviewTransport"
 import { useDraftPreviewContext } from "./useDraftPreviewContext"
+import { readExactPreviewReconnectTargetV1 } from "../editor/preview/exactPreviewReconnect"
 
 export interface EditorAppProps {
   activeWorkspaceView?: DocumentWorkspaceView
@@ -72,7 +73,9 @@ export function EditorApp({
   const localPdfExportClient = useMemo(() => createLocalPdfExportClient(), [])
   const publishedPreviewClient = useMemo(() => createPublishedPreviewClient(), [])
   const draftPreviewClient = useMemo(() => createDraftPreviewClient(), [])
-  const [previewTarget, setPreviewTarget] = useState<"draft" | "published">("draft")
+  const [previewTarget, setPreviewTarget] = useState<"draft" | "published">(
+    () => readExactPreviewReconnectTargetV1() ?? "draft",
+  )
   const initialState = useMemo(
     () => createInitialEditorStateFromWorkingSet(loadInitialCoreWorkingSet({
       baseRevision: 3,

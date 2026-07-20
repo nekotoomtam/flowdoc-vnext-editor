@@ -18,6 +18,19 @@ function model(
 }
 
 describe("PDF-EXPORT-REALDOC-E.5.8 exact preview lifecycle", () => {
+  it("projects reload reconciliation as an honest busy state", () => {
+    expect(projectExactPreviewLifecycle(model({
+      activity: "reconnecting",
+      phase: "requesting",
+    }))).toMatchObject({
+      busy: true,
+      canCancel: false,
+      canDownload: false,
+      canRetry: false,
+      statusLabel: "Reconnecting exact preview",
+    })
+  })
+
   it("keeps context-changing actions locked while an operation can still be cancelled", () => {
     expect(projectExactPreviewLifecycle(model({
       operationState: "processing",

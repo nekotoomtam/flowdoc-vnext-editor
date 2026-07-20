@@ -11,6 +11,7 @@ export type ExactPreviewPhase =
 
 export type ExactPreviewActivity =
   | "idle"
+  | "reconnecting"
   | "admitting"
   | "requesting"
   | "refreshing"
@@ -78,6 +79,7 @@ const ERROR_STATUS_LABELS: Record<ExactPreviewError, string> = {
 }
 
 function statusLabel(model: ExactPreviewLifecycleModel): string {
+  if (model.activity === "reconnecting") return "Reconnecting exact preview"
   if (model.activity === "admitting") return "Mapping and validating"
   if (model.activity === "requesting") return "Preparing PDF operation"
   if (model.activity === "refreshing") return "Refreshing PDF status"

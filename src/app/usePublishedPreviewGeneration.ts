@@ -11,6 +11,13 @@ import {
   type ExactPreviewLifecycleProjection,
   type ExactPreviewPhase,
 } from "../editor/preview/exactPreviewLifecycle"
+import {
+  browserExactPreviewReconnectStore,
+  createExactPreviewReconnectRecordV1,
+  createExactPreviewInputIdentityV1,
+  parseExactPreviewReconnectRecordV1,
+  type ExactPreviewReconnectStore,
+} from "../editor/preview/exactPreviewReconnect"
 import type {
   PublishedPreviewAdmissionReceipt,
   PublishedPreviewContext,
@@ -44,6 +51,7 @@ interface PreviewAttempt {
   input:
     | ({ kind: "canonical-data" } & PreviewCanonicalForm)
     | { kind: "adapted-json"; payloadText: string; profile: PreviewMappingProfile }
+    | null
   receipt: PublishedPreviewAdmissionReceipt | null
 }
 
@@ -81,6 +89,7 @@ export interface ExactPreviewGenerationContext {
   contextFingerprint: string
   authoring: PublishedPreviewContext["authoring"]
   projection: PublishedPreviewContext["projection"]
+  mappingProfiles: PublishedPreviewContext["mappingProfiles"]
 }
 
 function inputIdentity(
@@ -90,28 +99,27 @@ function inputIdentity(
 ): string | null {
   if (context == null) return null
   if (interaction.mode === "form") {
-    if (interaction.form.state == null || interaction.form.candidate?.status !== "ready-for-admission") return null
-    return JSON.stringify([
+    if (interaction.form.candidate?.status !== "ready-for-admission") return null
+    return createExactPreviewInputIdentityV1({
       target,
-      "canonical-data",
-      context.contextFingerprint,
-      context.authoring.documentId,
-      context.authoring.documentRevision,
-      context.projection.projectionFingerprint,
-      interaction.form.state.revision,
-    ])
+      context,
+      value: {
+        kind: "canonical-data",
+        data: interaction.form.candidate.data,
+        collections: interaction.form.candidate.collections,
+      },
+    })
   }
   if (interaction.json.state == null) return null
-  return JSON.stringify([
+  return createExactPreviewInputIdentityV1({
     target,
-    "adapted-json",
-    context.contextFingerprint,
-    context.authoring.documentId,
-    context.authoring.documentRevision,
-    context.projection.projectionFingerprint,
-    interaction.json.state.revision,
-    interaction.json.state.mappingProfile?.profileFingerprint ?? null,
-  ])
+    context,
+    value: {
+      kind: "adapted-json",
+      payloadText: interaction.json.state.payloadText,
+      profileFingerprint: interaction.json.state.mappingProfile?.profileFingerprint ?? null,
+    },
+  })
 }
 
 function triggerDownload(blob: Blob, target: PreviewTarget): void {
@@ -144,7 +152,9 @@ export function useExactPreviewGeneration(options: {
   }): Promise<PublishedPreviewAdmissionReceipt>
   pdfClient: LocalPdfExportClient
   pollIntervalMs?: number
+  reconnectStore?: ExactPreviewReconnectStore
 }): PublishedPreviewGenerationInteraction {
+  const reconnectStore = options.reconnectStore ?? browserExactPreviewReconnectStore
   const currentIdentity = inputIdentity(options.target, options.context, options.input)
   const [submittedIdentity, setSubmittedIdentity] = useState<string | null>(null)
   const [phase, setPhase] = useState<ExactPreviewPhase>("idle")
@@ -189,6 +199,24 @@ export function useExactPreviewGeneration(options: {
     && lifecycle.canChangeTarget
     && !lifecycle.canRetry
 
+  const persistAttempt = useCallback((attempt: PreviewAttempt, operationId: string | null) => {
+    if (
+      options.context == null
+      || attempt.receipt == null
+      || attempt.receipt.contracts.durablePersistence !== true
+    ) return
+    reconnectStore.write(createExactPreviewReconnectRecordV1({
+      target: options.target,
+      context: options.context,
+      inputIdentity: attempt.identity,
+      admissionKey: attempt.admissionKey,
+      exportKey: attempt.exportKey,
+      cancelKey: attempt.cancelKey,
+      receipt: attempt.receipt,
+      operationId,
+    }))
+  }, [contextIdentity, options.context, options.target, reconnectStore])
+
   const applyStatus = useCallback((
     status: LocalPdfExportPublicStatus,
     runId: number,
@@ -210,13 +238,74 @@ export function useExactPreviewGeneration(options: {
       return false
     }
     setOperation(status)
+    persistAttempt(attempt, status.operationId)
     setActivity("idle")
     setPhase(phaseForOperation(status))
     setError(TERMINAL.has(status.state) && status.state !== "completed" && status.state !== "cancelled"
       ? "operation-failed"
       : null)
     return true
-  }, [])
+  }, [persistAttempt])
+
+  useEffect(() => {
+    const context = options.context
+    if (context == null) return
+    const retained = reconnectStore.read(options.target)
+    if (retained == null) return
+    const restored = parseExactPreviewReconnectRecordV1(retained, {
+      target: options.target,
+      context,
+    })
+    if (restored == null) {
+      reconnectStore.clear(options.target)
+      return
+    }
+    const attempt: PreviewAttempt = {
+      admissionKey: restored.admissionKey,
+      cancelKey: restored.cancelKey,
+      exportKey: restored.exportKey,
+      identity: restored.inputIdentity,
+      input: null,
+      receipt: restored.receipt,
+    }
+    const runId = run.current
+    let cancelled = false
+    attemptRef.current = attempt
+    setSubmittedIdentity(restored.inputIdentity)
+    setReceipt(restored.receipt)
+    setOperation(null)
+    setPhase("requesting")
+    setActivity("reconnecting")
+    setError(null)
+    const pin = {
+      documentId: restored.receipt.instance.instanceId,
+      documentRevision: restored.receipt.instance.revision,
+    }
+    void options.pdfClient.requestExport(pin, restored.exportKey)
+      .then((status) => {
+        if (!cancelled) applyStatus(status, runId, restored.operationId)
+      })
+      .catch(() => {
+        if (cancelled || run.current !== runId) return
+        if (restored.operationId == null) {
+          setActivity("idle")
+          setError("status-unavailable")
+          setPhase("failed")
+          return
+        }
+        void options.pdfClient.readStatus(restored.operationId)
+          .then((status) => {
+            if (!cancelled) applyStatus(status, runId, restored.operationId)
+          })
+          .catch(() => {
+            if (cancelled || run.current !== runId) return
+            setActivity("idle")
+            setError("status-unavailable")
+            setPhase("running")
+          })
+      })
+    return () => { cancelled = true }
+  }, [applyStatus, contextIdentity, options.pdfClient, options.target, reconnectStore])
 
   const requestAttempt = useCallback(async (attempt: PreviewAttempt, runId: number) => {
     if (attempt.receipt == null || run.current !== runId) return
@@ -238,7 +327,7 @@ export function useExactPreviewGeneration(options: {
   }, [applyStatus, options.pdfClient])
 
   const admitAttempt = useCallback(async (attempt: PreviewAttempt, runId: number) => {
-    if (run.current !== runId) return
+    if (run.current !== runId || attempt.input == null) return
     setPhase("admitting")
     setActivity("admitting")
     setError(null)
@@ -257,6 +346,7 @@ export function useExactPreviewGeneration(options: {
       if (run.current !== runId || attemptRef.current !== attempt) return
       attempt.receipt = admission
       setReceipt(admission)
+      persistAttempt(attempt, null)
       await requestAttempt(attempt, runId)
     } catch {
       if (run.current !== runId) return
@@ -264,7 +354,7 @@ export function useExactPreviewGeneration(options: {
       setError("admission-failed")
       setPhase("failed")
     }
-  }, [options.admitAdaptedJson, options.admitCanonicalForm, requestAttempt])
+  }, [options.admitAdaptedJson, options.admitCanonicalForm, persistAttempt, requestAttempt])
 
   const generate = useCallback(() => {
     const context = options.context
@@ -273,7 +363,7 @@ export function useExactPreviewGeneration(options: {
     const canonical = options.input.form.candidate
     const jsonState = options.input.json.state
     const selected = selectedProfile(options.input)
-    const attemptInput: PreviewAttempt["input"] | null = options.input.mode === "form"
+    const attemptInput: NonNullable<PreviewAttempt["input"]> | null = options.input.mode === "form"
       ? canonical?.status === "ready-for-admission"
         ? { kind: "canonical-data", data: canonical.data, collections: canonical.collections }
         : null
@@ -294,12 +384,13 @@ export function useExactPreviewGeneration(options: {
     const runId = run.current + 1
     run.current = runId
     attemptRef.current = attempt
+    reconnectStore.clear(options.target)
     setSubmittedIdentity(identity)
     setReceipt(null)
     setOperation(null)
     setError(null)
     void admitAttempt(attempt, runId)
-  }, [admitAttempt, lifecycle.canChangeTarget, options.context, options.input, options.target])
+  }, [admitAttempt, lifecycle.canChangeTarget, options.context, options.input, options.target, reconnectStore])
 
   const operationId = operation?.operationId ?? null
   const operationState = operation?.state ?? null
@@ -356,6 +447,7 @@ export function useExactPreviewGeneration(options: {
       || !CANCELLABLE.has(operation.state)
     ) return
     attempt.cancelKey ??= `editor:${options.target}-preview:cancel:${crypto.randomUUID()}`
+    persistAttempt(attempt, operation.operationId)
     const runId = run.current
     setActivity("cancelling")
     setError(null)
@@ -372,7 +464,7 @@ export function useExactPreviewGeneration(options: {
         setActivity("idle")
         setError("cancel-failed")
       })
-  }, [activity, operation, options.pdfClient, options.target])
+  }, [activity, operation, options.pdfClient, options.target, persistAttempt])
 
   const download = useCallback(() => {
     if (operation?.state !== "completed" || stale || activity !== "idle") return

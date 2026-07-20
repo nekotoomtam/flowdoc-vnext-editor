@@ -10,6 +10,7 @@ import { createDraftPreviewClient } from "../../editor/preview/draftPreviewTrans
 import { useDraftPreviewContext } from "../../app/useDraftPreviewContext"
 import { createLocalPdfExportClient } from "../../editor/pdfExport/localPdfExportTransport"
 import { PreviewContextStateView } from "./PreviewContextStateView"
+import { readExactPreviewReconnectTargetV1 } from "../../editor/preview/exactPreviewReconnect"
 
 const pin = { documentId: "realdoc-e5-6-published-preview", documentRevision: 0 }
 const document = {
@@ -32,7 +33,9 @@ export function PublishedPreviewQaPage() {
   const client = useMemo(() => createPublishedPreviewClient(), [])
   const draftClient = useMemo(() => createDraftPreviewClient(), [])
   const pdfClient = useMemo(() => createLocalPdfExportClient(), [])
-  const [target, setTarget] = useState<"draft" | "published">("draft")
+  const [target, setTarget] = useState<"draft" | "published">(
+    () => readExactPreviewReconnectTargetV1() ?? "draft",
+  )
   const publishedContext = usePublishedPreviewContext({ client, pin })
   const draftContext = useDraftPreviewContext({ client: draftClient, pin })
   const context = target === "draft" ? draftContext : publishedContext
