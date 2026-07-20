@@ -48,7 +48,7 @@ describe("PDF-EXPORT-REALDOC-E.0-E.5.6 Editor pre-test boundary", () => {
     expect(doc).toMatch(/E\.5\.6` now accepts local Published Preview/)
     expect(doc).toMatch(/E\.5\.7 now accepts the\s+separate immutable Draft Preview identity/)
     expect(doc).toMatch(/E\.5\.8 now accepts\s+lifecycle UX/)
-    expect(doc).toMatch(/E\.5\.9 next owns Form\/API parity/)
+    expect(doc).toMatch(/E\.5\.9 now accepts Form\/API canonical-content parity/)
     expect(doc).toMatch(/never receives mapped canonical business values/)
   })
 

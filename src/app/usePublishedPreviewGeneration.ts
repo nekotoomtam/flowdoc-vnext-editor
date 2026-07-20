@@ -31,14 +31,19 @@ const CANCELLABLE = new Set<LocalPdfExportPublicStatus["state"]>([
 
 type PreviewTarget = "draft" | "published"
 type PreviewMappingProfile = Parameters<PublishedPreviewClient["admitAdaptedJson"]>[0]["profile"]
+type PreviewCanonicalForm = Pick<
+  Parameters<PublishedPreviewClient["admitCanonicalForm"]>[0],
+  "data" | "collections"
+>
 
 interface PreviewAttempt {
   admissionKey: string
   cancelKey: string | null
   exportKey: string
   identity: string
-  payloadText: string
-  profile: PreviewMappingProfile
+  input:
+    | ({ kind: "canonical-data" } & PreviewCanonicalForm)
+    | { kind: "adapted-json"; payloadText: string; profile: PreviewMappingProfile }
   receipt: PublishedPreviewAdmissionReceipt | null
 }
 
@@ -83,9 +88,23 @@ function inputIdentity(
   context: ExactPreviewGenerationContext | null,
   interaction: PreviewTestInputInteraction,
 ): string | null {
-  if (context == null || interaction.mode !== "json" || interaction.json.state == null) return null
+  if (context == null) return null
+  if (interaction.mode === "form") {
+    if (interaction.form.state == null || interaction.form.candidate?.status !== "ready-for-admission") return null
+    return JSON.stringify([
+      target,
+      "canonical-data",
+      context.contextFingerprint,
+      context.authoring.documentId,
+      context.authoring.documentRevision,
+      context.projection.projectionFingerprint,
+      interaction.form.state.revision,
+    ])
+  }
+  if (interaction.json.state == null) return null
   return JSON.stringify([
     target,
+    "adapted-json",
     context.contextFingerprint,
     context.authoring.documentId,
     context.authoring.documentRevision,
@@ -118,6 +137,9 @@ export function useExactPreviewGeneration(options: {
   admitAdaptedJson(input: {
     profile: PreviewMappingProfile
     payloadText: string
+    idempotencyKey: string
+  }): Promise<PublishedPreviewAdmissionReceipt>
+  admitCanonicalForm(input: PreviewCanonicalForm & {
     idempotencyKey: string
   }): Promise<PublishedPreviewAdmissionReceipt>
   pdfClient: LocalPdfExportClient
@@ -161,10 +183,9 @@ export function useExactPreviewGeneration(options: {
   }), [activity, error, operation?.state, phase, stale])
   const profile = selectedProfile(options.input)
   const diagnosticsReady = options.input.json.diagnostics?.status === "ready-for-admission"
+  const formReady = options.input.form.candidate?.status === "ready-for-admission"
   const canGenerate = options.context != null
-    && options.input.mode === "json"
-    && profile != null
-    && diagnosticsReady
+    && (options.input.mode === "form" ? formReady : profile != null && diagnosticsReady)
     && lifecycle.canChangeTarget
     && !lifecycle.canRetry
 
@@ -222,11 +243,17 @@ export function useExactPreviewGeneration(options: {
     setActivity("admitting")
     setError(null)
     try {
-      const admission = await options.admitAdaptedJson({
-        profile: attempt.profile,
-        payloadText: attempt.payloadText,
-        idempotencyKey: attempt.admissionKey,
-      })
+      const admission = attempt.input.kind === "canonical-data"
+        ? await options.admitCanonicalForm({
+            data: attempt.input.data,
+            collections: attempt.input.collections,
+            idempotencyKey: attempt.admissionKey,
+          })
+        : await options.admitAdaptedJson({
+            profile: attempt.input.profile,
+            payloadText: attempt.input.payloadText,
+            idempotencyKey: attempt.admissionKey,
+          })
       if (run.current !== runId || attemptRef.current !== attempt) return
       attempt.receipt = admission
       setReceipt(admission)
@@ -237,28 +264,31 @@ export function useExactPreviewGeneration(options: {
       setError("admission-failed")
       setPhase("failed")
     }
-  }, [options.admitAdaptedJson, requestAttempt])
+  }, [options.admitAdaptedJson, options.admitCanonicalForm, requestAttempt])
 
   const generate = useCallback(() => {
     const context = options.context
-    const state = options.input.json.state
-    const selected = selectedProfile(options.input)
     const identity = inputIdentity(options.target, context, options.input)
-    if (
-      context == null
-      || state == null
-      || selected == null
-      || identity == null
-      || options.input.json.diagnostics?.status !== "ready-for-admission"
-      || !lifecycle.canChangeTarget
-    ) return
+    if (context == null || identity == null || !lifecycle.canChangeTarget) return
+    const canonical = options.input.form.candidate
+    const jsonState = options.input.json.state
+    const selected = selectedProfile(options.input)
+    const attemptInput: PreviewAttempt["input"] | null = options.input.mode === "form"
+      ? canonical?.status === "ready-for-admission"
+        ? { kind: "canonical-data", data: canonical.data, collections: canonical.collections }
+        : null
+      : jsonState != null
+        && selected != null
+        && options.input.json.diagnostics?.status === "ready-for-admission"
+        ? { kind: "adapted-json", payloadText: jsonState.payloadText, profile: selected }
+        : null
+    if (attemptInput == null) return
     const attempt: PreviewAttempt = {
       admissionKey: `editor:${options.target}-preview:admission:${crypto.randomUUID()}`,
       cancelKey: null,
       exportKey: `editor:${options.target}-preview:artifact:${crypto.randomUUID()}`,
       identity,
-      payloadText: state.payloadText,
-      profile: selected,
+      input: attemptInput,
       receipt: null,
     }
     const runId = run.current + 1
@@ -424,11 +454,16 @@ export function usePublishedPreviewGeneration(options: {
     if (options.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
     return options.client.admitAdaptedJson({ ...input, context: options.context })
   }, [options.client, options.context])
+  const admitCanonicalForm = useCallback((input: PreviewCanonicalForm & { idempotencyKey: string }) => {
+    if (options.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
+    return options.client.admitCanonicalForm({ ...input, context: options.context })
+  }, [options.client, options.context])
   return useExactPreviewGeneration({
     target: "published",
     context: options.context,
     input: options.input,
     admitAdaptedJson,
+    admitCanonicalForm,
     pdfClient: options.pdfClient,
     ...(options.pollIntervalMs == null ? {} : { pollIntervalMs: options.pollIntervalMs }),
   })

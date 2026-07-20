@@ -101,6 +101,28 @@
   resize: vertical;
 }
 
+.test-input-form-candidate-heading-copy {
+  display: flex;
+  flex: 1 1 180px;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.test-input-form-json-draft .test-input-group-heading {
+  flex-wrap: wrap;
+}
+
+.test-input-form-import-editor {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.test-input-form-import-editor .test-input-json-editor {
+  min-height: 140px;
+}
+
 .test-input-mode-bar {
   border-bottom: 1px solid var(--color-border);
   flex: 0 0 auto;

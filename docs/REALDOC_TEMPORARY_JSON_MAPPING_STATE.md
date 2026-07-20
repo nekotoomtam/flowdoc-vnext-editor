@@ -109,4 +109,7 @@ transport, so their Preview routes remain fail-closed in
 admission and E.4 artifact lifecycle with trusted Structure/projection/profile
 facts and a sanitized content-free receipt. `PDF-EXPORT-REALDOC-E.5.7` now
 accepts the separate Draft Preview identity and admission. E.5.8 now accepts
-lifecycle UX; E.5.9 next owns Form/API parity. Production remains NO-GO.
+lifecycle UX. E.5.9 now proves that this adapted lane converges with direct
+Form admission on canonical content while retaining separate instance
+identities. E.6 next owns restart and cross-repo lifecycle acceptance.
+Production remains NO-GO.

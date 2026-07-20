@@ -1,4 +1,8 @@
-import type { VNextPublishedStructureMappingProfileV1 } from "../../core/coreAdapter"
+import type {
+  DataSnapshotV2,
+  VNextPublishedStructureMappingProfileV1,
+  VNextTableCollectionValueV1,
+} from "../../core/coreAdapter"
 import { FLOWDOC_LOCAL_PDF_EXPORT_PROXY_BASE } from "../pdfExport/localPdfExportContracts"
 import {
   parsePublishedPreviewAdmissionEnvelope,
@@ -34,6 +38,12 @@ export interface PublishedPreviewClient {
     context: PublishedPreviewContext
     profile: VNextPublishedStructureMappingProfileV1
     payloadText: string
+    idempotencyKey: string
+  }): Promise<PublishedPreviewAdmissionReceipt>
+  admitCanonicalForm(input: {
+    context: PublishedPreviewContext
+    data: DataSnapshotV2
+    collections: Record<string, VNextTableCollectionValueV1>
     idempotencyKey: string
   }): Promise<PublishedPreviewAdmissionReceipt>
 }
@@ -92,6 +102,32 @@ export function createPublishedPreviewClient(options: {
       if (!response.ok) throw new PublishedPreviewTransportError("Published Preview admission was rejected", response.status)
       const parsed = parsePublishedPreviewAdmissionEnvelope(body, input.context, input.profile)
       if (parsed == null) throw new PublishedPreviewTransportError("Published Preview admission contract is invalid", response.status)
+      return parsed
+    },
+
+    async admitCanonicalForm(input) {
+      const response = await fetchImpl(`${baseUrl}/docgen-local/admissions`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "idempotency-key": input.idempotencyKey,
+        },
+        body: JSON.stringify({
+          contractVersion: 1,
+          kind: "docgen-local-admission-request",
+          structure: input.context.admission.structure,
+          assets: input.context.admission.assets,
+          input: {
+            kind: "canonical-data",
+            data: input.data,
+            collections: input.collections,
+          },
+        }),
+      })
+      const body = await response.json()
+      if (!response.ok) throw new PublishedPreviewTransportError("Published Form admission was rejected", response.status)
+      const parsed = parsePublishedPreviewAdmissionEnvelope(body, input.context, null)
+      if (parsed == null) throw new PublishedPreviewTransportError("Published Form admission contract is invalid", response.status)
       return parsed
     },
   }

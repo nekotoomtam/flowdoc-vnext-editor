@@ -40,7 +40,7 @@ import {
   testInputMappingProfileOptionKey,
   usesDeferredLargeJsonEditor,
 } from "../../editor/preview/testInputJsonState"
-import { stringifyTestInputFormDataJsonDraft } from "../../editor/preview/testInputFormDataJson"
+import { stringifyTestInputFormCanonicalCandidate } from "../../editor/preview/testInputFormCanonicalCandidate"
 import type { PublishedPreviewGenerationInteraction } from "../../app/usePublishedPreviewGeneration"
 import type { PublishedPreviewAdmissionReceipt } from "../../editor/preview/publishedPreviewContracts"
 
@@ -665,11 +665,12 @@ function PublishedPreviewSurface({
       {receipt ? (
         <>
           <dl className="published-preview-mapped-result">
+            <div><dt>Input lane</dt><dd>{receipt.lane === "direct" ? "Form direct" : "API mapped"}</dd></div>
             <div><dt>Mapped result</dt><dd>{receipt.execution.mapping}</dd></div>
             <div><dt>Validation</dt><dd>{receipt.execution.runtimeValidation}</dd></div>
             <div><dt>Warnings</dt><dd>{receipt.diagnostics.summary.warningCount}</dd></div>
-            <div title={receipt.canonicalInputFingerprint}>
-              <dt>Canonical</dt><dd>{receipt.canonicalInputFingerprint.slice(7, 19)}</dd>
+            <div title={receipt.canonicalContentFingerprint}>
+              <dt>Parity</dt><dd>{receipt.canonicalContentFingerprint.slice(7, 19)}</dd>
             </div>
           </dl>
           <PublishedPreviewDiagnostics receipt={receipt} />
@@ -701,6 +702,8 @@ export function PreviewTestInputView({
   onSelectPreviewTarget,
   projection,
 }: PreviewTestInputViewProps) {
+  const [formImportOpen, setFormImportOpen] = useState(false)
+  const [formImportText, setFormImportText] = useState("")
   const formInteraction = interaction.form
   if (!formInteraction.state || !interaction.json.state) return null
   const fieldByKey = new Map(projection.fields.map((field) => [field.key, field]))
@@ -710,7 +713,10 @@ export function PreviewTestInputView({
   const activeDirty = interaction.mode === "form"
     ? formInteraction.state.dirty
     : interaction.json.state.dirty
-  const activeIssue = interaction.mode === "form" ? formInteraction.lastIssue : interaction.json.lastIssue
+  const activeIssue = interaction.mode === "form"
+    ? formInteraction.lastIssue
+      ?? (formInteraction.candidate?.status === "blocked" ? formInteraction.candidate.issues[0] ?? null : null)
+    : interaction.json.lastIssue
 
   return (
     <main className="test-input-preview" aria-label="Document Preview test input">
@@ -803,15 +809,76 @@ export function PreviewTestInputView({
             ))}
             <section className="test-input-form-json-draft">
               <div className="test-input-group-heading">
-                <strong>Form data JSON</strong>
-                <span>Draft, not validated</span>
+                <div className="test-input-form-candidate-heading-copy">
+                  <strong>Form canonical candidate</strong>
+                  <span>{formInteraction.candidate?.status === "ready-for-admission" ? "Ready for Backend validation" : "Check Form values"}</span>
+                </div>
+                <input
+                  accept=".json,application/json,text/json"
+                  aria-label="Import Form JSON"
+                  className="test-input-file-input"
+                  id="test-input-form-json-file"
+                  onChange={(event) => {
+                    const target = event.currentTarget
+                    void formInteraction.importCanonicalFile(target.files?.[0] ?? null)
+                    target.value = ""
+                  }}
+                  type="file"
+                />
+                <label className="tool-button test-input-file-button" htmlFor="test-input-form-json-file">
+                  <FileJson aria-hidden="true" size={15} />
+                  <span>File</span>
+                </label>
+                <button
+                  className="tool-button"
+                  onClick={() => setFormImportOpen((current) => !current)}
+                  type="button"
+                >
+                  <FilePenLine aria-hidden="true" size={15} />
+                  <span>Paste</span>
+                </button>
               </div>
+              {formImportOpen ? (
+                <div className="test-input-form-import-editor">
+                  <textarea
+                    aria-label="Paste Form JSON"
+                    className="test-input-json-editor"
+                    onChange={(event) => setFormImportText(event.currentTarget.value)}
+                    spellCheck={false}
+                    value={formImportText}
+                  />
+                  <div className="test-input-large-json-actions">
+                    <button
+                      className="tool-button"
+                      disabled={formImportText.trim().length === 0}
+                      onClick={() => {
+                        if (!formInteraction.importCanonicalText(formImportText)) return
+                        setFormImportText("")
+                        setFormImportOpen(false)
+                      }}
+                      type="button"
+                    >
+                      <Save aria-hidden="true" size={15} />
+                      <span>Apply</span>
+                    </button>
+                    <button
+                      aria-label="Close Form JSON import"
+                      className="icon-button"
+                      onClick={() => setFormImportOpen(false)}
+                      title="Close import"
+                      type="button"
+                    >
+                      <X aria-hidden="true" size={15} />
+                    </button>
+                  </div>
+                </div>
+              ) : null}
               <textarea
-                aria-label="Form data JSON draft"
+                aria-label="Form canonical candidate"
                 className="test-input-json-editor"
                 readOnly
                 spellCheck={false}
-                value={stringifyTestInputFormDataJsonDraft(formInteraction.state)}
+                value={formInteraction.candidate == null ? "" : stringifyTestInputFormCanonicalCandidate(formInteraction.candidate)}
               />
             </section>
           </div> : (

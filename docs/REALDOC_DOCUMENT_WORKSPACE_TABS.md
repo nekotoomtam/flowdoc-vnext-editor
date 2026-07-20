@@ -69,5 +69,6 @@ and Preview contracts are accepted.
 projection and E.5.5 now accepts JSON/mapping preparation; this E.5.2 workspace
 phase itself performs no Preview execution. E.5.6 now binds Published Preview;
 E.5.7 accepts Draft Preview and E.5.8 now accepts lifecycle UX hardening.
-E.5.9 next owns Form/API parity.
+E.5.9 now accepts Form/API canonical-content parity through the shared Preview
+lifecycle. E.6 next owns restart/failure acceptance.
 Production remains NO-GO.

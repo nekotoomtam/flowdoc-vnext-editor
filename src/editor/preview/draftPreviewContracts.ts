@@ -209,7 +209,7 @@ export function parseDraftPreviewContextEnvelope(value: unknown): DraftPreviewCo
 export function parseDraftPreviewAdmissionEnvelope(
   value: unknown,
   context: DraftPreviewContext,
-  selectedProfile: VNextPublishedStructureMappingProfileV1,
+  selectedProfile: VNextPublishedStructureMappingProfileV1 | null,
 ): DraftPreviewAdmissionReceipt | null {
   if (!record(value)
     || !exactKeys(value, ["status", "admission"])

@@ -63,7 +63,7 @@ function contextEnvelope() {
   }
 }
 
-function admissionEnvelope(context: PublishedPreviewContext) {
+function admissionEnvelope(context: PublishedPreviewContext, lane: "direct" | "adapted" = "adapted") {
   const profile = context.mappingProfiles[0]!.profile
   return {
     status: "created",
@@ -73,7 +73,7 @@ function admissionEnvelope(context: PublishedPreviewContext) {
       kind: "docgen-local-admission-receipt",
       admissionId: "admission:preview",
       status: "ready-with-warnings",
-      lane: "adapted",
+      lane,
       scope: { tenantId: "tenant:qa", principalId: "principal:qa" },
       structure: context.projection.owner,
       dataContract: {
@@ -90,11 +90,12 @@ function admissionEnvelope(context: PublishedPreviewContext) {
       },
       inputFingerprint: hash("c"),
       canonicalInputFingerprint: hash("d"),
-      mappingProfile: {
+      canonicalContentFingerprint: hash("9"),
+      mappingProfile: lane === "adapted" ? {
         mappingProfileId: profile.mappingProfileId,
         mappingProfileVersion: profile.mappingProfileVersion,
         profileFingerprint: profile.profileFingerprint,
-      },
+      } : null,
       assets: {
         registryFingerprint: hash("a"),
         assetCount: 0,
@@ -117,7 +118,7 @@ function admissionEnvelope(context: PublishedPreviewContext) {
       },
       nextStep: "materialization",
       execution: {
-        mapping: "executed",
+        mapping: lane === "adapted" ? "executed" : "not-required",
         runtimeValidation: "run-valid",
         materialization: "not-run",
         resolution: "not-run",
@@ -216,5 +217,34 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview contracts", () => {
       },
     })
     expect(JSON.stringify(body)).not.toContain("implementationFingerprint")
+  })
+
+  it("submits Form values as direct canonical candidates and accepts only a direct receipt", async () => {
+    const context = parsePublishedPreviewContextEnvelope(contextEnvelope())!
+    const calls: Array<{ url: string; init?: { body?: string; headers?: Record<string, string>; method?: string } }> = []
+    const client = createPublishedPreviewClient({
+      baseUrl: "/local",
+      fetchImpl: vi.fn(async (url, init) => {
+        calls.push({ url, init })
+        return { ok: true, status: 202, json: async () => admissionEnvelope(context, "direct") }
+      }),
+    })
+    const receipt = await client.admitCanonicalForm({
+      context,
+      data: { version: 2, values: { title: "Form value" } },
+      collections: {},
+      idempotencyKey: "editor:preview:form:1",
+    })
+    const body = JSON.parse(calls[0]!.init!.body!)
+    expect(body).toMatchObject({
+      structure: context.admission.structure,
+      assets: context.admission.assets,
+      input: { kind: "canonical-data", data: { values: { title: "Form value" } }, collections: {} },
+    })
+    expect(receipt).toMatchObject({
+      lane: "direct",
+      mappingProfile: null,
+      execution: { mapping: "not-required", runtimeValidation: "run-valid" },
+    })
   })
 })

@@ -15,6 +15,8 @@ export interface TestInputImageSelection {
   mediaType: "image/png" | "image/jpeg"
   byteLength: number
   lastModified: number
+  trustedAssetId?: string
+  sha256?: string
 }
 
 export type TestInputEditableValue =
@@ -68,6 +70,9 @@ export type TestInputFormIssueCode =
   | "field-kind-mismatch"
   | "value-type-mismatch"
   | "image-selection-invalid"
+  | "image-asset-not-trusted"
+  | "form-import-invalid"
+  | "form-import-too-large"
   | "collection-unknown"
   | "collection-row-limit"
   | "collection-item-unknown"

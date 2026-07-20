@@ -39,6 +39,7 @@ export function PublishedPreviewQaPage() {
   const input = usePreviewTestInput(
     context.context?.projection ?? null,
     context.context?.mappingProfiles ?? [],
+    context.context?.admission.assets,
   )
   const admitAdaptedJson = useCallback((admissionInput: {
     profile: Parameters<typeof client.admitAdaptedJson>[0]["profile"]
@@ -52,11 +53,24 @@ export function PublishedPreviewQaPage() {
     if (publishedContext.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
     return client.admitAdaptedJson({ ...admissionInput, context: publishedContext.context })
   }, [client, draftClient, draftContext.context, publishedContext.context, target])
+  const admitCanonicalForm = useCallback((admissionInput: {
+    data: Parameters<typeof client.admitCanonicalForm>[0]["data"]
+    collections: Parameters<typeof client.admitCanonicalForm>[0]["collections"]
+    idempotencyKey: string
+  }) => {
+    if (target === "draft") {
+      if (draftContext.context == null) return Promise.reject(new Error("Draft Preview context is unavailable"))
+      return draftClient.admitCanonicalForm({ ...admissionInput, context: draftContext.context })
+    }
+    if (publishedContext.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
+    return client.admitCanonicalForm({ ...admissionInput, context: publishedContext.context })
+  }, [client, draftClient, draftContext.context, publishedContext.context, target])
   const preview = useExactPreviewGeneration({
     target,
     context: context.context,
     input,
     admitAdaptedJson,
+    admitCanonicalForm,
     pdfClient,
   })
 

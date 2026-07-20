@@ -5,8 +5,8 @@ accepted E.1 generation input, E.2 Core runtime, E.3 bounded local Backend
 admission, E.4 local artifact lifecycle, E.5.0 workspace product contract,
 E.5.1 Library, E.5.2 workspace tabs, E.5.3 Core test-input projection, E.5.4
 temporary generated Form, E.5.5 temporary JSON/mapping preparation, E.5.6
-local Published Preview, and E.5.7 local Draft Preview. Production remains
-NO-GO.
+local Published Preview, E.5.7 local Draft Preview, E.5.8 lifecycle UX, and
+E.5.9 Form/API canonical-content parity. Production remains NO-GO.
 
 ## Product Role
 
@@ -294,10 +294,24 @@ The local 69C browser path imports 749,929 bytes, reports `executed`,
 and mobile have no horizontal page overflow or console errors. The complete
 200-page export remains REALDOC-G.
 
+## E.5.9 Form/API Parity Handoff
+
+Editor now projects its exact dynamic Form state into direct canonical data and
+collections, then submits them to Backend admission. It does not allocate
+canonical identity or perform authoritative validation. External JSON still
+uses the exact adapted mapping profile, and Backend/Core report one shared
+canonical content fingerprint when the two lanes produce the same values.
+
+The Form pane may import canonical-data or a ready Form candidate, including
+UTF-8 JSON with a BOM. Import hydrates only fields and collections present in
+the active projection. Mapped values still do not return from Backend or mutate
+authored Structure state.
+
 ## Next Phase
 
 `PDF-EXPORT-REALDOC-E.5.6` now accepts local Published Preview through E.3/E.4
 without making the browser mapper or artifact truth. E.5.7 now accepts the
 separate immutable Draft Preview identity and admission. E.5.8 now accepts
-lifecycle UX; E.5.9 next owns Form/API parity. No multi-user authorization is claimed.
-Production remains NO-GO.
+lifecycle UX; E.5.9 now accepts Form/API canonical-content parity. E.6 next
+owns restart, failure, and cross-repo lifecycle acceptance. No multi-user
+authorization is claimed. Production remains NO-GO.

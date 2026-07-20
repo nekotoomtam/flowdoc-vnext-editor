@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
 import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
 import { createTestInputFormState } from "../editor/preview/testInputFormState"
+import { projectTestInputFormCanonicalCandidate } from "../editor/preview/testInputFormCanonicalCandidate"
 import {
   applyTestInputJsonCommand,
   createTestInputJsonDiagnostics,
@@ -16,6 +17,7 @@ import type { PreviewTestInputInteraction } from "../app/usePreviewTestInput"
 const read = (relativePath: string): string => readFileSync(new URL(relativePath, import.meta.url), "utf8")
 
 function interactionFor(payloadText: string): PreviewTestInputInteraction {
+  const formState = createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
   const initial = createTestInputJsonState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
   const state = applyTestInputJsonCommand(
     initial,
@@ -26,7 +28,12 @@ function interactionFor(payloadText: string): PreviewTestInputInteraction {
   return {
     mode: "json",
     form: {
-      state: createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE),
+      state: formState,
+      candidate: projectTestInputFormCanonicalCandidate(
+        formState,
+        REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+        { version: 1, images: {} },
+      ),
       lastIssue: null,
       addCollectionItem: vi.fn(),
       removeCollectionItem: vi.fn(),
@@ -38,6 +45,8 @@ function interactionFor(payloadText: string): PreviewTestInputInteraction {
       setDocumentImage: vi.fn(),
       setDocumentValue: vi.fn(),
       getSelectedFile: vi.fn(() => null),
+      importCanonicalFile: vi.fn(async () => undefined),
+      importCanonicalText: vi.fn(() => true),
     },
     json: {
       state,

@@ -94,14 +94,14 @@ function contextEnvelope() {
   }
 }
 
-function generationReceipt(context: DraftPreviewContext) {
+function generationReceipt(context: DraftPreviewContext, lane: "direct" | "adapted" = "adapted") {
   return {
     source: "flowdoc-backend-docgen-local-admission",
     contractVersion: 1,
     kind: "docgen-local-admission-receipt",
     admissionId: "admission:draft-preview",
     status: "ready-with-warnings",
-    lane: "adapted",
+    lane,
     scope: { tenantId: "tenant:qa", principalId: "principal:qa" },
     structure: context.projection.owner,
     dataContract: {
@@ -118,11 +118,12 @@ function generationReceipt(context: DraftPreviewContext) {
     },
     inputFingerprint: hash("c"),
     canonicalInputFingerprint: hash("d"),
-    mappingProfile: {
+    canonicalContentFingerprint: hash("9"),
+    mappingProfile: lane === "adapted" ? {
       mappingProfileId: profile.mappingProfileId,
       mappingProfileVersion: profile.mappingProfileVersion,
       profileFingerprint: profile.profileFingerprint,
-    },
+    } : null,
     assets: { registryFingerprint: hash("e"), assetCount: 0, verifiedByteCount: 0 },
     diagnostics: {
       contentFree: true,
@@ -135,7 +136,7 @@ function generationReceipt(context: DraftPreviewContext) {
     },
     nextStep: "materialization",
     execution: {
-      mapping: "executed", runtimeValidation: "run-valid", materialization: "not-run",
+      mapping: lane === "adapted" ? "executed" : "not-required", runtimeValidation: "run-valid", materialization: "not-run",
       resolution: "not-run", measurement: "not-run", pagination: "not-run", artifact: "not-run",
     },
     contracts: {
@@ -147,7 +148,7 @@ function generationReceipt(context: DraftPreviewContext) {
   }
 }
 
-function admissionEnvelope(context: DraftPreviewContext) {
+function admissionEnvelope(context: DraftPreviewContext, lane: "direct" | "adapted" = "adapted") {
   return {
     status: "created",
     admission: {
@@ -156,7 +157,7 @@ function admissionEnvelope(context: DraftPreviewContext) {
       kind: "docgen-local-draft-preview-admission-receipt",
       status: "ready-with-warnings",
       draftSnapshot: snapshot,
-      generation: generationReceipt(context),
+      generation: generationReceipt(context, lane),
       contracts: {
         exactDraftSnapshot: true,
         separateDraftAdmission: true,
@@ -224,5 +225,30 @@ describe("PDF-EXPORT-REALDOC-E.5.7 Draft Preview contracts", () => {
     })
     expect(body).not.toHaveProperty("structure")
     expect(JSON.stringify(body)).not.toContain("implementationFingerprint")
+  })
+
+  it("submits Form values through the separate Draft route as direct canonical data", async () => {
+    const context = parseDraftPreviewContextEnvelope(contextEnvelope())!
+    const calls: Array<{ url: string; init?: { body?: string; headers?: Record<string, string>; method?: string } }> = []
+    const client = createDraftPreviewClient({
+      baseUrl: "/local",
+      fetchImpl: vi.fn(async (url, init) => {
+        calls.push({ url, init })
+        return { ok: true, status: 202, json: async () => admissionEnvelope(context, "direct") }
+      }),
+    })
+    const receipt = await client.admitCanonicalForm({
+      context,
+      data: { version: 2, values: { title: "Draft Form value" } },
+      collections: {},
+      idempotencyKey: "editor:draft-preview:form:1",
+    })
+    const body = JSON.parse(calls[0]!.init!.body!)
+    expect(body).toMatchObject({
+      snapshot: { snapshotId: snapshot.snapshotId, snapshotFingerprint: snapshot.snapshotFingerprint },
+      input: { kind: "canonical-data", data: { values: { title: "Draft Form value" } }, collections: {} },
+    })
+    expect(body).not.toHaveProperty("structure")
+    expect(receipt).toMatchObject({ lane: "direct", mappingProfile: null, execution: { mapping: "not-required" } })
   })
 })

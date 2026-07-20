@@ -110,6 +110,7 @@ export function EditorApp({
   const previewTestInput = usePreviewTestInput(
     effectiveTestInputProjection,
     activePreviewContext?.mappingProfiles ?? [],
+    activePreviewContext?.admission.assets,
   )
   const admitPreviewJson = useCallback((input: {
     profile: Parameters<typeof publishedPreviewClient.admitAdaptedJson>[0]["profile"]
@@ -123,11 +124,24 @@ export function EditorApp({
     if (publishedPreviewContext.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
     return publishedPreviewClient.admitAdaptedJson({ ...input, context: publishedPreviewContext.context })
   }, [draftPreviewClient, draftPreviewContext.context, previewTarget, publishedPreviewClient, publishedPreviewContext.context])
+  const admitPreviewForm = useCallback((input: {
+    data: Parameters<typeof publishedPreviewClient.admitCanonicalForm>[0]["data"]
+    collections: Parameters<typeof publishedPreviewClient.admitCanonicalForm>[0]["collections"]
+    idempotencyKey: string
+  }) => {
+    if (previewTarget === "draft") {
+      if (draftPreviewContext.context == null) return Promise.reject(new Error("Draft Preview context is unavailable"))
+      return draftPreviewClient.admitCanonicalForm({ ...input, context: draftPreviewContext.context })
+    }
+    if (publishedPreviewContext.context == null) return Promise.reject(new Error("Published Preview context is unavailable"))
+    return publishedPreviewClient.admitCanonicalForm({ ...input, context: publishedPreviewContext.context })
+  }, [draftPreviewClient, draftPreviewContext.context, previewTarget, publishedPreviewClient, publishedPreviewContext.context])
   const exactPreview = useExactPreviewGeneration({
     target: previewTarget,
     context: activePreviewContext,
     input: previewTestInput,
     admitAdaptedJson: admitPreviewJson,
+    admitCanonicalForm: admitPreviewForm,
     pdfClient: localPdfExportClient,
   })
   const retryPreviewTarget = useCallback((target: "draft" | "published") => {

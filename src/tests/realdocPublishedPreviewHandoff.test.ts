@@ -9,7 +9,7 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Editor handoff", () => {
 
     for (const section of [
       "## Trusted Context",
-      "## Form Data JSON",
+      "## Form Canonical Candidate",
       "## Imported JSON And Mapped Result",
       "## Local QA",
       "## Explicitly Not Changed",
@@ -17,6 +17,7 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Editor handoff", () => {
       "## Next Phase",
     ]) expect(doc).toContain(section)
     expect(doc).toContain("`draft-not-validated`")
+    expect(doc).toContain("`editor-form-canonical-candidate`")
     expect(doc).toMatch(/never displays or stores\s+the mapped canonical values/)
     expect(doc).toContain("749,929-byte adapted JSON")
     expect(doc).toContain("completed a 10-page exact PDF")

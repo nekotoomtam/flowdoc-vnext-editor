@@ -84,4 +84,6 @@ recovery. Complete 200-page scale still belongs to REALDOC-G.
 
 `PDF-EXPORT-REALDOC-E.5.8` now accepts loading, failure, cancel, retry,
 diagnostic navigation, bounded large-input interaction, and download lifecycle
-UX. E.5.9 next owns Form/API parity evidence. Production remains NO-GO.
+UX. E.5.9 now accepts direct Form admission through the shared bridge while
+Draft remains explicitly non-Published. E.6 next owns cross-repo restart and
+failure acceptance. Production remains NO-GO.

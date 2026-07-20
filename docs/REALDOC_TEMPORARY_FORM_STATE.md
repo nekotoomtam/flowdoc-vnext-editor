@@ -113,5 +113,9 @@ empty.
 mapping-profile selection, and content-free local preparation diagnostics. Form
 and JSON state survive mode switches independently. E.5.6 now binds Published
 Preview; E.5.7 accepts Draft Preview and E.5.8 now accepts lifecycle UX.
-E.5.9 next owns Form/API parity.
+E.5.9 now advances this memory-only state into a projection-owned canonical
+candidate, accepts canonical JSON import with or without a UTF-8 BOM, and sends
+the candidate through direct Backend admission. The browser still assigns no
+canonical identity and remains non-authoritative. E.6 next owns restart and
+cross-repo lifecycle acceptance.
 Production remains NO-GO.

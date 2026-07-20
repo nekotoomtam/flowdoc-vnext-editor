@@ -1,4 +1,8 @@
-import type { VNextPublishedStructureMappingProfileV1 } from "../../core/coreAdapter"
+import type {
+  DataSnapshotV2,
+  VNextPublishedStructureMappingProfileV1,
+  VNextTableCollectionValueV1,
+} from "../../core/coreAdapter"
 import { FLOWDOC_LOCAL_PDF_EXPORT_PROXY_BASE } from "../pdfExport/localPdfExportContracts"
 import type { PublishedPreviewAdmissionReceipt } from "./publishedPreviewContracts"
 import {
@@ -15,6 +19,12 @@ export interface DraftPreviewClient {
     context: DraftPreviewContext
     profile: VNextPublishedStructureMappingProfileV1
     payloadText: string
+    idempotencyKey: string
+  }): Promise<PublishedPreviewAdmissionReceipt>
+  admitCanonicalForm(input: {
+    context: DraftPreviewContext
+    data: DataSnapshotV2
+    collections: Record<string, VNextTableCollectionValueV1>
     idempotencyKey: string
   }): Promise<PublishedPreviewAdmissionReceipt>
 }
@@ -75,6 +85,33 @@ export function createDraftPreviewClient(options: {
       if (!response.ok) throw new PublishedPreviewTransportError("Draft Preview admission was rejected", response.status)
       const parsed = parseDraftPreviewAdmissionEnvelope(body, input.context, input.profile)
       if (parsed == null) throw new PublishedPreviewTransportError("Draft Preview admission contract is invalid", response.status)
+      return parsed.generation
+    },
+    async admitCanonicalForm(input) {
+      const response = await fetchImpl(`${baseUrl}/docgen-local/draft-preview-admissions`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "idempotency-key": input.idempotencyKey,
+        },
+        body: JSON.stringify({
+          contractVersion: 1,
+          kind: "docgen-local-draft-preview-admission-request",
+          snapshot: {
+            snapshotId: input.context.admission.snapshotId,
+            snapshotFingerprint: input.context.admission.snapshotFingerprint,
+          },
+          input: {
+            kind: "canonical-data",
+            data: input.data,
+            collections: input.collections,
+          },
+        }),
+      })
+      const body = await response.json()
+      if (!response.ok) throw new PublishedPreviewTransportError("Draft Form admission was rejected", response.status)
+      const parsed = parseDraftPreviewAdmissionEnvelope(body, input.context, null)
+      if (parsed == null) throw new PublishedPreviewTransportError("Draft Form admission contract is invalid", response.status)
       return parsed.generation
     },
   }

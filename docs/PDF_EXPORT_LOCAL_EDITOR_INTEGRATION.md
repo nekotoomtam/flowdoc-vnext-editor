@@ -187,4 +187,7 @@ transport as DocGen admission. E.5.6 now owns a separate Published Preview
 client that admits imported JSON through E.3 and reuses this E.4 lifecycle by
 its protected instance pin. The original LOCAL-F eligibility transport remains
 unchanged. E.5.7 accepts separate Draft Preview identity and admission; E.5.8
-now accepts lifecycle UX hardening and E.5.9 next owns Form/API parity.
+now accepts lifecycle UX hardening. E.5.9 now connects dynamic Form candidates
+to direct Backend admission and proves canonical-content parity with the
+adapted API lane without relabeling the original LOCAL-F transport. E.6 next
+owns restart/failure lifecycle acceptance.

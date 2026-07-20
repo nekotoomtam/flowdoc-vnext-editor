@@ -44,7 +44,7 @@ export interface PublishedPreviewContext {
 export interface PublishedPreviewAdmissionReceipt {
   admissionId: string
   status: "ready" | "ready-with-warnings"
-  lane: "adapted"
+  lane: "direct" | "adapted"
   structure: VNextPublishedStructureTestInputProjectionV1["owner"]
   dataContract: {
     dataContractId: string
@@ -60,11 +60,12 @@ export interface PublishedPreviewAdmissionReceipt {
   }
   inputFingerprint: string
   canonicalInputFingerprint: string
+  canonicalContentFingerprint: string
   mappingProfile: {
     mappingProfileId: string
     mappingProfileVersion: number
     profileFingerprint: string
-  }
+  } | null
   diagnostics: {
     contentFree: true
     issues: Array<{ severity: "error"; code: string; path: string; message: string }>
@@ -81,7 +82,7 @@ export interface PublishedPreviewAdmissionReceipt {
     diagnosticsFingerprint: string
   }
   execution: {
-    mapping: "executed"
+    mapping: "not-required" | "executed"
     runtimeValidation: "run-valid"
     materialization: "not-run"
     resolution: "not-run"
@@ -432,7 +433,7 @@ export function parsePublishedPreviewContextEnvelope(value: unknown): PublishedP
 export function parsePublishedPreviewAdmissionEnvelope(
   value: unknown,
   context: PublishedPreviewContext,
-  selectedProfile: VNextPublishedStructureMappingProfileV1,
+  selectedProfile: VNextPublishedStructureMappingProfileV1 | null,
 ): PublishedPreviewAdmissionReceipt | null {
   if (!record(value)
     || !exactKeys(value, ["status", "admission"])
@@ -442,7 +443,8 @@ export function parsePublishedPreviewAdmissionEnvelope(
   if (
     !exactKeys(receipt, [
       "source", "contractVersion", "kind", "admissionId", "status", "lane", "scope", "structure",
-      "dataContract", "instance", "inputFingerprint", "canonicalInputFingerprint", "mappingProfile", "assets",
+      "dataContract", "instance", "inputFingerprint", "canonicalInputFingerprint", "canonicalContentFingerprint",
+      "mappingProfile", "assets",
       "diagnostics", "nextStep", "execution", "contracts", "receiptFingerprint",
     ])
     || receipt.source !== "flowdoc-backend-docgen-local-admission"
@@ -450,7 +452,7 @@ export function parsePublishedPreviewAdmissionEnvelope(
     || receipt.kind !== "docgen-local-admission-receipt"
     || !bounded(receipt.admissionId)
     || (receipt.status !== "ready" && receipt.status !== "ready-with-warnings")
-    || receipt.lane !== "adapted"
+    || receipt.lane !== (selectedProfile == null ? "direct" : "adapted")
     || !record(receipt.scope)
     || !exactKeys(receipt.scope, ["tenantId", "principalId"])
     || !bounded(receipt.scope.tenantId)
@@ -474,13 +476,16 @@ export function parsePublishedPreviewAdmissionEnvelope(
     || !exactOwner(receipt.instance.structureVersion, context.projection.owner)
     || !SHA256.test(String(receipt.inputFingerprint))
     || !SHA256.test(String(receipt.canonicalInputFingerprint))
-    || !record(receipt.mappingProfile)
-    || !exactKeys(receipt.mappingProfile, [
-      "mappingProfileId", "mappingProfileVersion", "profileFingerprint",
-    ])
-    || receipt.mappingProfile.mappingProfileId !== selectedProfile.mappingProfileId
-    || receipt.mappingProfile.mappingProfileVersion !== selectedProfile.mappingProfileVersion
-    || receipt.mappingProfile.profileFingerprint !== selectedProfile.profileFingerprint
+    || !SHA256.test(String(receipt.canonicalContentFingerprint))
+    || (selectedProfile == null
+      ? receipt.mappingProfile !== null
+      : !record(receipt.mappingProfile)
+        || !exactKeys(receipt.mappingProfile, [
+          "mappingProfileId", "mappingProfileVersion", "profileFingerprint",
+        ])
+        || receipt.mappingProfile.mappingProfileId !== selectedProfile.mappingProfileId
+        || receipt.mappingProfile.mappingProfileVersion !== selectedProfile.mappingProfileVersion
+        || receipt.mappingProfile.profileFingerprint !== selectedProfile.profileFingerprint)
     || !record(receipt.assets)
     || !exactKeys(receipt.assets, ["registryFingerprint", "assetCount", "verifiedByteCount"])
     || !SHA256.test(String(receipt.assets.registryFingerprint))
@@ -492,7 +497,7 @@ export function parsePublishedPreviewAdmissionEnvelope(
     || !exactKeys(receipt.execution, [
       "mapping", "runtimeValidation", "materialization", "resolution", "measurement", "pagination", "artifact",
     ])
-    || receipt.execution.mapping !== "executed"
+    || receipt.execution.mapping !== (selectedProfile == null ? "not-required" : "executed")
     || receipt.execution.runtimeValidation !== "run-valid"
     || receipt.execution.materialization !== "not-run"
     || receipt.execution.resolution !== "not-run"
@@ -525,6 +530,7 @@ export function parsePublishedPreviewAdmissionEnvelope(
     instance: receipt.instance,
     inputFingerprint: receipt.inputFingerprint,
     canonicalInputFingerprint: receipt.canonicalInputFingerprint,
+    canonicalContentFingerprint: receipt.canonicalContentFingerprint,
     mappingProfile: receipt.mappingProfile,
     diagnostics: receipt.diagnostics,
     execution: receipt.execution,

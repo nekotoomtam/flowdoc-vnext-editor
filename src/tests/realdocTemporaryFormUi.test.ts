@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
 import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
 import { createTestInputFormState } from "../editor/preview/testInputFormState"
+import { projectTestInputFormCanonicalCandidate } from "../editor/preview/testInputFormCanonicalCandidate"
 import {
   createTestInputJsonDiagnostics,
   createTestInputJsonState,
@@ -16,8 +17,14 @@ const read = (relativePath: string): string => readFileSync(new URL(relativePath
 
 describe("PDF-EXPORT-REALDOC-E.5.4 generated Form UI", () => {
   it("renders scalar, image, collection, and unplaced controls from the Core projection", () => {
+    const formState = createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
     const form: PreviewTestInputFormInteraction = {
-      state: createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE),
+      state: formState,
+      candidate: projectTestInputFormCanonicalCandidate(
+        formState,
+        REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+        { version: 1, images: {} },
+      ),
       lastIssue: null,
       addCollectionItem: vi.fn(),
       removeCollectionItem: vi.fn(),
@@ -29,6 +36,8 @@ describe("PDF-EXPORT-REALDOC-E.5.4 generated Form UI", () => {
       setDocumentImage: vi.fn(),
       setDocumentValue: vi.fn(),
       getSelectedFile: vi.fn(() => null),
+      importCanonicalFile: vi.fn(async () => undefined),
+      importCanonicalText: vi.fn(() => true),
     }
     const jsonState = createTestInputJsonState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
     const interaction: PreviewTestInputInteraction = {

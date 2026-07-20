@@ -6,6 +6,7 @@ import type { PublishedPreviewGenerationInteraction } from "../app/usePublishedP
 import type { PreviewTestInputInteraction } from "../app/usePreviewTestInput"
 import { PreviewTestInputView } from "../components/preview/PreviewTestInputView"
 import { createTestInputFormState } from "../editor/preview/testInputFormState"
+import { projectTestInputFormCanonicalCandidate } from "../editor/preview/testInputFormCanonicalCandidate"
 import {
   applyTestInputJsonCommand,
   createTestInputJsonDiagnostics,
@@ -39,6 +40,7 @@ const profile = createVNextPublishedStructureMappingProfileV1({
 const mappingProfiles = [{ label: "Published Preview QA", profile }]
 
 function input(mode: "form" | "json"): PreviewTestInputInteraction {
+  const formState = createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
   const initial = createTestInputJsonState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE)
   const withPayload = applyTestInputJsonCommand(
     initial,
@@ -62,7 +64,12 @@ function input(mode: "form" | "json"): PreviewTestInputInteraction {
   return {
     mode,
     form: {
-      state: createTestInputFormState(REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE),
+      state: formState,
+      candidate: projectTestInputFormCanonicalCandidate(
+        formState,
+        REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
+        { version: 1, images: {} },
+      ),
       lastIssue: null,
       addCollectionItem: vi.fn(),
       removeCollectionItem: vi.fn(),
@@ -74,6 +81,8 @@ function input(mode: "form" | "json"): PreviewTestInputInteraction {
       setDocumentImage: vi.fn(),
       setDocumentValue: vi.fn(),
       getSelectedFile: vi.fn(() => null),
+      importCanonicalFile: vi.fn(async () => undefined),
+      importCanonicalText: vi.fn(() => true),
     },
     json: {
       state: json,
@@ -130,6 +139,7 @@ function preview(
       },
       inputFingerprint: hash("3"),
       canonicalInputFingerprint: hash("4"),
+      canonicalContentFingerprint: hash("7"),
       mappingProfile: {
         mappingProfileId: profile.mappingProfileId,
         mappingProfileVersion: profile.mappingProfileVersion,
@@ -228,7 +238,7 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
     expect(markup).not.toContain("canonicalBusinessData")
   })
 
-  it("hides the old artifact after edits and exposes the Form JSON draft separately", () => {
+  it("hides the old artifact after edits and exposes the Form canonical candidate separately", () => {
     const staleMarkup = renderToStaticMarkup(createElement(PreviewTestInputView, {
       document,
       interaction: input("json"),
@@ -245,9 +255,10 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
       projection: REALDOC_E54_TEST_INPUT_PROJECTION_FIXTURE,
       publishedPreview: preview(true),
     }))
-    expect(formMarkup).toContain("Form data JSON")
-    expect(formMarkup).toContain("Draft, not validated")
-    expect(formMarkup).toContain("draft-not-validated")
+    expect(formMarkup).toContain("Form canonical candidate")
+    expect(formMarkup).toContain("Ready for Backend validation")
+    expect(formMarkup).toContain("ready-for-admission")
+    expect(formMarkup).toContain("backendValidationRequired")
   })
 
   it("keeps Draft and Published as explicit targets and labels Draft artifacts honestly", () => {

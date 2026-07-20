@@ -6,7 +6,8 @@ Status: `PDF-EXPORT-REALDOC-E.5.0` product contract accepted and
 `E.5.5` temporary JSON/mapping preparation, `E.5.6` local Published Preview,
 and `E.5.7` local Draft Preview accepted.
 `PDF-EXPORT-REALDOC-E.5.8` local Preview lifecycle and large-input UX is also
-accepted.
+accepted. `PDF-EXPORT-REALDOC-E.5.9` Form/API canonical-content parity is now
+accepted for the optional local pre-test runtime.
 Production remains NO-GO.
 
 ## Decision
@@ -276,7 +277,9 @@ label it exact while the Backend result is pending.
 9. `E.5.8` completes stale, rerun, diagnostic navigation, empty, loading,
    failure, cancel, retry, download, and bounded large-input states. Accepted
    for local development.
-10. `E.5.9` accepts Form/API canonical parity.
+10. `E.5.9` accepts Form/API canonical-content parity while retaining distinct
+    instance-bound input and artifact identities. Accepted for local
+    development.
 11. `E.6` accepts cross-repo identity, restart, failure, and lifecycle evidence.
 
 ## Explicitly Not Changed
@@ -329,7 +332,7 @@ label it exact while the Backend result is pending.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.8` now accepts complete local Preview lifecycle,
-content-free diagnostic navigation, and bounded large-input UX for both Draft
-and Published targets. E.5.9 next owns Form/API canonical parity; E.6 retains
-cross-repo restart and lifecycle acceptance. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.9` now accepts dynamic Form direct admission and
+adapted API convergence on canonical content without making the browser an
+identity or artifact authority. E.6 next owns cross-repo restart, failure, and
+lifecycle acceptance. Production remains NO-GO.

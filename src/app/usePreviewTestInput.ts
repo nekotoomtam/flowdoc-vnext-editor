@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import type { VNextPublishedStructureTestInputProjectionV1 } from "../core/coreAdapter"
+import type {
+  ImageAssetRegistryV1,
+  VNextPublishedStructureTestInputProjectionV1,
+} from "../core/coreAdapter"
 import {
   REALDOC_E55_MAX_JSON_BYTES,
   applyTestInputJsonCommand,
@@ -65,8 +68,9 @@ function validJsonFile(file: File): boolean {
 export function usePreviewTestInput(
   projection: VNextPublishedStructureTestInputProjectionV1 | null,
   mappingProfiles: readonly TestInputMappingProfileOption[] = [],
+  assets: ImageAssetRegistryV1 = { version: 1, images: {} },
 ): PreviewTestInputInteraction {
-  const form = usePreviewTestInputForm(projection)
+  const form = usePreviewTestInputForm(projection, assets)
   const [mode, setMode] = useState<PreviewTestInputMode>("form")
   const [state, setState] = useState<TestInputJsonState | null>(() => (
     projection == null ? null : createTestInputJsonState(projection)

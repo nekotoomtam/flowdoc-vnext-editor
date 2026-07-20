@@ -77,8 +77,8 @@ artifact response.
 
 ## Explicitly Not Changed
 
-- Form data remains a local `draft-not-validated` representation;
-- no Form admission or API parity evidence;
+- Form data remains local-only in E.5.8 and is not admitted by that phase;
+- no Form admission or API parity evidence in E.5.8 itself;
 - no durable test-input, Draft snapshot, or artifact session state;
 - no browser mapping, resolution, pagination, or rendering;
 - no arbitrary live Editor draft compiler;
@@ -97,6 +97,8 @@ and reconstruction remain E.6.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.5.9` proves Form/API canonical parity. E.6 then proves
-cross-repo identity, restart, failure, and lifecycle behavior. Production
-remains NO-GO.
+`PDF-EXPORT-REALDOC-E.5.9` is now accepted in
+`docs/REALDOC_FORM_API_PARITY.md`. Dynamic Form candidates use direct Backend
+admission and converge with adapted API input on canonical content while
+retaining separate instance identities. E.6 now proves cross-repo identity,
+restart, failure, and lifecycle behavior. Production remains NO-GO.

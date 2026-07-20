@@ -16,15 +16,17 @@ then returns only the public subset needed by the Editor. Unexpected fields,
 including hidden canonical business data, are rejected rather than retained in
 UI state.
 
-## Form Data JSON
+## Form Canonical Candidate
 
-Form mode remains generated from the active Core projection. It now includes a
-read-only `Form data JSON` representation of current Form values. The object is
-memory-only and explicitly marked `draft-not-validated`.
+Form mode remains generated from the active Core projection. E.5.6 originally
+exposed a memory-only `draft-not-validated` representation without admission.
+E.5.9 replaces that UI projection with a read-only
+`editor-form-canonical-candidate` that can be admitted directly only after it is
+ready and still requires Backend validation.
 
-Image fields expose only file name, media type, and byte length in this draft;
-they do not embed selected bytes or internal selection identity. E.5.6 does not
-submit Form data as canonical input.
+Image fields become canonical asset references only after exact digest and
+metadata match against the admitted asset registry. Browser-local file and
+selection identities remain outside the candidate.
 
 ## Imported JSON And Mapped Result
 
@@ -38,8 +40,9 @@ Generation performs:
 E.3 admission -> E.4 export request -> status polling -> exact PDF/download
 ```
 
-The right surface reports mapping, runtime validation, warning count, canonical
-fingerprint prefix, page count, and artifact state. It never displays or stores
+The right surface reports input lane, mapping, runtime validation, warning
+count, canonical-content fingerprint prefix, page count, and artifact state.
+It never displays or stores
 the mapped canonical values. Editing the JSON or changing profile/context marks
 the prior result `Stale result`, hides its PDF, and disables its download truth.
 
@@ -82,4 +85,5 @@ QA-specific strings.
 
 `PDF-EXPORT-REALDOC-E.5.7` accepts Draft Preview with a separate immutable
 draft identity and admission. E.5.8 now accepts complete lifecycle and bounded
-large-input UX; E.5.9 next owns Form/API parity. Production remains NO-GO.
+large-input UX. E.5.9 now accepts Form/API canonical-content parity. E.6 next
+owns cross-repo restart/failure acceptance. Production remains NO-GO.
