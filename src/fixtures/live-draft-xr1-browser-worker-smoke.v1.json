@@ -1,0 +1,396 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-xr1-browser-worker-smoke-v1",
+  "status": "accepted-two-row-runtime-smoke",
+  "generatedAt": "2026-07-20T15:40:54.696Z",
+  "execution": {
+    "realBrowserWorker": true,
+    "browser": "headless-chrome",
+    "nodeNativeRustybuzz": true,
+    "nodeNativeIcu4x": true,
+    "workerWasmRustybuzz": true,
+    "workerWasmIcu4x": true
+  },
+  "identity": {
+    "acceptedManifestId": "measurement-evidence-summary-manifest-accepted-minimal-v1",
+    "sourceAcceptedMeasurementProfileId": "measurement-profile-v1:thai-rustybuzz-icu4x-v1:measurement-policy-v1:fonts-font-noto-sans-thai-bold-700-normal-0be544f347b3ab63+font-noto-sans-thai-regular-400-normal-9acb585d8662ca4e+font-sarabun-bold-700-normal-5d1fc1ee63ab861f+font-sarabun-bold-italic-700-italic-a497ef98fad371e0+font-sarabun-italic-400-italic-fb86138e0cf99786+font-sarabun-regular-400-normal-b8150084e25734e6:styles-style-heading-xl-sarabun-bold-noto-sans-thai-bold-noto-sans-thai-regular+style-paragraph-sarabun-regular-noto-sans-thai-regular+style-text-block-paragraph-sarabun-regular-noto-sans-thai-regular:shape-rustybuzz-rustybuzz-wasm-rustybuzz-planned-kern-liga-complex-clusters:segment-icu4x-icu4x-segmenter-icu4x-planned-icu4x-data-planned-icu4x-uax14-thai-v1:fallback-explicit-font-list-v1:output-glyph-line-box-v1",
+    "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+    "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+    "shaperRevision": "rustybuzz-0.20.1",
+    "segmenterRevision": "icu_segmenter-2.2.0",
+    "segmenterDataRevision": "icu_segmenter_data-2.2.0",
+    "lineBreakPolicy": "icu4x-uax14-thai-v1"
+  },
+  "workerRuntimeIdentity": {
+    "runtime": "browser-worker-wasm",
+    "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+    "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+    "boundaryVersion": "flowdoc-text-engine-wasm-live-draft-xr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d"
+    },
+    "importsWasm": true,
+    "executesRustybuzz": true,
+    "executesIcu4x": true
+  },
+  "initializationDurationMs": 5.5,
+  "rows": [
+    {
+      "rowId": "live-draft-xr1-thai-greeting-no-space",
+      "fixtureId": "v1-measure-thai-line-break-core",
+      "scenarioId": "thai-greeting-no-space",
+      "status": "matched",
+      "nodeRuntimeIdentity": {
+        "runtime": "node-native",
+        "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+        "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+        "wasmExecution": false,
+        "executesRustybuzz": true,
+        "executesIcu4x": true
+      },
+      "workerDurationMs": 16,
+      "normalizedResult": {
+        "contractVersion": 1,
+        "outputShapeVersion": "glyph-break-smoke-v1",
+        "text": "สวัสดีครับตูม",
+        "fontId": "sarabun-regular",
+        "textByteLength": 39,
+        "textScalarCount": 13,
+        "unitsPerEm": 1000,
+        "glyphs": [
+          {
+            "index": 0,
+            "glyphId": 481,
+            "cluster": 0,
+            "xAdvance": 580,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 1,
+            "glyphId": 478,
+            "cluster": 3,
+            "xAdvance": 512,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 2,
+            "glyphId": 733,
+            "cluster": 3,
+            "xAdvance": 0,
+            "yAdvance": 0,
+            "xOffset": -10,
+            "yOffset": 0
+          },
+          {
+            "index": 3,
+            "glyphId": 481,
+            "cluster": 9,
+            "xAdvance": 580,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 4,
+            "glyphId": 457,
+            "cluster": 12,
+            "xAdvance": 592,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 5,
+            "glyphId": 754,
+            "cluster": 12,
+            "xAdvance": 0,
+            "yAdvance": 0,
+            "xOffset": -10,
+            "yOffset": 0
+          },
+          {
+            "index": 6,
+            "glyphId": 435,
+            "cluster": 18,
+            "xAdvance": 603,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 7,
+            "glyphId": 472,
+            "cluster": 21,
+            "xAdvance": 484,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 8,
+            "glyphId": 733,
+            "cluster": 21,
+            "xAdvance": 0,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 9,
+            "glyphId": 463,
+            "cluster": 27,
+            "xAdvance": 645,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 10,
+            "glyphId": 458,
+            "cluster": 30,
+            "xAdvance": 607,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 11,
+            "glyphId": 769,
+            "cluster": 30,
+            "xAdvance": 0,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 12,
+            "glyphId": 470,
+            "cluster": 36,
+            "xAdvance": 614,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          }
+        ],
+        "breakByteOffsets": [
+          0,
+          12,
+          18,
+          30,
+          39
+        ],
+        "breakUtf16Offsets": [
+          0,
+          4,
+          6,
+          10,
+          13
+        ],
+        "summary": {
+          "glyphCount": 13,
+          "missingGlyphCount": 0,
+          "totalAdvanceFontUnits": 5217,
+          "breakCount": 5
+        }
+      }
+    },
+    {
+      "rowId": "live-draft-xr1-latin-prepared-summary",
+      "fixtureId": "v1-measure-latin-product-paragraphs",
+      "scenarioId": "product-report-vnext-minimal",
+      "status": "matched",
+      "nodeRuntimeIdentity": {
+        "runtime": "node-native",
+        "measurementProfileId": "live-draft-xr1-smoke-profile-v1:sarabun-regular-b8150084e25734e6:rustybuzz-0.20.1:icu-segmenter-2.2.0:icu-data-2.2.0:icu4x-uax14-thai-v1:glyph-break-smoke-v1",
+        "wasmSha256": "60d24ed4b5546e580a8fa5dd05d774e7d8b7078958f7d327cf8f66ffcb5b3a85",
+        "wasmExecution": false,
+        "executesRustybuzz": true,
+        "executesIcu4x": true
+      },
+      "workerDurationMs": 0.5,
+      "normalizedResult": {
+        "contractVersion": 1,
+        "outputShapeVersion": "glyph-break-smoke-v1",
+        "text": "Prepared summary",
+        "fontId": "sarabun-regular",
+        "textByteLength": 16,
+        "textScalarCount": 16,
+        "unitsPerEm": 1000,
+        "glyphs": [
+          {
+            "index": 0,
+            "glyphId": 138,
+            "cluster": 0,
+            "xAdvance": 573,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 1,
+            "glyphId": 353,
+            "cluster": 1,
+            "xAdvance": 350,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 2,
+            "glyphId": 251,
+            "cluster": 2,
+            "xAdvance": 518,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 3,
+            "glyphId": 350,
+            "cluster": 3,
+            "xAdvance": 545,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 4,
+            "glyphId": 211,
+            "cluster": 4,
+            "xAdvance": 514,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 5,
+            "glyphId": 353,
+            "cluster": 5,
+            "xAdvance": 350,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 6,
+            "glyphId": 251,
+            "cluster": 6,
+            "xAdvance": 518,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 7,
+            "glyphId": 245,
+            "cluster": 7,
+            "xAdvance": 542,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 8,
+            "glyphId": 3,
+            "cluster": 8,
+            "xAdvance": 243,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 9,
+            "glyphId": 360,
+            "cluster": 9,
+            "xAdvance": 416,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 10,
+            "glyphId": 377,
+            "cluster": 10,
+            "xAdvance": 552,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 11,
+            "glyphId": 312,
+            "cluster": 11,
+            "xAdvance": 839,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 12,
+            "glyphId": 312,
+            "cluster": 12,
+            "xAdvance": 839,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 13,
+            "glyphId": 211,
+            "cluster": 13,
+            "xAdvance": 514,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 14,
+            "glyphId": 353,
+            "cluster": 14,
+            "xAdvance": 350,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          },
+          {
+            "index": 15,
+            "glyphId": 408,
+            "cluster": 15,
+            "xAdvance": 462,
+            "yAdvance": 0,
+            "xOffset": 0,
+            "yOffset": 0
+          }
+        ],
+        "breakByteOffsets": [
+          0,
+          9,
+          16
+        ],
+        "breakUtf16Offsets": [
+          0,
+          9,
+          16
+        ],
+        "summary": {
+          "glyphCount": 16,
+          "missingGlyphCount": 0,
+          "totalAdvanceFontUnits": 8125,
+          "breakCount": 3
+        }
+      }
+    }
+  ],
+  "scope": {
+    "acceptedRowsOnly": true,
+    "crossRuntimeExactnessClaim": false,
+    "productionBinding": false,
+    "defaultMeasurerReplacement": false,
+    "formBinding": false,
+    "backendRequestPerKeystroke": false
+  }
+}
