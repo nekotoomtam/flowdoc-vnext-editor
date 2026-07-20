@@ -235,7 +235,8 @@ describe("PDF-EXPORT-REALDOC-E.5.6 Published Preview UI", () => {
     expect(markup).toContain("1 of 2")
     expect(markup).toContain("value-defaulted")
     expect(markup).toContain("run-valid")
-    expect(markup).toContain("operation%3Aqa/download")
+    expect(markup).toContain("Rendering PDF pages")
+    expect(markup).not.toContain("<iframe")
     expect(markup).not.toContain("canonicalBusinessData")
   })
 

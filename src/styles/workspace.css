@@ -766,12 +766,91 @@
 }
 
 .published-preview-pdf {
-  background: var(--color-paper);
-  border: 1px solid var(--color-border);
-  height: 100%;
-  flex: 1 1 auto;
-  min-height: 520px;
+  display: grid;
+  flex: 0 0 auto;
+  gap: var(--space-3);
+  min-width: 0;
   width: 100%;
+}
+
+.published-preview-pdf-toolbar {
+  align-items: center;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.published-preview-pdf-toolbar > strong {
+  font-size: 12px;
+}
+
+.published-preview-pdf-toolbar > div {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.published-preview-pdf-toolbar span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  text-align: center;
+  width: 38px;
+}
+
+.published-preview-page-list {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.published-preview-page {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.published-preview-page-canvas {
+  background: var(--color-paper);
+  box-shadow: var(--shadow-paper);
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.published-preview-page > span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.published-preview-page-failed,
+.published-preview-pdf-state {
+  align-items: center;
+  background: var(--color-panel-strong);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  justify-content: center;
+  min-height: 260px;
+  padding: var(--space-5);
+  text-align: center;
+  width: 100%;
+}
+
+.published-preview-page-failed,
+.published-preview-pdf-error {
+  color: var(--color-danger);
 }
 
 .published-preview-placeholder {
@@ -946,8 +1025,8 @@
     width: min(86%, 520px);
   }
 
-  .published-preview-pdf {
-    min-height: 420px;
+  .published-preview-page-list {
+    gap: var(--space-4);
   }
 }
 

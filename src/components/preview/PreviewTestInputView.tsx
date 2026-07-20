@@ -35,6 +35,7 @@ import type {
   TestInputImageSelection,
   TestInputScalarValue,
 } from "../../editor/preview/testInputFormState"
+import { PublishedPreviewPdf } from "./PublishedPreviewPdf"
 import {
   testInputMappingProfileMatchesProjection,
   testInputMappingProfileOptionKey,
@@ -677,10 +678,9 @@ function PublishedPreviewSurface({
         </>
       ) : null}
       {interaction.artifactUrl ? (
-        <iframe
-          className="published-preview-pdf"
-          src={interaction.artifactUrl}
-          title={`${document.title} exact ${targetLabel} PDF`}
+        <PublishedPreviewPdf
+          title={`${document.title} exact ${targetLabel}`}
+          url={interaction.artifactUrl}
         />
       ) : (
         <div className="test-input-preview-paper published-preview-placeholder">

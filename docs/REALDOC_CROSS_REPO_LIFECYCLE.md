@@ -83,7 +83,10 @@ state or an exact idempotent replay without creating a second cancellation.
 - reload returns directly to Published, displays reconnect activity, restores
   diagnostics and page count, then rejects the result as stale because JSON
   was not retained; and
-- the Preview workspace remains coherent at desktop size and at 390 x 844.
+- after the exact JSON/profile is restored, PDF.js renders all 10 artifact
+  pages to in-app canvases with bounded zoom instead of relying on the browser
+  PDF iframe plugin; and
+- the real page surface remains coherent at desktop size and at 390 x 844.
 
 Backend evidence separately proves pending-operation restart, exact request
 replay, status recovery, uncertain cancel reconciliation, scoped concealment,

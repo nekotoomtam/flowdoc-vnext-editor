@@ -19,6 +19,8 @@ describe("PDF-EXPORT-REALDOC-E.6.3 Editor reconnect handoff", () => {
     expect(doc).toContain("Form values, collections, JSON payload text")
     expect(doc).toContain("749,929-byte 69C JSON")
     expect(doc).toContain("10-page, 1,417,544-byte artifact")
+    expect(doc).toContain("PDF.js renders all 10 artifact")
+    expect(doc).toContain("instead of relying on the browser")
     expect(doc).toContain("390 x 844")
     expect(doc).toContain("Production remains NO-GO")
   })
