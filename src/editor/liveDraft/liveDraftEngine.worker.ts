@@ -114,12 +114,13 @@ workerScope.addEventListener("message", (event) => {
         sectionId: "live-draft-xr2-section",
         textBlockId: request.type === "live-draft.form-layout"
           ? request.textBlock.textBlockId
-          : `live-draft-xr2:${request.smokeRow.rowId}`,
+          : request.smokeRow.textBlockId ?? `live-draft-xr2:${request.smokeRow.rowId}`,
         text: textBlock.text,
         availableWidthPt: coreLayoutInput.availableWidthPt,
         pageBodyHeightPt: coreLayoutInput.pageBodyHeightPt,
         styleKey: coreLayoutInput.styleKey,
-        ...(request.type === "live-draft.form-layout" ? { displayList: request.coreLayout.displayList } : {}),
+        ...(coreLayoutInput.sourceRuns == null ? {} : { sourceRuns: coreLayoutInput.sourceRuns }),
+        ...(coreLayoutInput.displayList == null ? {} : { displayList: coreLayoutInput.displayList }),
       }, (engineInput) => {
         const normalized = runtime!.measure({
           text: engineInput.text,

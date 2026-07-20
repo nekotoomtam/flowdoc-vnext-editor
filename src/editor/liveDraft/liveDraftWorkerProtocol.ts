@@ -1,6 +1,7 @@
 import type { FlowDocTextEngineLiveDraftNormalizedResultV1 } from "@flowdoc/text-engine-rust-wasm/worker"
 import type {
   CoreLiveDraftOneBlockLayoutResultV1,
+  CoreLiveDraftMeasurementRunV1,
   CoreLiveDraftTextFlowDisplayListInputV1,
 } from "../../core/coreAdapter"
 
@@ -51,6 +52,7 @@ export interface FlowDocLiveDraftLayoutRequestV1 {
     rowId: string
     fixtureId: string
     scenarioId: string
+    textBlockId?: string
     text: string
     fontId: string
     fontSha256: string
@@ -62,6 +64,8 @@ export interface FlowDocLiveDraftLayoutRequestV1 {
     pageBodyHeightPt: number
     styleKey: string
     cacheAction: "retain" | "clear-before"
+    sourceRuns?: CoreLiveDraftMeasurementRunV1[]
+    displayList?: CoreLiveDraftTextFlowDisplayListInputV1
   }
 }
 
@@ -179,6 +183,20 @@ function hasValidCoreLayout(value: unknown): value is NonNullable<FlowDocLiveDra
     && typeof value.styleKey === "string"
     && value.styleKey.trim().length > 0
     && (value.cacheAction === "retain" || value.cacheAction === "clear-before")
+    && (value.sourceRuns == null || hasValidSourceRuns(value.sourceRuns))
+    && (value.displayList == null || hasValidDisplayListInput(value.displayList))
+}
+
+function hasValidSourceRuns(value: unknown): value is CoreLiveDraftMeasurementRunV1[] {
+  if (!Array.isArray(value) || value.length === 0) return false
+  return value.every((run) => isRecord(run)
+    && typeof run.inlineId === "string"
+    && run.inlineId.trim().length > 0
+    && ["text", "resolved-field", "generated-page-number", "hard-break", "inline-image"].includes(String(run.kind))
+    && Number.isSafeInteger(run.renderStartOffset)
+    && Number.isSafeInteger(run.renderEndOffset)
+    && typeof run.renderedText === "string"
+    && (run.kind !== "resolved-field" || (typeof run.fieldKey === "string" && run.fieldKey.trim().length > 0)))
 }
 
 function hasValidDisplayListInput(value: unknown): value is CoreLiveDraftTextFlowDisplayListInputV1 {
@@ -243,6 +261,7 @@ export function parseFlowDocLiveDraftWorkerRequestV1(value: unknown): FlowDocLiv
     typeof row.rowId !== "string"
     || typeof row.fixtureId !== "string"
     || typeof row.scenarioId !== "string"
+    || (row.textBlockId != null && (typeof row.textBlockId !== "string" || row.textBlockId.trim().length === 0))
     || typeof row.text !== "string"
     || typeof row.fontId !== "string"
     || typeof row.fontSha256 !== "string"

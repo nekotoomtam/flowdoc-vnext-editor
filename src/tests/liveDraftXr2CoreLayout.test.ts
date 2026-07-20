@@ -52,4 +52,69 @@ describe("LIVE-DRAFT-XR-2 Core one-block adapter", () => {
     expect(cold.pagination.fingerprint).toBe(warm.pagination.fingerprint)
     expect(cold.pagination.measurementFingerprint).toBe(warm.pagination.measurementFingerprint)
   })
+
+  it("retains XR5 resolved-field source runs in Core display-list commands", () => {
+    const session = createCoreLiveDraftOneBlockLayoutSessionV1({
+      measurementProfileId: "xr5-test-profile",
+      profileRevision: "xr5-test-revision",
+    })
+    const result = session.layout({
+      documentId: "document-1",
+      instanceRevision: 1,
+      sectionId: "section-1",
+      textBlockId: "field-block",
+      text: "Hello Acme",
+      availableWidthPt: 180,
+      pageBodyHeightPt: 36,
+      styleKey: "paragraph",
+      sourceRuns: [{
+        inlineId: "before",
+        kind: "text",
+        renderedText: "Hello ",
+        renderStartOffset: 0,
+        renderEndOffset: 6,
+        styleKey: "paragraph",
+      }, {
+        inlineId: "customer",
+        kind: "resolved-field",
+        fieldKey: "customer.name",
+        renderedText: "Acme",
+        renderStartOffset: 6,
+        renderEndOffset: 10,
+        styleKey: "paragraph",
+      }],
+      displayList: {
+        projectionId: "xr5-field-display-list",
+        pageWidthPt: 595.28,
+        pageHeightPt: 841.89,
+        bodyXPt: 72,
+        bodyYPt: 72,
+        fontId: "sarabun-regular",
+        fontFamily: "Sarabun",
+        fontSizePt: 12,
+        baselineOffsetPt: 13.5,
+        color: "172033",
+      },
+    }, () => ({
+      lines: ["Hello Acme"],
+      lineHeightPt: 18,
+      widthPt: 64,
+      heightPt: 18,
+      lineBoxes: [{
+        index: 0,
+        text: "Hello Acme",
+        startOffset: 0,
+        endOffset: 10,
+        widthPt: 64,
+        heightPt: 18,
+        yOffsetPt: 0,
+      }],
+    }))
+
+    expect(result.displayList?.status).toBe("ready")
+    expect(result.displayList?.commands[0].sourceSegments).toEqual(expect.arrayContaining([
+      expect.objectContaining({ inlineId: "before", kind: "text", renderedText: "Hello " }),
+      expect.objectContaining({ inlineId: "customer", kind: "resolved-field", fieldKey: "customer.name", renderedText: "Acme" }),
+    ]))
+  })
 })

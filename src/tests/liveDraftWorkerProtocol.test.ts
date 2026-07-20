@@ -123,6 +123,62 @@ describe("LIVE-DRAFT-XR-0 worker protocol", () => {
     })).toBeNull()
   })
 
+  it("accepts XR5 display-list and source-run facts on the QA layout family", () => {
+    const request = {
+      protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,
+      type: "live-draft.layout",
+      identity: IDENTITY,
+      smokeRow: {
+        rowId: "field-row",
+        fixtureId: "v1-measure-field-chip-adjacency",
+        scenarioId: "rich-inline-field-chip-adjacency",
+        textBlockId: "live-draft-xr5:field-row",
+        text: "Hello Acme",
+        fontId: "sarabun-regular",
+        fontSha256: "b".repeat(64),
+      },
+      coreLayout: {
+        availableWidthPt: 180,
+        fontSizePt: 12,
+        lineHeightPt: 18,
+        pageBodyHeightPt: 252,
+        styleKey: "paragraph",
+        cacheAction: "clear-before",
+        sourceRuns: [{
+          inlineId: "customer",
+          kind: "resolved-field",
+          fieldKey: "customer.name",
+          renderStartOffset: 0,
+          renderEndOffset: 10,
+          renderedText: "Hello Acme",
+          styleKey: "paragraph",
+        }],
+        displayList: {
+          projectionId: "xr5-field-row",
+          pageWidthPt: 595.28,
+          pageHeightPt: 841.89,
+          bodyXPt: 72,
+          bodyYPt: 72,
+          fontId: "sarabun-regular",
+          fontFamily: "Sarabun",
+          fontSizePt: 12,
+          baselineOffsetPt: 13.5,
+          color: "172033",
+        },
+      },
+    }
+
+    expect(parseFlowDocLiveDraftWorkerRequestV1(request)).toEqual(request)
+    expect(parseFlowDocLiveDraftWorkerRequestV1({
+      ...request,
+      coreLayout: { ...request.coreLayout, sourceRuns: [{ ...request.coreLayout.sourceRuns[0], fieldKey: "" }] },
+    })).toBeNull()
+    expect(parseFlowDocLiveDraftWorkerRequestV1({
+      ...request,
+      smokeRow: { ...request.smokeRow, textBlockId: "" },
+    })).toBeNull()
+  })
+
   it("rejects a stale result when any pinned identity changes", () => {
     const result = {
       protocolVersion: FLOWDOC_LIVE_DRAFT_WORKER_PROTOCOL_VERSION,

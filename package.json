@@ -17,6 +17,7 @@
     "evidence:live-draft-xr2": "node scripts/run-live-draft-xr2-evidence.mjs",
     "evidence:live-draft-xr3": "node scripts/run-live-draft-xr3-form-evidence.mjs",
     "evidence:live-draft-xr4": "node scripts/run-live-draft-xr4-canvas-evidence.mjs",
+    "evidence:live-draft-xr5": "node scripts/run-live-draft-xr5-evidence.mjs",
     "check": "npm run type-check && npm run test && npm run build"
   },
   "dependencies": {

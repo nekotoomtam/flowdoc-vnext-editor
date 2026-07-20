@@ -30,6 +30,7 @@ import {
   type VNextDraftStructurePreviewSnapshotV1,
   type VNextRendererTextMeasurementProvider,
   type VNextTextBlockV4MeasurementRequest,
+  type VNextTextBlockV4MeasurementRun,
   type VNextTestInputCollectionItemFieldProjectionV1,
   type VNextTestInputDocumentFieldProjectionV1,
   type VNextTestInputValueConstraintsV1,
@@ -171,6 +172,7 @@ export function parseCoreInlineNodeV4TargetList(
 export const CORE_LIVE_DRAFT_ONE_BLOCK_LAYOUT_VERSION = "core-live-draft-one-block-xr2-v1" as const
 
 export type CoreLiveDraftExternalMeasurementV1 = ReturnType<VNextRendererTextMeasurementProvider["measure"]>
+export type CoreLiveDraftMeasurementRunV1 = VNextTextBlockV4MeasurementRun
 export type CoreLiveDraftTextFlowDisplayListV1 = Extract<
   ReturnType<typeof projectVNextTextFlowDisplayListV1>,
   { status: "ready" }
@@ -198,6 +200,7 @@ export interface CoreLiveDraftOneBlockLayoutInputV1 {
   availableWidthPt: number
   pageBodyHeightPt: number
   styleKey: string
+  sourceRuns?: CoreLiveDraftMeasurementRunV1[]
   displayList?: CoreLiveDraftTextFlowDisplayListInputV1
 }
 
@@ -318,7 +321,7 @@ export function createCoreLiveDraftOneBlockLayoutSessionV1(input: {
         measurementProfileId: input.measurementProfileId,
         styleKey: layoutInput.styleKey,
         renderedText: layoutInput.text,
-        runs: [{
+        runs: layoutInput.sourceRuns ?? [{
           inlineId: `${layoutInput.textBlockId}:text`,
           kind: "text",
           renderStartOffset: 0,
@@ -376,6 +379,7 @@ export function createCoreLiveDraftOneBlockLayoutSessionV1(input: {
               baselineOffsetPt: layoutInput.displayList.baselineOffsetPt,
               color: layoutInput.displayList.color,
             },
+            ...(layoutInput.sourceRuns == null ? {} : { sourceRuns: layoutInput.sourceRuns }),
           })
       if (displayList?.status === "blocked") {
         throw new Error(`Core text-flow display list blocked: ${displayList.issues.map((issue) => issue.code).join(", ")}`)
