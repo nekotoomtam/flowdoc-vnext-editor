@@ -1,7 +1,7 @@
 # REALDOC Cross-Repo Lifecycle
 
-Status: `PDF-EXPORT-REALDOC-E.6.1` accepted for local Editor contract
-projection. `E.6.2` and `E.6.3` remain pending. Production remains NO-GO.
+Status: Backend `PDF-EXPORT-REALDOC-E.6.2` durable lifecycle accepted for local
+development. Editor reconnect remains `E.6.3`. Production remains NO-GO.
 
 ## Editor Boundary
 
@@ -39,13 +39,26 @@ receipt does not authorize the browser to cache, reconstruct, or expose them.
 The independent-process replay itself is Backend evidence. Editor E.6.1 only
 accepts the content-free contract needed to project its result honestly.
 
+## Backend Durable Lifecycle
+
+E.6.2 adds no new Editor runtime behavior, but establishes the Backend boundary
+that E.6.3 may reconnect to. The optional local composition now retains
+protected admission, operation, lifecycle, artifact metadata, observability,
+and content-addressed PDF bytes across reopen.
+
+Generic recovery passes in four independent Node processes. The exact 69C
+adapted lane reopens pending, reopens after an injected render fault at
+`before-persist`, recovers, and reopens terminal status/download. Its metadata
+and verified 10-page, 1,417,544-byte download match exactly. Terminal reads do
+not rematerialize the document.
+
+This does not make the current browser session durable. Backend startup does
+not automatically discover pending work, and the current Editor has not yet
+stored/recovered the scoped operation identity needed for explicit resume.
+
 ## Remaining E.6
 
-`E.6.2` must make the Backend operation, lifecycle, artifact metadata, and
-verified bytes restartable. Editor must not claim a recoverable Preview merely
-because the admission receipt is durable.
-
-`E.6.3` must then prove browser reload/reconnect, scoped status recovery,
+`E.6.3` must prove browser reload/reconnect, scoped status recovery,
 uncertain cancellation and retry reconciliation, stale-result rejection,
 diagnostic navigation, and verified download through that durable runtime.
 
@@ -60,5 +73,6 @@ diagnostic navigation, and verified download through that durable runtime.
 
 ## Next Phase
 
-`PDF-EXPORT-REALDOC-E.6.2` owns durable Backend operation/artifact restart.
-Editor reconnect acceptance remains `E.6.3`. Production remains NO-GO.
+`PDF-EXPORT-REALDOC-E.6.3` owns durable local runtime wiring and Editor
+reload/reconnect, cancel, retry, diagnostics, status, and download acceptance.
+Production remains NO-GO.
