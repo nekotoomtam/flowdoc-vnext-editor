@@ -81,7 +81,7 @@ describe("MR1 incremental reflow analysis evidence", () => {
     })
   })
 
-  it("keeps the QA Worker separate from product and documents the next contextual shaping gate", () => {
+  it("keeps the QA Worker separate from product and points to the completed contextual shaping gate", () => {
     const worker = read("src/qa/liveDraftMr1IncrementalReflowEvidence.worker.ts")
     const impact = read("src/editor/liveDraft/liveDraftMultiBlockImpact.ts")
     const doc = read("docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md")
@@ -90,7 +90,8 @@ describe("MR1 incremental reflow analysis evidence", () => {
     expect(worker).toContain("analyzeFlowDocTextEngineIncrementalReflowV1")
     expect(worker).not.toMatch(/fetch\(|XMLHttpRequest|@flowdoc\/vnext-core/u)
     expect(impact).toContain('purpose: "scheduling-and-invalidation-hint"')
-    expect(doc).toContain("versioned Rust/WASM range-shaping facts with explicit")
+    expect(doc).toContain("subsequent contextual-range slice now adds versioned Rust/WASM")
+    expect(doc).toContain("LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md")
     expect(doc).toContain("No product frame budget")
   })
 })

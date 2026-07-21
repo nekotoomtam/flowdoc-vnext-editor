@@ -21,6 +21,7 @@
     "evidence:live-draft-mr1": "node scripts/run-live-draft-mr1-evidence.mjs",
     "evidence:live-draft-mr1-multi-block": "node scripts/run-live-draft-mr1-multi-block-evidence.mjs",
     "evidence:live-draft-mr1-incremental-reflow": "node scripts/run-live-draft-mr1-incremental-reflow-evidence.mjs",
+    "evidence:live-draft-mr1-range": "node scripts/run-live-draft-mr1-range-evidence.mjs",
     "check": "npm run type-check && npm run test && npm run build"
   },
   "dependencies": {

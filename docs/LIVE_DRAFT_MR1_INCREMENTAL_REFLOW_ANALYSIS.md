@@ -75,9 +75,13 @@ line breaks or geometry.
 
 ## Next implementation gate
 
-The next slice should add versioned Rust/WASM range-shaping facts with explicit
-pre/post context, bounded ICU4X segmentation context, retained cluster and
-line-checkpoint fingerprints, an affected-window line builder, and incremental
+The subsequent contextual-range slice now adds versioned Rust/WASM
+range-shaping facts with explicit pre/post context and bounded ICU4X
+segmentation context. Native, WASM, and real-Chrome evidence matches complete
+oracles exactly; see `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`.
+
+The next slice should retain prefix/suffix cluster and line-checkpoint
+fingerprints, add an affected-window line builder, and introduce incremental
 Core acceptance. Every assembled result must continue to match the complete
 oracle in QA, while runtime publication must use the incremental contract or
 fall back without running both paths.
@@ -95,3 +99,4 @@ Canvas page virtualization, and production remain outside this gate.
 - `src/fixtures/live-draft-mr1-incremental-reflow-analysis.v1.json`
 - `src/tests/liveDraftMr1IncrementalReflowEvidence.test.ts`
 - `../flowdoc-vnext-core/docs/LIVE_DRAFT_MR1_INCREMENTAL_REFLOW_ANALYSIS.md`
+- `docs/LIVE_DRAFT_MR1_CONTEXTUAL_RANGE_FACTS.md`

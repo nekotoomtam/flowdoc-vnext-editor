@@ -1,0 +1,586 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-mr1-contextual-range-facts-v1",
+  "status": "accepted-oracle-proved-range-facts",
+  "generatedAt": "2026-07-21T07:31:12.549Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "realChromeWorkerWasm": true,
+    "fullOracleExecuted": true,
+    "contextualRangeShapingExecuted": true,
+    "boundedRangeSegmentationExecuted": true,
+    "scenarioCount": 6,
+    "warmSamplesPerScenario": 10,
+    "backendRequestCount": 0,
+    "rangeFactsMayPublishWithoutOracle": false,
+    "productBinding": false,
+    "productionBinding": false
+  },
+  "identity": {
+    "runtime": "browser-worker-wasm-mr1-range",
+    "measurementProfileId": "measurement-profile-mr1-real-browser-v1",
+    "wasmSha256": "90bbb751ad3d5613175d689a2b07f95320b856a5e9420118b259d5738b7dabe7",
+    "boundaryVersion": "flowdoc-text-engine-wasm-live-draft-mr1-range-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+      "sarabun-bold": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    },
+    "importsWasm": true,
+    "executesRustybuzz": true,
+    "executesIcu4x": true,
+    "productionBinding": false
+  },
+  "baseline": {
+    "fullTextUtf16Length": 4959,
+    "fullTextScalarCount": 4959
+  },
+  "outcome": {
+    "shapeExact": true,
+    "segmentationExact": true,
+    "workBounded": true,
+    "scenarios": [
+      {
+        "scenarioId": "near-start-regular",
+        "unitIndex": 1,
+        "fontFaceId": "sarabun-regular",
+        "rangeStartUtf16": 31,
+        "rangeEndUtf16": 61,
+        "shapeContextStartUtf16": 7,
+        "shapeContextEndUtf16": 85,
+        "shapeProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 30,
+          "mayPublishLayout": true
+        },
+        "segmentationProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 7,
+          "mayPublishLayout": true
+        },
+        "boundedSegmentation": {
+          "status": "bounded-stable",
+          "reasonCode": null,
+          "attempts": [
+            {
+              "contextStartUtf16": 0,
+              "contextEndUtf16": 93,
+              "targetBreakUtf16Offsets": [
+                31,
+                35,
+                37,
+                41,
+                44,
+                45,
+                54
+              ]
+            },
+            {
+              "contextStartUtf16": 0,
+              "contextEndUtf16": 125,
+              "targetBreakUtf16Offsets": [
+                31,
+                35,
+                37,
+                41,
+                44,
+                45,
+                54
+              ]
+            },
+            {
+              "contextStartUtf16": 0,
+              "contextEndUtf16": 189,
+              "targetBreakUtf16Offsets": [
+                31,
+                35,
+                37,
+                41,
+                44,
+                45,
+                54
+              ]
+            }
+          ],
+          "stableExpansionCount": 2,
+          "oracleVerified": false,
+          "mayPublishLayout": false
+        },
+        "work": {
+          "fullTextUtf16Length": 4959,
+          "rangeUtf16Length": 30,
+          "rangeGlyphCount": 30,
+          "fullGlyphCount": 4959,
+          "targetBreakCount": 7,
+          "fullBreakCount": 1121,
+          "shapeUtf16ReductionRatio": 0.006049606775559589,
+          "widestSegmentationContextUtf16Length": 189
+        }
+      },
+      {
+        "scenarioId": "first-quarter-bold",
+        "unitIndex": 39,
+        "fontFaceId": "sarabun-bold",
+        "rangeStartUtf16": 1209,
+        "rangeEndUtf16": 1239,
+        "shapeContextStartUtf16": 1185,
+        "shapeContextEndUtf16": 1263,
+        "shapeProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 30,
+          "mayPublishLayout": true
+        },
+        "segmentationProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 7,
+          "mayPublishLayout": true
+        },
+        "boundedSegmentation": {
+          "status": "bounded-stable",
+          "reasonCode": null,
+          "attempts": [
+            {
+              "contextStartUtf16": 1177,
+              "contextEndUtf16": 1271,
+              "targetBreakUtf16Offsets": [
+                1209,
+                1213,
+                1215,
+                1219,
+                1222,
+                1223,
+                1232
+              ]
+            },
+            {
+              "contextStartUtf16": 1145,
+              "contextEndUtf16": 1303,
+              "targetBreakUtf16Offsets": [
+                1209,
+                1213,
+                1215,
+                1219,
+                1222,
+                1223,
+                1232
+              ]
+            },
+            {
+              "contextStartUtf16": 1081,
+              "contextEndUtf16": 1367,
+              "targetBreakUtf16Offsets": [
+                1209,
+                1213,
+                1215,
+                1219,
+                1222,
+                1223,
+                1232
+              ]
+            }
+          ],
+          "stableExpansionCount": 2,
+          "oracleVerified": false,
+          "mayPublishLayout": false
+        },
+        "work": {
+          "fullTextUtf16Length": 4959,
+          "rangeUtf16Length": 30,
+          "rangeGlyphCount": 30,
+          "fullGlyphCount": 4959,
+          "targetBreakCount": 7,
+          "fullBreakCount": 1121,
+          "shapeUtf16ReductionRatio": 0.006049606775559589,
+          "widestSegmentationContextUtf16Length": 286
+        }
+      },
+      {
+        "scenarioId": "middle-regular",
+        "unitIndex": 79,
+        "fontFaceId": "sarabun-regular",
+        "rangeStartUtf16": 2449,
+        "rangeEndUtf16": 2479,
+        "shapeContextStartUtf16": 2425,
+        "shapeContextEndUtf16": 2503,
+        "shapeProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 30,
+          "mayPublishLayout": true
+        },
+        "segmentationProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 7,
+          "mayPublishLayout": true
+        },
+        "boundedSegmentation": {
+          "status": "bounded-stable",
+          "reasonCode": null,
+          "attempts": [
+            {
+              "contextStartUtf16": 2417,
+              "contextEndUtf16": 2511,
+              "targetBreakUtf16Offsets": [
+                2449,
+                2453,
+                2455,
+                2459,
+                2462,
+                2463,
+                2472
+              ]
+            },
+            {
+              "contextStartUtf16": 2385,
+              "contextEndUtf16": 2543,
+              "targetBreakUtf16Offsets": [
+                2449,
+                2453,
+                2455,
+                2459,
+                2462,
+                2463,
+                2472
+              ]
+            },
+            {
+              "contextStartUtf16": 2321,
+              "contextEndUtf16": 2607,
+              "targetBreakUtf16Offsets": [
+                2449,
+                2453,
+                2455,
+                2459,
+                2462,
+                2463,
+                2472
+              ]
+            }
+          ],
+          "stableExpansionCount": 2,
+          "oracleVerified": false,
+          "mayPublishLayout": false
+        },
+        "work": {
+          "fullTextUtf16Length": 4959,
+          "rangeUtf16Length": 30,
+          "rangeGlyphCount": 30,
+          "fullGlyphCount": 4959,
+          "targetBreakCount": 7,
+          "fullBreakCount": 1121,
+          "shapeUtf16ReductionRatio": 0.006049606775559589,
+          "widestSegmentationContextUtf16Length": 286
+        }
+      },
+      {
+        "scenarioId": "middle-bold",
+        "unitIndex": 80,
+        "fontFaceId": "sarabun-bold",
+        "rangeStartUtf16": 2480,
+        "rangeEndUtf16": 2510,
+        "shapeContextStartUtf16": 2456,
+        "shapeContextEndUtf16": 2534,
+        "shapeProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 30,
+          "mayPublishLayout": true
+        },
+        "segmentationProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 7,
+          "mayPublishLayout": true
+        },
+        "boundedSegmentation": {
+          "status": "bounded-stable",
+          "reasonCode": null,
+          "attempts": [
+            {
+              "contextStartUtf16": 2448,
+              "contextEndUtf16": 2542,
+              "targetBreakUtf16Offsets": [
+                2480,
+                2484,
+                2486,
+                2490,
+                2493,
+                2494,
+                2503
+              ]
+            },
+            {
+              "contextStartUtf16": 2416,
+              "contextEndUtf16": 2574,
+              "targetBreakUtf16Offsets": [
+                2480,
+                2484,
+                2486,
+                2490,
+                2493,
+                2494,
+                2503
+              ]
+            },
+            {
+              "contextStartUtf16": 2352,
+              "contextEndUtf16": 2638,
+              "targetBreakUtf16Offsets": [
+                2480,
+                2484,
+                2486,
+                2490,
+                2493,
+                2494,
+                2503
+              ]
+            }
+          ],
+          "stableExpansionCount": 2,
+          "oracleVerified": false,
+          "mayPublishLayout": false
+        },
+        "work": {
+          "fullTextUtf16Length": 4959,
+          "rangeUtf16Length": 30,
+          "rangeGlyphCount": 30,
+          "fullGlyphCount": 4959,
+          "targetBreakCount": 7,
+          "fullBreakCount": 1121,
+          "shapeUtf16ReductionRatio": 0.006049606775559589,
+          "widestSegmentationContextUtf16Length": 286
+        }
+      },
+      {
+        "scenarioId": "last-quarter-regular",
+        "unitIndex": 119,
+        "fontFaceId": "sarabun-regular",
+        "rangeStartUtf16": 3689,
+        "rangeEndUtf16": 3719,
+        "shapeContextStartUtf16": 3665,
+        "shapeContextEndUtf16": 3743,
+        "shapeProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 30,
+          "mayPublishLayout": true
+        },
+        "segmentationProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 7,
+          "mayPublishLayout": true
+        },
+        "boundedSegmentation": {
+          "status": "bounded-stable",
+          "reasonCode": null,
+          "attempts": [
+            {
+              "contextStartUtf16": 3657,
+              "contextEndUtf16": 3751,
+              "targetBreakUtf16Offsets": [
+                3689,
+                3693,
+                3695,
+                3699,
+                3702,
+                3703,
+                3712
+              ]
+            },
+            {
+              "contextStartUtf16": 3625,
+              "contextEndUtf16": 3783,
+              "targetBreakUtf16Offsets": [
+                3689,
+                3693,
+                3695,
+                3699,
+                3702,
+                3703,
+                3712
+              ]
+            },
+            {
+              "contextStartUtf16": 3561,
+              "contextEndUtf16": 3847,
+              "targetBreakUtf16Offsets": [
+                3689,
+                3693,
+                3695,
+                3699,
+                3702,
+                3703,
+                3712
+              ]
+            }
+          ],
+          "stableExpansionCount": 2,
+          "oracleVerified": false,
+          "mayPublishLayout": false
+        },
+        "work": {
+          "fullTextUtf16Length": 4959,
+          "rangeUtf16Length": 30,
+          "rangeGlyphCount": 30,
+          "fullGlyphCount": 4959,
+          "targetBreakCount": 7,
+          "fullBreakCount": 1121,
+          "shapeUtf16ReductionRatio": 0.006049606775559589,
+          "widestSegmentationContextUtf16Length": 286
+        }
+      },
+      {
+        "scenarioId": "near-end-bold",
+        "unitIndex": 158,
+        "fontFaceId": "sarabun-bold",
+        "rangeStartUtf16": 4898,
+        "rangeEndUtf16": 4928,
+        "shapeContextStartUtf16": 4874,
+        "shapeContextEndUtf16": 4952,
+        "shapeProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 30,
+          "mayPublishLayout": true
+        },
+        "segmentationProof": {
+          "status": "exact",
+          "reasonCode": null,
+          "comparedFactCount": 7,
+          "mayPublishLayout": true
+        },
+        "boundedSegmentation": {
+          "status": "bounded-stable",
+          "reasonCode": null,
+          "attempts": [
+            {
+              "contextStartUtf16": 4866,
+              "contextEndUtf16": 4959,
+              "targetBreakUtf16Offsets": [
+                4898,
+                4902,
+                4904,
+                4908,
+                4911,
+                4912,
+                4921
+              ]
+            },
+            {
+              "contextStartUtf16": 4834,
+              "contextEndUtf16": 4959,
+              "targetBreakUtf16Offsets": [
+                4898,
+                4902,
+                4904,
+                4908,
+                4911,
+                4912,
+                4921
+              ]
+            },
+            {
+              "contextStartUtf16": 4770,
+              "contextEndUtf16": 4959,
+              "targetBreakUtf16Offsets": [
+                4898,
+                4902,
+                4904,
+                4908,
+                4911,
+                4912,
+                4921
+              ]
+            }
+          ],
+          "stableExpansionCount": 2,
+          "oracleVerified": false,
+          "mayPublishLayout": false
+        },
+        "work": {
+          "fullTextUtf16Length": 4959,
+          "rangeUtf16Length": 30,
+          "rangeGlyphCount": 30,
+          "fullGlyphCount": 4959,
+          "targetBreakCount": 7,
+          "fullBreakCount": 1121,
+          "shapeUtf16ReductionRatio": 0.006049606775559589,
+          "widestSegmentationContextUtf16Length": 189
+        }
+      }
+    ]
+  },
+  "timing": {
+    "interactionReferenceMs": 16.7,
+    "fullShape": {
+      "sampleCount": 20,
+      "minMs": 8.5,
+      "p50Ms": 9.699999988079071,
+      "p95Ms": 14.800000011920929,
+      "maxMs": 15.199999988079071
+    },
+    "rangeShape": {
+      "sampleCount": 60,
+      "minMs": 1.399999976158142,
+      "p50Ms": 1.899999976158142,
+      "p95Ms": 3.300000011920929,
+      "maxMs": 4.5
+    },
+    "fullSegmentation": {
+      "sampleCount": 10,
+      "minMs": 24.69999998807907,
+      "p50Ms": 26.80000001192093,
+      "p95Ms": 36,
+      "maxMs": 36
+    },
+    "boundedSegmentation": {
+      "sampleCount": 60,
+      "minMs": 5.899999976158142,
+      "p50Ms": 7.699999988079071,
+      "p95Ms": 10.699999988079071,
+      "maxMs": 11.800000011920929
+    },
+    "assetFetchDurationMs": 23.100000023841858,
+    "workerRoundTripMs": 1610,
+    "timingIsDiagnosticOnly": true,
+    "productFrameGateClaimed": false
+  },
+  "contracts": {
+    "fullOracleExecuted": true,
+    "contextualRangeShapingExecuted": true,
+    "boundedRangeSegmentationExecuted": true,
+    "artificialContextEndpointsExcluded": true,
+    "exactIntegerGlyphComparison": true,
+    "rangeFactsMayPublishWithoutOracle": false,
+    "rendererMeasuredText": false,
+    "backendBinding": false,
+    "productBinding": false,
+    "tableScope": false
+  },
+  "scope": {
+    "textBlockEffectiveRunOnly": true,
+    "regularAndBoldFontFaces": true,
+    "ThaiAndLatinText": true,
+    "exactIntegerOracleComparison": true,
+    "actualContextualRangeShaping": true,
+    "actualBoundedRangeSegmentation": true,
+    "lineReassembly": false,
+    "tables": false,
+    "columns": false,
+    "images": false,
+    "autoFitColumnWidth": false,
+    "productBinding": false,
+    "backendBinding": false,
+    "productionBinding": false
+  }
+}
