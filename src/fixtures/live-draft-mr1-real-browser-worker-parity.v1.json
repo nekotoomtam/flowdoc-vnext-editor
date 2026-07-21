@@ -1,0 +1,89 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-mr1-real-browser-worker-parity-v1",
+  "status": "accepted-bounded-real-browser-worker-parity",
+  "generatedAt": "2026-07-21T02:30:20.783Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "nodeNativeRustybuzz": true,
+    "nodeNativeIcu4x": true,
+    "realChromeWorker": true,
+    "workerWasmRustybuzz": true,
+    "workerWasmIcu4x": true,
+    "coreMultiRunAcceptance": true,
+    "productionBinding": false,
+    "editorProductBinding": false,
+    "backendRequestCount": 0
+  },
+  "identity": {
+    "wasmSha256": "cc130a7f8cef2694f8518cecb93b518eac2496fa8f4141f62ca284e6f34b0857",
+    "measurementProfileId": "measurement-profile-mr1-real-browser-v1",
+    "workerBoundaryVersion": "flowdoc-text-engine-wasm-live-draft-mr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+      "sarabun-bold": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    }
+  },
+  "parity": {
+    "requestExact": true,
+    "layoutExact": true,
+    "requestMaximumIntegerDrift": 0,
+    "layoutMaximumIntegerDrift": 0,
+    "requestSha256": "b45979dc4b2fd0b1b5cb1c86ab6b01d235ca0b529a56aca0cdd7e25ee6b749af",
+    "layoutSha256": "0c629528d10f414313114b9c29f2109b73c880510f5f34952cc2a39a6393137f",
+    "browserRequestSha256": "b45979dc4b2fd0b1b5cb1c86ab6b01d235ca0b529a56aca0cdd7e25ee6b749af",
+    "browserLayoutSha256": "0c629528d10f414313114b9c29f2109b73c880510f5f34952cc2a39a6393137f"
+  },
+  "outcome": {
+    "shapingRunCount": 3,
+    "clusterCount": 3,
+    "lineCount": 1,
+    "fragmentCount": 3,
+    "fragmentFontFaceIds": [
+      "sarabun-regular",
+      "sarabun-bold",
+      "sarabun-regular"
+    ],
+    "fieldRetained": true,
+    "lineWidthLayoutUnit": 27524000,
+    "naturalAscentLayoutUnit": 25632000,
+    "naturalDescentLayoutUnit": 5568000,
+    "naturalHeightLayoutUnit": 31200000,
+    "baselineOffsetLayoutUnit": 25632000,
+    "fontSwitch": true
+  },
+  "timing": {
+    "observationalNoBudget": true,
+    "assetFetchDurationMs": 20.5,
+    "workerRoundTripMs": 367.69999998807907,
+    "workerDurationMs": 98.39999997615814,
+    "initializationDurationMs": 6.800000011920929,
+    "coldLayoutDurationMs": 31.80000001192093,
+    "warmLayout": {
+      "sampleCount": 25,
+      "minMs": 1.399999976158142,
+      "p50Ms": 1.9000000357627869,
+      "p95Ms": 3.399999976158142,
+      "maxMs": 9.699999988079071
+    },
+    "samplesConsistent": true,
+    "nodeDurationMs": 312.59539999999924
+  },
+  "scope": {
+    "oneTextBlock": true,
+    "mixedSizeOneLine": true,
+    "realBrowserWorkerParity": true,
+    "displayListBinding": false,
+    "canvasPaintBinding": false,
+    "backendBinding": false,
+    "defaultMeasurerReplacement": false,
+    "wholeDocumentComposition": false,
+    "productionBinding": false,
+    "glyphPixelParity": false
+  }
+}

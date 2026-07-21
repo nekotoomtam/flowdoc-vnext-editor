@@ -1,5 +1,6 @@
 import { defineConfig, type ProxyOptions } from "vite"
 import react from "@vitejs/plugin-react"
+import { resolve } from "node:path"
 
 export const FLOWDOC_LOCAL_PDF_EXPORT_PROXY_PREFIX = "/api/pdf-export-local"
 
@@ -48,6 +49,12 @@ export default defineConfig(({ command }) => {
   const localPdfExport = resolveFlowDocLocalPdfExportProxyProfile({ command, env: process.env })
   return {
     plugins: [react()],
+    resolve: {
+      alias: [{
+        find: /^@flowdoc\/vnext-core$/u,
+        replacement: resolve(import.meta.dirname, "../flowdoc-vnext-core/src/index.ts"),
+      }],
+    },
     server: {
       host: "127.0.0.1",
       port: 4001,

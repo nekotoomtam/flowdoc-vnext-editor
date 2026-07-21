@@ -11,6 +11,10 @@
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@flowdoc/vnext-core": ["../flowdoc-vnext-core/src/index.ts"],
+      "@flowdoc/vnext-core/*": ["../flowdoc-vnext-core/*"]
+    },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
