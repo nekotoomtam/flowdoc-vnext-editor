@@ -139,6 +139,6 @@ describe("Live Draft MR1 real Browser Worker evidence", () => {
     expect(runner).toContain("backendLikeRequests")
     expect(config).toContain("/^@flowdoc\\/vnext-core$/u")
     expect(doc).toContain("p50 about 1.9 ms")
-    expect(doc).toContain("does not establish Canvas/PDF glyph")
+    expect(doc).toMatch(/does not\s+establish Canvas\/PDF glyph/u)
   })
 })

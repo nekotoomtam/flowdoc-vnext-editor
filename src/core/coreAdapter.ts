@@ -15,6 +15,8 @@ import {
   acceptVNextTextBlockV4MeasuredLines,
   paginateVNextTextFlowV4,
   projectVNextTextFlowDisplayListV1,
+  projectVNextTextBlockMultiRunDisplayListV1,
+  VNEXT_LAYOUT_UNITS_PER_POINT,
   inspectVNextPackageVersionCapability,
   safeCreateVNextReadOnlyRuntimeSessionV4,
   safeCreateVNextRuntimeSession,
@@ -31,6 +33,7 @@ import {
   type VNextRendererTextMeasurementProvider,
   type VNextTextBlockV4MeasurementRequest,
   type VNextTextBlockV4MeasurementRun,
+  type VNextTextBlockMultiRunLayoutResultV1,
   type VNextTestInputCollectionItemFieldProjectionV1,
   type VNextTestInputDocumentFieldProjectionV1,
   type VNextTestInputValueConstraintsV1,
@@ -177,6 +180,28 @@ export type CoreLiveDraftTextFlowDisplayListV1 = Extract<
   ReturnType<typeof projectVNextTextFlowDisplayListV1>,
   { status: "ready" }
 >
+
+export const CORE_LIVE_DRAFT_LAYOUT_UNITS_PER_POINT = VNEXT_LAYOUT_UNITS_PER_POINT
+export type CoreLiveDraftMultiRunAcceptedLayoutV1 = Extract<
+  VNextTextBlockMultiRunLayoutResultV1,
+  { status: "accepted" }
+>
+export type CoreLiveDraftMultiRunDisplayListV1 = Extract<
+  ReturnType<typeof projectVNextTextBlockMultiRunDisplayListV1>,
+  { status: "ready" }
+>
+
+export function projectCoreLiveDraftMultiRunDisplayListV1(input: {
+  projectionId: string
+  layout: CoreLiveDraftMultiRunAcceptedLayoutV1
+  origin: { xLayoutUnit: number; yLayoutUnit: number }
+}): CoreLiveDraftMultiRunDisplayListV1 {
+  const result = projectVNextTextBlockMultiRunDisplayListV1(input)
+  if (result.status !== "ready") {
+    throw new Error(`Core MR1 fragment display list blocked: ${result.issues.map((item) => item.code).join(", ")}`)
+  }
+  return result
+}
 
 export interface CoreLiveDraftTextFlowDisplayListInputV1 {
   projectionId: string

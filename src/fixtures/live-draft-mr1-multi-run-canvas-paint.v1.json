@@ -1,0 +1,107 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-mr1-multi-run-canvas-paint-v1",
+  "status": "accepted-bounded-multi-run-canvas-paint",
+  "generatedAt": "2026-07-21T03:06:03.569Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "nodeNativeLayout": true,
+    "realChromeWorkerLayout": true,
+    "coreFragmentDisplayListProjection": true,
+    "realChromeCanvasPaint": true,
+    "rendererMeasuredText": false,
+    "rendererRelayout": false,
+    "editorProductBinding": false,
+    "productionBinding": false,
+    "backendRequestCount": 0
+  },
+  "identity": {
+    "wasmSha256": "cc130a7f8cef2694f8518cecb93b518eac2496fa8f4141f62ca284e6f34b0857",
+    "measurementProfileId": "measurement-profile-mr1-real-browser-v1",
+    "workerBoundaryVersion": "flowdoc-text-engine-wasm-live-draft-mr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+      "sarabun-bold": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    },
+    "layoutFingerprint": "sha256:7f5a80a4b934159c5ef03134a2f995f52d298204e418be4a637a7ce26f84c994",
+    "displayListFingerprint": "sha256:765c1b13be277a03f4c9ead407df8225f94ecb30ac84bcda795d7ee647038827"
+  },
+  "parity": {
+    "layoutExact": true,
+    "displayListExact": true,
+    "layoutMaximumIntegerDrift": 0,
+    "displayListMaximumIntegerDrift": 0,
+    "nodeLayoutSha256": "0c629528d10f414313114b9c29f2109b73c880510f5f34952cc2a39a6393137f",
+    "browserLayoutSha256": "0c629528d10f414313114b9c29f2109b73c880510f5f34952cc2a39a6393137f",
+    "nodeDisplayListSha256": "d68bfa9e00ba1cbd608682febb9a9c1b0447868bcc1ae4f6728b83f83876fab5",
+    "browserDisplayListSha256": "d68bfa9e00ba1cbd608682febb9a9c1b0447868bcc1ae4f6728b83f83876fab5"
+  },
+  "outcome": {
+    "lineCount": 1,
+    "commandCount": 3,
+    "nonBlankCommandCount": 3,
+    "commandFontFaceIds": [
+      "sarabun-regular",
+      "sarabun-bold",
+      "sarabun-regular"
+    ],
+    "commandFontSizesLayoutUnit": [
+      10000000,
+      24000000,
+      12000000
+    ],
+    "commandFontWeights": [
+      400,
+      700,
+      400
+    ],
+    "baselineXLayoutUnits": [
+      72000000,
+      77960000,
+      92504000
+    ],
+    "baselineYLayoutUnits": [
+      97632000
+    ],
+    "fieldRetainedInCommand": true,
+    "fontReadiness": {
+      "family": "Sarabun",
+      "regular400": true,
+      "bold700": true
+    },
+    "canvasWidthPx": 794,
+    "canvasHeightPx": 1123,
+    "nonWhitePixelCount": 2589,
+    "pngSha256": "b765e0fa3e4b8bdc21fbdf6f114d99bf051e38214810e83a95e0a36f6f100882"
+  },
+  "timing": {
+    "observationalNoBudget": true,
+    "assetFetchDurationMs": 49.19999998807907,
+    "fontReadinessDurationMs": 39.90000003576279,
+    "workerRoundTripMs": 491,
+    "workerDurationMs": 74.5,
+    "initializationDurationMs": 9,
+    "coldLayoutDurationMs": 48.60000002384186,
+    "projectionDurationMs": 13.5,
+    "paintDurationMs": 7.5,
+    "nodeDurationMs": 1060.3536999999997
+  },
+  "scope": {
+    "oneTextBlock": true,
+    "mixedSizeOneLine": true,
+    "realBrowserWorkerParity": true,
+    "coreFragmentDisplayList": true,
+    "qaCanvasPaint": true,
+    "productCanvasBinding": false,
+    "backendBinding": false,
+    "defaultMeasurerReplacement": false,
+    "wholeDocumentComposition": false,
+    "productionBinding": false,
+    "glyphPixelParity": false
+  }
+}

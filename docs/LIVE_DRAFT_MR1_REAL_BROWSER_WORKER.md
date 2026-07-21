@@ -1,7 +1,8 @@
 # Live Draft MR1 Real Browser Worker Parity
 
 Status: accepted for one bounded mixed-size TextBlock in a real Chrome Worker
-on 2026-07-21. Editor product binding, display-list/Canvas paint, Backend
+on 2026-07-21. A subsequent Core per-fragment display-list and separate QA
+Canvas paint checkpoint are also accepted. Editor product binding, Backend
 binding, whole-document layout, and production remain NO-GO.
 
 ## Outcome
@@ -92,8 +93,9 @@ large-document result.
 - The run observed zero Backend-like requests.
 - It does not modify the current Form controller, current XR Worker, Canvas,
   default measurer, pagination path, or Published/API flow.
-- It does not paint text and therefore does not establish Canvas/PDF glyph or
-  pixel parity.
+- This retained Worker-parity page does not paint text. A separate MR1 Canvas
+  checkpoint now proves nonblank per-fragment paint, but still does not
+  establish Canvas/PDF glyph or pixel parity.
 - RTL/Bidi, inline images, decorations, tables, repeated headers, and
   whole-document composition remain blocked or out of scope.
 
@@ -109,6 +111,6 @@ Regenerate with `npm run evidence:live-draft-mr1`.
 
 ## Next
 
-Project the accepted Core positioned fragments into a versioned per-fragment
-display list, then let a QA Canvas painter consume only those positions and
-styles without calling `measureText` or relaying out the line.
+The Core per-fragment display list and separate QA Canvas painter are now
+accepted in `LIVE_DRAFT_MR1_CANVAS_PAINT.md`. Keep product paths unchanged
+while the next broader correctness and performance fixture is selected.

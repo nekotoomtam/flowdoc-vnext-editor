@@ -87,7 +87,7 @@ async function createCdpClient(webSocketUrl, onEvent) {
   }
 }
 
-async function runBrowser(chromePath, profileRoot) {
+async function runBrowser(chromePath, profileRoot, target) {
   const debuggingPort = await reservePort()
   const chrome = spawn(chromePath, [
     "--headless=new",
@@ -112,16 +112,42 @@ async function runBrowser(chromePath, profileRoot) {
       await cdp.send("Runtime.enable")
       await cdp.send("Network.enable")
       const version = await cdp.send("Browser.getVersion")
-      await cdp.send("Page.navigate", { url: `http://127.0.0.1:${vitePort}/qa/live-draft-mr1-evidence.html` })
+      await cdp.send("Page.navigate", { url: `http://127.0.0.1:${vitePort}${target.pagePath}` })
       const deadline = Date.now() + 180_000
       while (Date.now() < deadline) {
         const evaluated = await cdp.send("Runtime.evaluate", {
-          expression: `(() => { const target = document.querySelector('#flowdoc-live-draft-mr1-result'); return target == null ? null : { status: target.dataset.status, text: target.textContent }; })()`,
+          expression: `(() => { const result = document.querySelector(${JSON.stringify(target.resultSelector)}); return result == null ? null : { status: result.dataset.status, text: result.textContent }; })()`,
           returnByValue: true,
         })
         const value = evaluated.result?.value
         if (value?.status === "pass") {
-          return { output: JSON.parse(value.text), browserVersion: version.product, requests }
+          let canvasPixels = null
+          if (target.canvasSelector != null) {
+            const pixels = await cdp.send("Runtime.evaluate", {
+              expression: `(() => {
+                const canvas = document.querySelector(${JSON.stringify(target.canvasSelector)});
+                if (!(canvas instanceof HTMLCanvasElement)) throw new Error('MR1 Canvas is missing');
+                const context = canvas.getContext('2d');
+                if (context == null) throw new Error('MR1 Canvas context is missing');
+                const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+                let nonWhitePixelCount = 0;
+                for (let index = 0; index < data.length; index += 4) {
+                  if (data[index] < 248 || data[index + 1] < 248 || data[index + 2] < 248) nonWhitePixelCount += 1;
+                }
+                return {
+                  nonWhitePixelCount,
+                  pngDataUrl: canvas.toDataURL('image/png'),
+                  widthPx: canvas.width,
+                  heightPx: canvas.height,
+                  paintStatus: canvas.dataset.paintStatus ?? null,
+                  displayListFingerprint: canvas.dataset.displayListFingerprint ?? null,
+                };
+              })()`,
+              returnByValue: true,
+            })
+            canvasPixels = pixels.result?.value ?? null
+          }
+          return { output: JSON.parse(value.text), browserVersion: version.product, requests, canvasPixels }
         }
         if (value?.status === "fail") {
           const failure = JSON.parse(value.text)
@@ -199,7 +225,10 @@ const profileRoot = mkdtempSync(resolve(tmpdir(), "flowdoc-live-draft-mr1-"))
 
 try {
   await server.listen()
-  const browser = await runBrowser(chromePath, profileRoot)
+  const browser = await runBrowser(chromePath, profileRoot, {
+    pagePath: "/qa/live-draft-mr1-evidence.html",
+    resultSelector: "#flowdoc-live-draft-mr1-result",
+  })
   const runtime = await server.ssrLoadModule("/scripts/run-live-draft-mr1-evidence-runtime.ts")
   const node = runtime.runNodeMr1Evidence()
   if (node.result.status !== "accepted" || browser.output.result.status !== "accepted") {
@@ -314,9 +343,167 @@ try {
       glyphPixelParity: false,
     },
   }
+  const canvasBrowser = await runBrowser(chromePath, profileRoot, {
+    pagePath: "/qa/live-draft-mr1-canvas-evidence.html",
+    resultSelector: "#flowdoc-live-draft-mr1-canvas-result",
+    canvasSelector: "#flowdoc-live-draft-mr1-canvas",
+  })
+  if (
+    node.displayList == null
+    || canvasBrowser.output.result.status !== "accepted"
+    || canvasBrowser.output.displayList.status !== "ready"
+    || canvasBrowser.canvasPixels == null
+  ) throw new Error("MR1 Canvas evidence did not produce accepted layout, display-list, and pixels")
+  const canvasLayoutExact = JSON.stringify(node.result.layout) === JSON.stringify(canvasBrowser.output.result.layout)
+  const canvasDisplayListExact = JSON.stringify(node.displayList) === JSON.stringify(canvasBrowser.output.displayList)
+  const canvasLayoutDrift = maximumNumericDrift(node.result.layout, canvasBrowser.output.result.layout)
+  const canvasDisplayListDrift = maximumNumericDrift(node.displayList, canvasBrowser.output.displayList)
+  const commands = canvasBrowser.output.displayList.commands
+  const commandFontFaceIds = commands.map((command) => command.style.fontFaceId)
+  const commandFontSizes = commands.map((command) => command.style.fontSizeLayoutUnit)
+  const commandFontWeights = commands.map((command) => command.style.fontWeight)
+  const baselineYLayoutUnits = [...new Set(commands.map((command) => command.baselineYLayoutUnit))]
+  const baselineXLayoutUnits = commands.map((command) => command.baselineXLayoutUnit)
+  const fieldRetainedInCommand = commands.some((command) => command.sourceSegments.some((segment) => (
+    segment.kind === "resolved-field" && segment.fieldKey === "customer.initial"
+  )))
+  const commandStylesAccepted = JSON.stringify(commandFontFaceIds)
+      === JSON.stringify(["sarabun-regular", "sarabun-bold", "sarabun-regular"])
+    && JSON.stringify(commandFontSizes) === JSON.stringify([10_000_000, 24_000_000, 12_000_000])
+    && JSON.stringify(commandFontWeights) === JSON.stringify([400, 700, 400])
+  const canvasBaselineAccepted = baselineYLayoutUnits.length === 1
+    && baselineYLayoutUnits[0] === 97_632_000
+    && baselineXLayoutUnits[0] === 72_000_000
+    && baselineXLayoutUnits.every((value, index) => index === 0 || value > baselineXLayoutUnits[index - 1])
+  const rendererBoundariesAccepted = canvasBrowser.output.paint.rendererMeasuredText === false
+    && canvasBrowser.output.paint.rendererRelayout === false
+    && canvasBrowser.output.displayList.contracts.rendererMayMeasureText === false
+    && canvasBrowser.output.displayList.contracts.rendererMayRelayout === false
+  const pixelsAccepted = canvasBrowser.canvasPixels.paintStatus === "painted"
+    && canvasBrowser.canvasPixels.nonWhitePixelCount > 100
+    && canvasBrowser.canvasPixels.displayListFingerprint === canvasBrowser.output.displayList.fingerprint
+  const canvasBackendLikeRequests = canvasBrowser.requests.filter((url) => {
+    const parsed = new URL(url)
+    return /\/(?:api|pdf|preview|render|export)(?:\/|$)/iu.test(parsed.pathname)
+  })
+  if (
+    !canvasLayoutExact
+    || !canvasDisplayListExact
+    || canvasLayoutDrift !== 0
+    || canvasDisplayListDrift !== 0
+    || !commandStylesAccepted
+    || !canvasBaselineAccepted
+    || !fieldRetainedInCommand
+    || !rendererBoundariesAccepted
+    || !pixelsAccepted
+    || canvasBackendLikeRequests.length > 0
+  ) throw new Error(`MR1 Canvas acceptance mismatch: ${JSON.stringify({
+    canvasLayoutExact,
+    canvasDisplayListExact,
+    canvasLayoutDrift,
+    canvasDisplayListDrift,
+    commandStylesAccepted,
+    baselineAccepted: canvasBaselineAccepted,
+    fieldRetainedInCommand,
+    rendererBoundariesAccepted,
+    pixelsAccepted,
+    backendRequestCount: canvasBackendLikeRequests.length,
+  })}`)
+
+  const canvasEvidence = {
+    evidenceVersion: 1,
+    evidenceId: "live-draft-mr1-multi-run-canvas-paint-v1",
+    status: "accepted-bounded-multi-run-canvas-paint",
+    generatedAt: new Date().toISOString(),
+    environment: {
+      platform: process.platform,
+      architecture: process.arch,
+      node: process.version,
+      browser: canvasBrowser.browserVersion,
+    },
+    execution: {
+      nodeNativeLayout: true,
+      realChromeWorkerLayout: true,
+      coreFragmentDisplayListProjection: true,
+      realChromeCanvasPaint: true,
+      rendererMeasuredText: false,
+      rendererRelayout: false,
+      editorProductBinding: false,
+      productionBinding: false,
+      backendRequestCount: canvasBackendLikeRequests.length,
+    },
+    identity: {
+      wasmSha256: runtime.FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+      measurementProfileId: node.identity.measurementProfileId,
+      workerBoundaryVersion: canvasBrowser.output.identity.boundaryVersion,
+      fontSha256ById: canvasBrowser.output.identity.fontSha256ById,
+      layoutFingerprint: canvasBrowser.output.result.layout.fingerprint,
+      displayListFingerprint: canvasBrowser.output.displayList.fingerprint,
+    },
+    parity: {
+      layoutExact: canvasLayoutExact,
+      displayListExact: canvasDisplayListExact,
+      layoutMaximumIntegerDrift: canvasLayoutDrift,
+      displayListMaximumIntegerDrift: canvasDisplayListDrift,
+      nodeLayoutSha256: digest(node.result.layout),
+      browserLayoutSha256: digest(canvasBrowser.output.result.layout),
+      nodeDisplayListSha256: digest(node.displayList),
+      browserDisplayListSha256: digest(canvasBrowser.output.displayList),
+    },
+    outcome: {
+      lineCount: canvasBrowser.output.displayList.summary.lineCount,
+      commandCount: canvasBrowser.output.displayList.summary.commandCount,
+      nonBlankCommandCount: canvasBrowser.output.displayList.summary.nonBlankCommandCount,
+      commandFontFaceIds,
+      commandFontSizesLayoutUnit: commandFontSizes,
+      commandFontWeights,
+      baselineXLayoutUnits,
+      baselineYLayoutUnits,
+      fieldRetainedInCommand,
+      fontReadiness: canvasBrowser.output.fontReadiness,
+      canvasWidthPx: canvasBrowser.canvasPixels.widthPx,
+      canvasHeightPx: canvasBrowser.canvasPixels.heightPx,
+      nonWhitePixelCount: canvasBrowser.canvasPixels.nonWhitePixelCount,
+      pngSha256: createHash("sha256").update(canvasBrowser.canvasPixels.pngDataUrl).digest("hex"),
+    },
+    timing: {
+      observationalNoBudget: true,
+      assetFetchDurationMs: canvasBrowser.output.assetFetchDurationMs,
+      fontReadinessDurationMs: canvasBrowser.output.fontReadinessDurationMs,
+      workerRoundTripMs: canvasBrowser.output.workerRoundTripMs,
+      workerDurationMs: canvasBrowser.output.workerDurationMs,
+      initializationDurationMs: canvasBrowser.output.initializationDurationMs,
+      coldLayoutDurationMs: canvasBrowser.output.coldLayoutDurationMs,
+      projectionDurationMs: canvasBrowser.output.projectionDurationMs,
+      paintDurationMs: canvasBrowser.output.paint.paintDurationMs,
+      nodeDurationMs: node.durationMs,
+    },
+    scope: {
+      oneTextBlock: true,
+      mixedSizeOneLine: true,
+      realBrowserWorkerParity: true,
+      coreFragmentDisplayList: true,
+      qaCanvasPaint: true,
+      productCanvasBinding: false,
+      backendBinding: false,
+      defaultMeasurerReplacement: false,
+      wholeDocumentComposition: false,
+      productionBinding: false,
+      glyphPixelParity: false,
+    },
+  }
   const outputPath = resolve(editorRoot, "src/fixtures/live-draft-mr1-real-browser-worker-parity.v1.json")
+  const canvasOutputPath = resolve(editorRoot, "src/fixtures/live-draft-mr1-multi-run-canvas-paint.v1.json")
   writeFileSync(outputPath, `${JSON.stringify(evidence, null, 2)}\n`, "utf8")
-  process.stdout.write(`${JSON.stringify({ outputPath, status: evidence.status, parity: evidence.parity }, null, 2)}\n`)
+  writeFileSync(canvasOutputPath, `${JSON.stringify(canvasEvidence, null, 2)}\n`, "utf8")
+  process.stdout.write(`${JSON.stringify({
+    outputPath,
+    status: evidence.status,
+    parity: evidence.parity,
+    canvasOutputPath,
+    canvasStatus: canvasEvidence.status,
+    canvasParity: canvasEvidence.parity,
+  }, null, 2)}\n`)
 } finally {
   await server.close()
   rmSync(profileRoot, { recursive: true, force: true })
