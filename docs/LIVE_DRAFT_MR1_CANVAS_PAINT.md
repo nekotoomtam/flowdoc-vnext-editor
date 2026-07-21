@@ -100,7 +100,7 @@ Regenerate both retained MR1 Worker and Canvas evidence with
 
 ## Next
 
-Keep this path QA-only while reconciling the remaining MR1 limits and deciding
-the next bounded fixture. Product binding should not begin until multi-line,
-longer multi-glyph fragments, failure/last-valid behavior, and performance
-impact are explicitly planned and measured.
+The multi-line/multi-glyph and rapid-edit/last-valid checkpoints are now
+accepted in `LIVE_DRAFT_MR1_MULTILINE_MULTI_GLYPH.md` and
+`LIVE_DRAFT_MR1_RAPID_EDIT_LIFECYCLE.md`. Keep product paths unchanged while
+the next multi-block scheduling and frame-budget checkpoint is designed.

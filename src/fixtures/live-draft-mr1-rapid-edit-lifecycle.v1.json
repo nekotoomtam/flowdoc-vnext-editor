@@ -1,0 +1,242 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-mr1-rapid-edit-lifecycle-v1",
+  "status": "accepted-bounded-latest-revision-last-valid",
+  "generatedAt": "2026-07-21T03:55:01.667Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "realChromeWorkerWasm": true,
+    "initializedWorkerReused": true,
+    "coreFragmentDisplayListProjection": true,
+    "realChromeCanvasPaint": true,
+    "debounceMs": 15,
+    "rendererMeasuredText": false,
+    "rendererRelayout": false,
+    "editorProductBinding": false,
+    "productionBinding": false,
+    "backendRequestCount": 0
+  },
+  "identity": {
+    "wasmSha256": "cc130a7f8cef2694f8518cecb93b518eac2496fa8f4141f62ca284e6f34b0857",
+    "measurementProfileId": "measurement-profile-mr1-real-browser-v1",
+    "workerBoundaryVersion": "flowdoc-text-engine-wasm-live-draft-mr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+      "sarabun-bold": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    },
+    "initialDisplayListFingerprint": "sha256:75bb84d9aa93771557b5e1a46b9e1b3f5e9e9c95a6ac4be2fdaa5cc698acbded",
+    "newestDisplayListFingerprint": "sha256:66dd4b8f548064a3fda38fdb9126a68c5914b53d4402e0e067bedf4e868ae637",
+    "finalDisplayListFingerprint": "sha256:f5fe3532137aeb8003f13145343f1870398a4d694d639567de09294f8c739e3d"
+  },
+  "outcome": {
+    "scheduledRevisions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      7
+    ],
+    "requestedRevisions": [
+      1,
+      4,
+      5,
+      7
+    ],
+    "coalescedBeforeDispatchRevisions": [
+      2,
+      3
+    ],
+    "cancellationRequestedRevisions": [
+      4
+    ],
+    "staleCompletionRevision": 4,
+    "appliedRevisions": [
+      1,
+      5,
+      7
+    ],
+    "initialCurrent": {
+      "phase": "draft-current",
+      "pendingRevision": null,
+      "appliedRevision": 1,
+      "lastValidRevision": 1,
+      "lastValidDisplayListFingerprint": "sha256:75bb84d9aa93771557b5e1a46b9e1b3f5e9e9c95a6ac4be2fdaa5cc698acbded",
+      "metrics": {
+        "scheduledCount": 1,
+        "requestCount": 1,
+        "appliedCount": 1,
+        "staleResultCount": 0,
+        "cancellationCount": 0,
+        "blockedCount": 0
+      }
+    },
+    "coalescedPending": {
+      "phase": "draft-updating",
+      "pendingRevision": 4,
+      "appliedRevision": 1,
+      "lastValidRevision": 1,
+      "lastValidDisplayListFingerprint": "sha256:75bb84d9aa93771557b5e1a46b9e1b3f5e9e9c95a6ac4be2fdaa5cc698acbded",
+      "metrics": {
+        "scheduledCount": 4,
+        "requestCount": 2,
+        "appliedCount": 1,
+        "staleResultCount": 0,
+        "cancellationCount": 0,
+        "blockedCount": 0
+      }
+    },
+    "replacementPending": {
+      "phase": "draft-updating",
+      "pendingRevision": 5,
+      "appliedRevision": 1,
+      "lastValidRevision": 1,
+      "lastValidDisplayListFingerprint": "sha256:75bb84d9aa93771557b5e1a46b9e1b3f5e9e9c95a6ac4be2fdaa5cc698acbded",
+      "metrics": {
+        "scheduledCount": 5,
+        "requestCount": 2,
+        "appliedCount": 1,
+        "staleResultCount": 0,
+        "cancellationCount": 1,
+        "blockedCount": 0
+      }
+    },
+    "newestCurrent": {
+      "phase": "draft-current",
+      "pendingRevision": null,
+      "appliedRevision": 5,
+      "lastValidRevision": 5,
+      "lastValidDisplayListFingerprint": "sha256:66dd4b8f548064a3fda38fdb9126a68c5914b53d4402e0e067bedf4e868ae637",
+      "metrics": {
+        "scheduledCount": 5,
+        "requestCount": 3,
+        "appliedCount": 2,
+        "staleResultCount": 0,
+        "cancellationCount": 1,
+        "blockedCount": 0
+      }
+    },
+    "afterLateObsolete": {
+      "phase": "draft-current",
+      "pendingRevision": null,
+      "appliedRevision": 5,
+      "lastValidRevision": 5,
+      "lastValidDisplayListFingerprint": "sha256:66dd4b8f548064a3fda38fdb9126a68c5914b53d4402e0e067bedf4e868ae637",
+      "metrics": {
+        "scheduledCount": 5,
+        "requestCount": 3,
+        "appliedCount": 2,
+        "staleResultCount": 1,
+        "cancellationCount": 1,
+        "blockedCount": 0
+      }
+    },
+    "blockedWithLastValid": {
+      "phase": "draft-blocked",
+      "pendingRevision": null,
+      "appliedRevision": 5,
+      "lastValidRevision": 5,
+      "lastValidDisplayListFingerprint": "sha256:66dd4b8f548064a3fda38fdb9126a68c5914b53d4402e0e067bedf4e868ae637",
+      "metrics": {
+        "scheduledCount": 5,
+        "requestCount": 3,
+        "appliedCount": 2,
+        "staleResultCount": 1,
+        "cancellationCount": 1,
+        "blockedCount": 1
+      }
+    },
+    "recoveryPending": {
+      "phase": "draft-updating",
+      "pendingRevision": 7,
+      "appliedRevision": 5,
+      "lastValidRevision": 5,
+      "lastValidDisplayListFingerprint": "sha256:66dd4b8f548064a3fda38fdb9126a68c5914b53d4402e0e067bedf4e868ae637",
+      "metrics": {
+        "scheduledCount": 6,
+        "requestCount": 3,
+        "appliedCount": 2,
+        "staleResultCount": 1,
+        "cancellationCount": 1,
+        "blockedCount": 1
+      }
+    },
+    "finalCurrent": {
+      "phase": "draft-current",
+      "pendingRevision": null,
+      "appliedRevision": 7,
+      "lastValidRevision": 7,
+      "lastValidDisplayListFingerprint": "sha256:f5fe3532137aeb8003f13145343f1870398a4d694d639567de09294f8c739e3d",
+      "metrics": {
+        "scheduledCount": 6,
+        "requestCount": 4,
+        "appliedCount": 3,
+        "staleResultCount": 1,
+        "cancellationCount": 1,
+        "blockedCount": 1
+      }
+    },
+    "stateTransitionCount": 15,
+    "finalCanvasWidthPx": 794,
+    "finalCanvasHeightPx": 1123,
+    "finalNonWhitePixelCount": 10360,
+    "finalPngSha256": "277da70d7fc1ff49087b5a7fdbc80185302fbc5c1b8dccac6fed36dcdd87b8e8"
+  },
+  "timing": {
+    "observationalNoBudget": true,
+    "artificialResponseDelayMsByRevision": {
+      "1": 5,
+      "4": 120,
+      "5": 5,
+      "7": 5
+    },
+    "workerDurationMsByRevision": {
+      "1": 38,
+      "4": 12.5,
+      "5": 33.90000003576279,
+      "7": 8.600000023841858
+    },
+    "appliedEndToEndDurationMsByRevision": {
+      "1": 69.60000002384186,
+      "5": 62.30000001192093,
+      "7": 33.89999997615814
+    },
+    "paintDurationMs": [
+      3.799999952316284,
+      0.5,
+      0.699999988079071
+    ],
+    "sequenceDurationMs": 270.9000000357628
+  },
+  "contracts": {
+    "debounceCoalescesUndispatchedRevisions": true,
+    "cancellationIsAdvisory": true,
+    "staleCompletionCannotPublish": true,
+    "lastValidRetainedWhilePending": true,
+    "lastValidRetainedWhileBlocked": true,
+    "canvasPaintsAcceptedLatestOnly": true,
+    "rendererMeasuredText": false,
+    "rendererRelayout": false,
+    "backendBinding": false,
+    "productBinding": false
+  },
+  "scope": {
+    "oneTextBlock": true,
+    "rapidConsecutiveRevisions": true,
+    "debounceCoalescing": true,
+    "staleCompletionRejection": true,
+    "lastValidRetention": true,
+    "recoveryAfterBlockedInput": true,
+    "qaCanvasPaint": true,
+    "productCanvasBinding": false,
+    "backendBinding": false,
+    "wholeDocumentComposition": false,
+    "productionBinding": false,
+    "glyphPixelParity": false
+  }
+}

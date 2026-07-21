@@ -1,0 +1,161 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-mr1-multiline-multi-glyph-canvas-v1",
+  "status": "accepted-bounded-multiline-multi-glyph-canvas",
+  "generatedAt": "2026-07-21T03:54:59.926Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "nodeNativeLayout": true,
+    "realChromeWorkerLayout": true,
+    "coreFragmentDisplayListProjection": true,
+    "realChromeCanvasPaint": true,
+    "workerWarmSampleCount": 25,
+    "projectionWarmSampleCount": 25,
+    "paintWarmSampleCount": 25,
+    "rendererMeasuredText": false,
+    "rendererRelayout": false,
+    "editorProductBinding": false,
+    "productionBinding": false,
+    "backendRequestCount": 0
+  },
+  "identity": {
+    "wasmSha256": "cc130a7f8cef2694f8518cecb93b518eac2496fa8f4141f62ca284e6f34b0857",
+    "measurementProfileId": "measurement-profile-mr1-real-browser-v1",
+    "workerBoundaryVersion": "flowdoc-text-engine-wasm-live-draft-mr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+      "sarabun-bold": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    },
+    "layoutFingerprint": "sha256:101ceac4a314adb150aa57ad5f9d9153e1f2a746205a4549efb9e54cd411a3c7",
+    "displayListFingerprint": "sha256:4884b5122ed20efd46749f4d70a731ba1347e8976ce710eb8c85c53096b60876"
+  },
+  "parity": {
+    "requestExact": true,
+    "layoutExact": true,
+    "displayListExact": true,
+    "requestMaximumIntegerDrift": 0,
+    "layoutMaximumIntegerDrift": 0,
+    "displayListMaximumIntegerDrift": 0,
+    "nodeRequestSha256": "799909fbd9da51eb3ed7a23a8de6b9fa809f643a2537d8050a19266823219c1a",
+    "browserRequestSha256": "799909fbd9da51eb3ed7a23a8de6b9fa809f643a2537d8050a19266823219c1a",
+    "nodeLayoutSha256": "35b64afcd2e2a58c57258d2466a572b82c64c3754de928773d386a6943400ce1",
+    "browserLayoutSha256": "35b64afcd2e2a58c57258d2466a572b82c64c3754de928773d386a6943400ce1",
+    "nodeDisplayListSha256": "c58dddb7e22ef350b86f20af73ec67b69947cc1fff66949c7d9e42fe64e7b977",
+    "browserDisplayListSha256": "c58dddb7e22ef350b86f20af73ec67b69947cc1fff66949c7d9e42fe64e7b977"
+  },
+  "outcome": {
+    "renderedTextUtf16Length": 74,
+    "shapingRunCount": 4,
+    "clusterCount": 65,
+    "lineCount": 5,
+    "commandCount": 8,
+    "nonBlankCommandCount": 8,
+    "commandTexts": [
+      "FlowDoc preview ",
+      "ข้อ",
+      "ความ",
+      "ตัวหนา",
+      " / ลูกค้า",
+      "เอซีเอ็มอี",
+      " รายงานฉบับ",
+      "ทดสอบหลายบรรทัด"
+    ],
+    "commandLineIndexes": [
+      0,
+      0,
+      1,
+      2,
+      2,
+      3,
+      3,
+      4
+    ],
+    "baselineYLayoutUnits": [
+      97632000,
+      128832000,
+      160032000,
+      179616000,
+      196780000
+    ],
+    "commandFontFaceIds": [
+      "sarabun-regular",
+      "sarabun-bold"
+    ],
+    "commandFontSizesLayoutUnit": [
+      10000000,
+      12000000,
+      24000000
+    ],
+    "commandFontWeights": [
+      400,
+      700
+    ],
+    "allCommandsMultiGlyph": true,
+    "shapingRunSplitAcrossLines": true,
+    "fieldRetainedInCommand": true,
+    "fontReadiness": {
+      "family": "Sarabun",
+      "regular400": true,
+      "bold700": true
+    },
+    "canvasWidthPx": 794,
+    "canvasHeightPx": 1123,
+    "nonWhitePixelCount": 10094,
+    "pngSha256": "3a456a4265e180d1b51fc0eac682dadcea416304f72c04386d2bf86be741cd7a"
+  },
+  "timing": {
+    "observationalNoBudget": true,
+    "assetFetchDurationMs": 55.90000003576279,
+    "fontReadinessDurationMs": 32.59999996423721,
+    "workerRoundTripMs": 595.6000000238419,
+    "workerDurationMs": 261.19999998807907,
+    "initializationDurationMs": 22.30000001192093,
+    "coldLayoutDurationMs": 69.69999998807907,
+    "warmLayout": {
+      "sampleCount": 25,
+      "minMs": 4.600000023841858,
+      "p50Ms": 5.899999976158142,
+      "p95Ms": 8.899999976158142,
+      "maxMs": 12.599999964237213
+    },
+    "projectionDurationMs": 17.399999976158142,
+    "warmProjection": {
+      "sampleCount": 25,
+      "minMs": 1.5,
+      "p50Ms": 2.700000047683716,
+      "p95Ms": 5.5,
+      "maxMs": 8
+    },
+    "paintDurationMs": 11,
+    "warmPaint": {
+      "sampleCount": 25,
+      "minMs": 0,
+      "p50Ms": 0,
+      "p95Ms": 0.10000002384185791,
+      "maxMs": 0.19999998807907104
+    },
+    "samplesConsistent": true,
+    "nodeDurationMs": 149.03479999999945
+  },
+  "scope": {
+    "oneTextBlock": true,
+    "mixedSizeMultiLine": true,
+    "multiGlyphCommands": true,
+    "shapingRunSplitAcrossLines": true,
+    "resolvedFieldAcrossLines": true,
+    "realBrowserWorkerParity": true,
+    "coreFragmentDisplayList": true,
+    "qaCanvasPaint": true,
+    "productCanvasBinding": false,
+    "backendBinding": false,
+    "defaultMeasurerReplacement": false,
+    "wholeDocumentComposition": false,
+    "productionBinding": false,
+    "glyphPixelParity": false
+  }
+}

@@ -8,6 +8,11 @@ import {
   FLOWDOC_LIVE_DRAFT_MR1_CANVAS_ORIGIN,
   FLOWDOC_LIVE_DRAFT_MR1_CANVAS_PROJECTION_ID,
 } from "../src/qa/liveDraftMr1CanvasFixture"
+import {
+  createFlowDocLiveDraftMr1MultiLineLayoutInputV1,
+  FLOWDOC_LIVE_DRAFT_MR1_MULTILINE_ORIGIN,
+  FLOWDOC_LIVE_DRAFT_MR1_MULTILINE_PROJECTION_ID,
+} from "../src/qa/liveDraftMr1MultiLineFixture"
 
 export function runNodeMr1Evidence() {
   const startedAt = performance.now()
@@ -20,6 +25,26 @@ export function runNodeMr1Evidence() {
         projectionId: FLOWDOC_LIVE_DRAFT_MR1_CANVAS_PROJECTION_ID,
         layout: execution.result.layout,
         origin: FLOWDOC_LIVE_DRAFT_MR1_CANVAS_ORIGIN,
+      })
+    : null
+  return {
+    durationMs: performance.now() - startedAt,
+    ...execution,
+    displayList,
+  }
+}
+
+export function runNodeMr1MultiLineEvidence() {
+  const startedAt = performance.now()
+  const execution = runFlowDocTextEngineNodeMultiRunLayoutV1({
+    layout: createFlowDocLiveDraftMr1MultiLineLayoutInputV1(),
+    wasmSha256: FLOWDOC_TEXT_ENGINE_MR1_WASM_SHA256,
+  })
+  const displayList = execution.result.status === "accepted"
+    ? projectCoreLiveDraftMultiRunDisplayListV1({
+        projectionId: FLOWDOC_LIVE_DRAFT_MR1_MULTILINE_PROJECTION_ID,
+        layout: execution.result.layout,
+        origin: FLOWDOC_LIVE_DRAFT_MR1_MULTILINE_ORIGIN,
       })
     : null
   return {
