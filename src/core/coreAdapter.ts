@@ -16,6 +16,8 @@ import {
   paginateVNextTextFlowV4,
   projectVNextTextFlowDisplayListV1,
   projectVNextTextBlockMultiRunDisplayListV1,
+  composeVNextTextBlockMultiRunDocumentV1,
+  projectVNextTextBlockMultiRunDocumentDisplayListV1,
   VNEXT_LAYOUT_UNITS_PER_POINT,
   inspectVNextPackageVersionCapability,
   safeCreateVNextReadOnlyRuntimeSessionV4,
@@ -34,6 +36,7 @@ import {
   type VNextTextBlockV4MeasurementRequest,
   type VNextTextBlockV4MeasurementRun,
   type VNextTextBlockMultiRunLayoutResultV1,
+  type VNextTextBlockMultiRunDocumentCompositionRequestV1,
   type VNextTestInputCollectionItemFieldProjectionV1,
   type VNextTestInputDocumentFieldProjectionV1,
   type VNextTestInputValueConstraintsV1,
@@ -199,6 +202,50 @@ export function projectCoreLiveDraftMultiRunDisplayListV1(input: {
   const result = projectVNextTextBlockMultiRunDisplayListV1(input)
   if (result.status !== "ready") {
     throw new Error(`Core MR1 fragment display list blocked: ${result.issues.map((item) => item.code).join(", ")}`)
+  }
+  return result
+}
+
+export type CoreLiveDraftMultiBlockCompositionV1 = Extract<
+  ReturnType<typeof composeVNextTextBlockMultiRunDocumentV1>,
+  { status: "accepted" }
+>
+export type CoreLiveDraftMultiBlockDisplayListV1 = Extract<
+  ReturnType<typeof projectVNextTextBlockMultiRunDocumentDisplayListV1>,
+  { status: "ready" }
+>
+export type CoreLiveDraftMultiBlockPageGeometryV1 =
+  VNextTextBlockMultiRunDocumentCompositionRequestV1["pageGeometry"]
+
+export function composeCoreLiveDraftMultiBlockDocumentV1(input: {
+  compositionId: string
+  documentId: string
+  documentRevision: number
+  pageGeometry: CoreLiveDraftMultiBlockPageGeometryV1
+  blockGapLayoutUnit: number
+  blocks: Array<{ textBlockId: string; layout: CoreLiveDraftMultiRunAcceptedLayoutV1 }>
+  dirtyTextBlockIds: string[]
+  previousComposition?: CoreLiveDraftMultiBlockCompositionV1
+}): CoreLiveDraftMultiBlockCompositionV1 {
+  const result = composeVNextTextBlockMultiRunDocumentV1({
+    ...input,
+    layoutUnitPolicyFingerprint: input.blocks[0]?.layout.layoutUnitPolicyFingerprint ?? "missing-layout-policy",
+  })
+  if (result.status !== "accepted") {
+    throw new Error(`Core MR1 multi-block composition blocked: ${result.issues.map((item) => item.code).join(", ")}`)
+  }
+  return result
+}
+
+export function projectCoreLiveDraftMultiBlockDisplayListV1(input: {
+  projectionId: string
+  composition: CoreLiveDraftMultiBlockCompositionV1
+  layouts: CoreLiveDraftMultiRunAcceptedLayoutV1[]
+  previousDisplayList?: CoreLiveDraftMultiBlockDisplayListV1
+}): CoreLiveDraftMultiBlockDisplayListV1 {
+  const result = projectVNextTextBlockMultiRunDocumentDisplayListV1(input)
+  if (result.status !== "ready") {
+    throw new Error(`Core MR1 multi-block display list blocked: ${result.issues.map((item) => item.code).join(", ")}`)
   }
   return result
 }
