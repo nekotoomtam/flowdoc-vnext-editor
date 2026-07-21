@@ -1,0 +1,809 @@
+{
+  "evidenceVersion": 1,
+  "evidenceId": "live-draft-mr1-incremental-reflow-analysis-v1",
+  "status": "accepted-oracle-only-incremental-window",
+  "generatedAt": "2026-07-21T06:45:09.247Z",
+  "environment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "node": "v24.15.0",
+    "browser": "Chrome/150.0.7871.125"
+  },
+  "execution": {
+    "realChromeWorkerWasm": true,
+    "fullLayoutOracleExecuted": true,
+    "diagnosticPhaseTiming": true,
+    "boundedScenarioCount": 6,
+    "fallbackScenarioCount": 3,
+    "warmSamplesPerScenario": 10,
+    "backendRequestCount": 0,
+    "incrementalWindowMayPublishLayout": false,
+    "partialShapingExecuted": false,
+    "productBinding": false,
+    "productionBinding": false
+  },
+  "identity": {
+    "wasmSha256": "cc130a7f8cef2694f8518cecb93b518eac2496fa8f4141f62ca284e6f34b0857",
+    "measurementProfileId": "measurement-profile-mr1-real-browser-v1",
+    "workerBoundaryVersion": "flowdoc-text-engine-wasm-live-draft-mr1-v1",
+    "fontSha256ById": {
+      "sarabun-regular": "b8150084e25734e6f31696c57ff009f5564efa09d295848b717d9e2328c0311d",
+      "sarabun-bold": "5d1fc1ee63ab861fb2022a212b5ff270848582bb9d9cba73b2d2aaabb16d0a18"
+    },
+    "baselineLayoutFingerprint": "sha256:a7efe44d30ec5dd5aba03d6001fc26109042581b19eecf8a5a6f551a4ce4ee89",
+    "baselineCoreLayoutFingerprint": "sha256:85842221dc9e82af021377baa69d4668a5b94c738f06bd0aa131fdf7e00159ca"
+  },
+  "baseline": {
+    "renderedUtf16Length": 4959,
+    "sourceRunCount": 5,
+    "effectiveRunCount": 3,
+    "shapingRunCount": 3,
+    "clusterCount": 4319,
+    "breakOpportunityCount": 1121,
+    "lineCount": 124
+  },
+  "outcome": {
+    "boundedCoverage": [
+      "end",
+      "field-adjacency",
+      "line-edge",
+      "middle",
+      "page-edge",
+      "start",
+      "style-boundary"
+    ],
+    "boundedAccepted": true,
+    "fallbackAccepted": true,
+    "fallbackCodes": [
+      "hard-break-edited",
+      "reconvergence-not-found",
+      "reconvergence-not-found"
+    ],
+    "tokenImpact": {
+      "textBlockId": "text-block-long-mixed-run",
+      "change": "content",
+      "previousTokenCount": 1260,
+      "currentTokenCount": 1260,
+      "commonPrefixTokenCount": 619,
+      "commonSuffixTokenCount": 640,
+      "previousDirtyTokenRange": {
+        "startIndex": 619,
+        "endIndex": 620
+      },
+      "currentDirtyTokenRange": {
+        "startIndex": 619,
+        "endIndex": 620
+      },
+      "currentDirtyRenderRange": {
+        "startOffset": 2472,
+        "endOffset": 2480
+      },
+      "dirtyTokenIds": [
+        "long-regular-suffix:2472-2480"
+      ],
+      "completedTokenBoundary": true,
+      "recommendedDispatch": "immediate",
+      "contracts": {
+        "purpose": "scheduling-and-invalidation-hint",
+        "lineBreakAuthority": false,
+        "geometryAuthority": false,
+        "exactLayoutStillRequired": true
+      }
+    },
+    "scenarios": [
+      {
+        "scenarioId": "insert-near-start",
+        "coverage": "start",
+        "edit": {
+          "previousStartOffset": 46,
+          "previousEndOffset": 46,
+          "nextEndOffset": 47
+        },
+        "oracleFingerprint": "sha256:943d43777b15b17687b0bab82eb0edad04d70113c8c479a16f8490a300f35723",
+        "oracleCoreFingerprint": "sha256:1b5dfa4519d2d038e615b5cc5831f24bb9978d1d0a5e411b0cb371c7b6c9e68a",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1121,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 2,
+          "edit": {
+            "previousStartOffset": 46,
+            "previousEndOffset": 46,
+            "nextEndOffset": 47
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "window-proved",
+          "fallback": null,
+          "checkpoint": {
+            "previousRestartLineIndex": 0,
+            "previousRestartOffset": 0,
+            "nextRestartLineIndex": 0,
+            "nextRestartOffset": 0,
+            "previousReconvergenceLineIndex": 2,
+            "previousReconvergenceOffset": 85,
+            "nextReconvergenceLineIndex": 2,
+            "nextReconvergenceOffset": 86,
+            "offsetDelta": 1,
+            "stableLineCount": 2,
+            "fingerprint": "sha256:93ab8ae2c8d1e7ab888d88fe313f44baf79b5692efc270253a7a2a70613ede4b"
+          },
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reusedPrefixLineCount": 0,
+            "reflowedNextLineCount": 2,
+            "reusedSuffixLineCount": 122,
+            "reflowedNextUtf16Length": 86,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 124,
+            "exactIntegerGeometry": true
+          },
+          "fingerprint": "sha256:8f01503e6081d7afda160b759bd55d568fba88747813d0004e4f178f4e1c35c0"
+        }
+      },
+      {
+        "scenarioId": "insert-near-middle",
+        "coverage": "middle",
+        "edit": {
+          "previousStartOffset": 2433,
+          "previousEndOffset": 2433,
+          "nextEndOffset": 2434
+        },
+        "oracleFingerprint": "sha256:a22d50a40285d773fe9b1f284c9671e49efba419757b00520b2eab4e313895e3",
+        "oracleCoreFingerprint": "sha256:dffca9c4072b44db19217e4275e34d92580f9737e5d3b804a47e33b9e09ed807",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1121,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 3,
+          "edit": {
+            "previousStartOffset": 2433,
+            "previousEndOffset": 2433,
+            "nextEndOffset": 2434
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "window-proved",
+          "fallback": null,
+          "checkpoint": {
+            "previousRestartLineIndex": 61,
+            "previousRestartOffset": 2391,
+            "nextRestartLineIndex": 61,
+            "nextRestartOffset": 2391,
+            "previousReconvergenceLineIndex": 63,
+            "previousReconvergenceOffset": 2472,
+            "nextReconvergenceLineIndex": 63,
+            "nextReconvergenceOffset": 2473,
+            "offsetDelta": 1,
+            "stableLineCount": 2,
+            "fingerprint": "sha256:5ddfe5371133224e40e285c9bfc3b1830e0f254deab26ada03e420ff86426c43"
+          },
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reusedPrefixLineCount": 61,
+            "reflowedNextLineCount": 2,
+            "reusedSuffixLineCount": 61,
+            "reflowedNextUtf16Length": 82,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 124,
+            "exactIntegerGeometry": true
+          },
+          "fingerprint": "sha256:2155a4b6efb8ecc6ccb4d1126287b30bd848a61fda35bc7c1746f6e9a8d7a3d6"
+        }
+      },
+      {
+        "scenarioId": "insert-near-end",
+        "coverage": "end",
+        "edit": {
+          "previousStartOffset": 4913,
+          "previousEndOffset": 4913,
+          "nextEndOffset": 4914
+        },
+        "oracleFingerprint": "sha256:60414510888e370dfcaedcdef589c625a7f983d2d6024c6bddbdc6422dc27a33",
+        "oracleCoreFingerprint": "sha256:ccbfc0baf6e4d3f36e404e85f48b9c4e893b2723d7f2cc76e22fbec163188cc0",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1121,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 4,
+          "edit": {
+            "previousStartOffset": 4913,
+            "previousEndOffset": 4913,
+            "nextEndOffset": 4914
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "fallback-required",
+          "fallback": {
+            "code": "reconvergence-not-found",
+            "message": "no two-line checkpoint with an oracle-identical remaining suffix was found"
+          },
+          "checkpoint": null,
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 122
+          },
+          "fingerprint": "sha256:1a3bf926ad587b8dee7ea77909f3cdd610d4800bb0a33ad99cbd3935eb50c691"
+        }
+      },
+      {
+        "scenarioId": "insert-at-line-edge",
+        "coverage": "line-edge",
+        "edit": {
+          "previousStartOffset": 1037,
+          "previousEndOffset": 1037,
+          "nextEndOffset": 1038
+        },
+        "oracleFingerprint": "sha256:afd77a957c2c526bdca8fb295cc27bfe271067f10dcda748289eb342e325707e",
+        "oracleCoreFingerprint": "sha256:cbae98fb8018f394fdc26f1d55fcfb1a32d746f07d849e6cff68fa1439c3166c",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1121,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 5,
+          "edit": {
+            "previousStartOffset": 1037,
+            "previousEndOffset": 1037,
+            "nextEndOffset": 1038
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "window-proved",
+          "fallback": null,
+          "checkpoint": {
+            "previousRestartLineIndex": 24,
+            "previousRestartOffset": 996,
+            "nextRestartLineIndex": 24,
+            "nextRestartOffset": 996,
+            "previousReconvergenceLineIndex": 26,
+            "previousReconvergenceOffset": 1077,
+            "nextReconvergenceLineIndex": 26,
+            "nextReconvergenceOffset": 1078,
+            "offsetDelta": 1,
+            "stableLineCount": 2,
+            "fingerprint": "sha256:f8267e060f2d20d205097c3554a4318c42c0b0b69d57b83bc970a70306a6210d"
+          },
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reusedPrefixLineCount": 24,
+            "reflowedNextLineCount": 2,
+            "reusedSuffixLineCount": 98,
+            "reflowedNextUtf16Length": 82,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 124,
+            "exactIntegerGeometry": true
+          },
+          "fingerprint": "sha256:6997b846b1d2237da6566ec0f34acb31fb4c75db64336d781230a1ea493c3e2a"
+        }
+      },
+      {
+        "scenarioId": "insert-at-page-edge",
+        "coverage": "page-edge",
+        "edit": {
+          "previousStartOffset": 581,
+          "previousEndOffset": 581,
+          "nextEndOffset": 582
+        },
+        "oracleFingerprint": "sha256:56ed8c6137b8058732e732d168a7ee909fe2765a34084721dc24ff79447be4d4",
+        "oracleCoreFingerprint": "sha256:ceeed2bcc3032a2adc3c4a22f74fc2f92812f48b74ca6d29c14e32aaa470d5a9",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1121,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 6,
+          "edit": {
+            "previousStartOffset": 581,
+            "previousEndOffset": 581,
+            "nextEndOffset": 582
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "window-proved",
+          "fallback": null,
+          "checkpoint": {
+            "previousRestartLineIndex": 13,
+            "previousRestartOffset": 541,
+            "nextRestartLineIndex": 13,
+            "nextRestartOffset": 541,
+            "previousReconvergenceLineIndex": 16,
+            "previousReconvergenceOffset": 665,
+            "nextReconvergenceLineIndex": 16,
+            "nextReconvergenceOffset": 666,
+            "offsetDelta": 1,
+            "stableLineCount": 2,
+            "fingerprint": "sha256:4dd1e050bd45b82b16823ad0d8ab59d2d5d6e6f830177bd88216e364b7743d95"
+          },
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reusedPrefixLineCount": 13,
+            "reflowedNextLineCount": 3,
+            "reusedSuffixLineCount": 108,
+            "reflowedNextUtf16Length": 125,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 123,
+            "exactIntegerGeometry": true
+          },
+          "fingerprint": "sha256:5a54a97e48093d0a25aa42e2e88798b8ba76f3c98385a8b866fb527aad806f67"
+        }
+      },
+      {
+        "scenarioId": "insert-at-style-boundary",
+        "coverage": "style-boundary",
+        "edit": {
+          "previousStartOffset": 1457,
+          "previousEndOffset": 1457,
+          "nextEndOffset": 1458
+        },
+        "oracleFingerprint": "sha256:06757ed21c4f1c538fcec26a2a0258e68d388f8642a0a87aeb8855c28a358185",
+        "oracleCoreFingerprint": "sha256:bbb0579d59a79a6d09a0b9494d55a0cc213cef04bf98e4f84176267b97f68715",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1122,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 7,
+          "edit": {
+            "previousStartOffset": 1457,
+            "previousEndOffset": 1457,
+            "nextEndOffset": 1458
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "window-proved",
+          "fallback": null,
+          "checkpoint": {
+            "previousRestartLineIndex": 34,
+            "previousRestartOffset": 1409,
+            "nextRestartLineIndex": 34,
+            "nextRestartOffset": 1409,
+            "previousReconvergenceLineIndex": 44,
+            "previousReconvergenceOffset": 1688,
+            "nextReconvergenceLineIndex": 44,
+            "nextReconvergenceOffset": 1689,
+            "offsetDelta": 1,
+            "stableLineCount": 2,
+            "fingerprint": "sha256:34892f5065cf5966127ad5ae7d084998335f2767c3d94a2328f8f92f52fb9739"
+          },
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reusedPrefixLineCount": 34,
+            "reflowedNextLineCount": 10,
+            "reusedSuffixLineCount": 80,
+            "reflowedNextUtf16Length": 280,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 116,
+            "exactIntegerGeometry": true
+          },
+          "fingerprint": "sha256:3fb2d34285b6468f3cdd3d98906b32422c3c71bf40eb47bc32ac9f824bb96832"
+        }
+      },
+      {
+        "scenarioId": "insert-next-to-resolved-field",
+        "coverage": "field-adjacency",
+        "edit": {
+          "previousStartOffset": 2356,
+          "previousEndOffset": 2356,
+          "nextEndOffset": 2357
+        },
+        "oracleFingerprint": "sha256:4992bf6ab8effc1c8ab49065ce54cd4e9b72b6cca7cb54e0e41e8bd4dc7aa42a",
+        "oracleCoreFingerprint": "sha256:bf908c463a71ddc4e728256b35875d052cefb78c410635a8c28789077d6fc148",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 4320,
+          "breakOpportunityCount": 1122,
+          "lineCount": 124
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 8,
+          "edit": {
+            "previousStartOffset": 2356,
+            "previousEndOffset": 2356,
+            "nextEndOffset": 2357
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "window-proved",
+          "fallback": null,
+          "checkpoint": {
+            "previousRestartLineIndex": 59,
+            "previousRestartOffset": 2308,
+            "nextRestartLineIndex": 59,
+            "nextRestartOffset": 2308,
+            "previousReconvergenceLineIndex": 62,
+            "previousReconvergenceOffset": 2432,
+            "nextReconvergenceLineIndex": 62,
+            "nextReconvergenceOffset": 2433,
+            "offsetDelta": 1,
+            "stableLineCount": 2,
+            "fingerprint": "sha256:6fc76dcc94d052c7c1210f563cf9eaa2d0b6d020c5a4341469bdcbbfa377a1aa"
+          },
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 124,
+            "reusedPrefixLineCount": 59,
+            "reflowedNextLineCount": 3,
+            "reusedSuffixLineCount": 62,
+            "reflowedNextUtf16Length": 125,
+            "reconvergenceCandidateCount": 1,
+            "semanticLineComparisonCount": 123,
+            "exactIntegerGeometry": true
+          },
+          "fingerprint": "sha256:723d1c3f3025683226ebff552b83784530da2870b06213dc9de2e85b33a670a8"
+        }
+      },
+      {
+        "scenarioId": "hard-break-edit-falls-back",
+        "coverage": "fallback",
+        "edit": {
+          "previousStartOffset": 830,
+          "previousEndOffset": 830,
+          "nextEndOffset": 831
+        },
+        "oracleFingerprint": "sha256:2744994f95be6d2810128804db4a3e353e738355dfcf30ec96e7bac8eed62d8c",
+        "oracleCoreFingerprint": "sha256:8f8d7efd873a195f2a0c9218782725e26a1d6dccf297a6ae7fb292e656413c4e",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 4960,
+          "sourceRunCount": 3,
+          "effectiveRunCount": 2,
+          "shapingRunCount": 2,
+          "clusterCount": 4319,
+          "breakOpportunityCount": 1122,
+          "lineCount": 120
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 9,
+          "edit": {
+            "previousStartOffset": 830,
+            "previousEndOffset": 830,
+            "nextEndOffset": 831
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "fallback-required",
+          "fallback": {
+            "code": "hard-break-edited",
+            "message": "the first checkpoint contract does not incrementally edit hard breaks"
+          },
+          "checkpoint": null,
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 120,
+            "reconvergenceCandidateCount": 0,
+            "semanticLineComparisonCount": 0
+          },
+          "fingerprint": "sha256:fa7dead203af43ed0859ffe206911d27625a9876760c3d69cf28f4e8df041d81"
+        }
+      },
+      {
+        "scenarioId": "oversized-window-falls-back",
+        "coverage": "fallback",
+        "edit": {
+          "previousStartOffset": 2433,
+          "previousEndOffset": 2433,
+          "nextEndOffset": 5222
+        },
+        "oracleFingerprint": "sha256:9b2ddf8cd323cf110f5ec47d0fcbe92f1bc05f7d2cd83d9c6e1382966f1566fd",
+        "oracleCoreFingerprint": "sha256:09fdb38364629c5ee91b9d7e94f1bec4c7bcceb259b5e55ec39749c606f8eb5e",
+        "oracleRepeatExact": true,
+        "profileWork": {
+          "renderedUtf16Length": 7748,
+          "sourceRunCount": 5,
+          "effectiveRunCount": 3,
+          "shapingRunCount": 3,
+          "clusterCount": 6748,
+          "breakOpportunityCount": 1750,
+          "lineCount": 191
+        },
+        "analysis": {
+          "source": "flowdoc-text-engine-incremental-reflow-analysis-v1",
+          "contractVersion": 1,
+          "textBlockId": "text-block-long-mixed-run",
+          "previousInstanceRevision": 1,
+          "nextInstanceRevision": 10,
+          "edit": {
+            "previousStartOffset": 2433,
+            "previousEndOffset": 2433,
+            "nextEndOffset": 5222
+          },
+          "policy": {
+            "stableLineCount": 2,
+            "maximumReflowLineCount": 32,
+            "maximumReflowUtf16Length": 2048
+          },
+          "contracts": {
+            "execution": "full-layout-oracle-analysis-only",
+            "fullLayoutOracleRequired": true,
+            "mayPublishLayout": false,
+            "timingAffectsFingerprint": false,
+            "rendererMayMeasureText": false,
+            "productionBinding": false
+          },
+          "status": "fallback-required",
+          "fallback": {
+            "code": "reconvergence-not-found",
+            "message": "no two-line checkpoint with an oracle-identical remaining suffix was found"
+          },
+          "checkpoint": null,
+          "work": {
+            "previousLineCount": 124,
+            "nextLineCount": 191,
+            "reconvergenceCandidateCount": 0,
+            "semanticLineComparisonCount": 60
+          },
+          "fingerprint": "sha256:769ad5fabb19b9f4d45a6b1f8535959e32c853000fc863727fbf142e80f086b5"
+        }
+      }
+    ]
+  },
+  "timing": {
+    "interactionReferenceMs": 16.7,
+    "fullLayout": {
+      "sampleCount": 90,
+      "minMs": 106.19999998807907,
+      "p50Ms": 192.69999998807907,
+      "p95Ms": 323.89999997615814,
+      "maxMs": 380.60000002384186
+    },
+    "phases": {
+      "input-and-style-resolution": {
+        "sampleCount": 90,
+        "minMs": 0.09999996423721313,
+        "p50Ms": 0.2999999523162842,
+        "p95Ms": 0.6000000238418579,
+        "maxMs": 0.8999999761581421
+      },
+      "shaping": {
+        "sampleCount": 90,
+        "minMs": 9.100000023841858,
+        "p50Ms": 17.30000001192093,
+        "p95Ms": 34,
+        "maxMs": 38.40000003576279
+      },
+      "segmentation": {
+        "sampleCount": 90,
+        "minMs": 24.399999976158142,
+        "p50Ms": 43.80000001192093,
+        "p95Ms": 82.80000001192093,
+        "maxMs": 104
+      },
+      "line-breaking": {
+        "sampleCount": 90,
+        "minMs": 7.699999988079071,
+        "p50Ms": 12.300000011920929,
+        "p95Ms": 27.69999998807907,
+        "maxMs": 51.39999997615814
+      },
+      "core-acceptance-and-fingerprint": {
+        "sampleCount": 90,
+        "minMs": 48.200000047683716,
+        "p50Ms": 90.19999998807907,
+        "p95Ms": 163,
+        "maxMs": 222.69999998807907
+      },
+      "adapter-fingerprint": {
+        "sampleCount": 90,
+        "minMs": 13,
+        "p50Ms": 23.299999952316284,
+        "p95Ms": 49.80000001192093,
+        "maxMs": 60.80000001192093
+      }
+    },
+    "oracleAnalysis": {
+      "sampleCount": 9,
+      "minMs": 0.19999998807907104,
+      "p50Ms": 27.399999976158142,
+      "p95Ms": 42.5,
+      "maxMs": 42.5
+    },
+    "tokenImpact": {
+      "sampleCount": 25,
+      "minMs": 0.699999988079071,
+      "p50Ms": 1.399999976158142,
+      "p95Ms": 3.300000011920929,
+      "maxMs": 3.599999964237213
+    },
+    "baselineFullLayoutMs": 264.39999997615814,
+    "assetFetchDurationMs": 23.19999998807907,
+    "workerRoundTripMs": 20296.80000001192,
+    "timingIsDiagnosticOnly": true,
+    "productFrameGateClaimed": false
+  },
+  "contracts": {
+    "fullLayoutOracleExecuted": true,
+    "incrementalWindowMayPublishLayout": false,
+    "partialShapingExecuted": false,
+    "rendererMeasuredText": false,
+    "backendBinding": false,
+    "productBinding": false,
+    "tableScope": false
+  },
+  "scope": {
+    "textBlockOnly": true,
+    "mixedSizeAndWeightRuns": true,
+    "resolvedFieldAdjacency": true,
+    "lineAndPageEdges": true,
+    "exactIntegerOracleComparison": true,
+    "actualIncrementalShaping": false,
+    "actualIncrementalCoreAcceptance": false,
+    "tables": false,
+    "columns": false,
+    "images": false,
+    "autoFitColumnWidth": false,
+    "productBinding": false,
+    "backendBinding": false,
+    "productionBinding": false
+  }
+}
